@@ -44,7 +44,7 @@ qa_pairs = extract_qa(QA)
 format = ""
 
 for question, answer in qa_pairs:
-    format += "Q: " + question + "\n" + "A: " + answer + "\n"
+    format += "Question: " + question + "\n" + "Answer: " + answer + "\n"
 
 with open('Q&A_format.md', 'w', encoding='utf-8') as file:       
     file.write(format)
