@@ -1,51 +1,55 @@
 import markdown
-from bs4 import BeautifulSoup
+import json
+import re
 
-# Function to parse the markdown file
-def parse_markdown(file_path):
-    with open(file_path, 'r', encoding='utf-8') as file:
-        text = file.read()
-    html = markdown.markdown(text)
-    soup = BeautifulSoup(html, 'html.parser')
-    return soup
-
-# Function to extract Q&A from the parsed markdown
-def extract_qa(soup):
+# Function to extract Q&A from the markdown
+def extract_qa(md):
     qa_pairs = []
     current_question = None
     current_answer = []
-    
-    for element in soup.find_all(['h2', 'p', 'ul', 'li']):
-        if element.name == 'h2' and current_question:
+
+    lines = md.split('\n')
+    for line in lines:
+        question_match = re.match(r'^##\s*(.*)', line)
+        q_match = re.match(r'^Q:\s*(.*)', line)
+        a_match = re.match(r'^A:\s*(.*)', line)
+        li_match = re.match(r'^-\s*(.*)', line)
+
+        if question_match and current_question:
             qa_pairs.append((current_question, ' '.join(current_answer)))
             current_question = None
             current_answer = []
 
-        if element.name == 'p' and element.text.startswith('Q:'):
+        if q_match:
             if current_question:
                 qa_pairs.append((current_question, ' '.join(current_answer)))
-            current_question = element.text[3:].strip()
+            current_question = q_match.group(1).strip()
             current_answer = []
-        elif element.name == 'p' and element.text.startswith('A:'):
-            current_answer.append(element.text[3:].strip())
-        elif element.name == 'li':
-            current_answer.append(element.text.strip())
+        elif a_match:
+            current_answer.append(a_match.group(1).strip())
+        elif li_match:
+            current_answer.append(li_match.group(1).strip())
 
     if current_question:
         qa_pairs.append((current_question, ' '.join(current_answer)))
 
     return qa_pairs
 
-# Parse the markdown file
-soup = parse_markdown('Q&A.md')
+# Reading the markdown file content
+with open('Q&A.md', 'r', encoding='utf-8') as file:
+    QA = file.read()
 
-# Extract Q&A pairs from the parsed content
-qa_pairs = extract_qa(soup)
+qa_pairs = extract_qa(QA)
 
+format = ""
 
-writing = ""
 for question, answer in qa_pairs:
-    writing += "Q: " + question + answer + "\n"
- 
+    format += "Q: " + question + "\n" + "A: " + answer + "\n"
+
 with open('Q&A_format.md', 'w', encoding='utf-8') as file:       
-    file.write(writing)
+    file.write(format)
+
+listing = [{"Question": question, "Answer": answer} for question, answer in qa_pairs]
+
+with open('Q&A_list.json', 'w', encoding='utf-8') as file:
+    json.dump(listing, file, ensure_ascii=False, indent=4)
