@@ -4,7 +4,7 @@ import numpy as np
 from scipy.spatial.distance import cosine
 from openai import OpenAI
 
-class LlamaRAG:
+class LLaMag:
     def __init__(self, base_url, api_key, model="nomic-ai/nomic-embed-text-v1.5-GGUF", similarity_threshold=60, top_n=5):
         self.client = OpenAI(base_url=base_url, api_key=api_key)
         self.model = model
@@ -108,7 +108,7 @@ class LlamaRAG:
         response = self.respond(query)
         return pn.pane.Markdown(response)
 
-    def serve_app(self):
+    def interface(self):
         input_query = pn.widgets.TextInput(name='Enter your query:')
         output = pn.bind(self.interactive_query, query=input_query)
 
@@ -120,6 +120,6 @@ class LlamaRAG:
 
         pn.serve(layout, start=True)
 
-llama_rag = LlamaRAG(base_url="http://localhost:1234/v1", api_key="lm-studio", top_n=5)
+llama_rag = LLaMag(base_url="http://localhost:1234/v1", api_key="lm-studio", top_n=5)
 llama_rag.load_data('doc/Q&A_format.md')
-llama_rag.serve_app()
+llama_rag.interface()
