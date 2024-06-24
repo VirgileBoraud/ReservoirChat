@@ -5,7 +5,7 @@ from scipy.spatial.distance import cosine
 from openai import OpenAI
 
 class LLaMag:
-    def __init__(self, base_url, api_key, model="nomic-ai/nomic-embed-text-v1.5-GGUF", similarity_threshold=60, top_n=5):
+    def __init__(self, base_url, api_key, model="nomic-ai/nomic-embed-text-v1.5-GGUF", similarity_threshold=75, top_n=5):
         self.client = OpenAI(base_url=base_url, api_key=api_key)
         self.model = model
         self.similarity_threshold = similarity_threshold
@@ -65,8 +65,7 @@ class LLaMag:
 
     def is_coding_request(self, query):
         coding_keywords = ['code']
-        query_lower = query.lower()
-        return any(keyword in query_lower for keyword in coding_keywords)
+        return any(keyword in query.lower() for keyword in coding_keywords)
 
     def get_llm_answer(self, prompt, context=""):
         try:
@@ -113,7 +112,7 @@ class LLaMag:
         output = pn.bind(self.interactive_query, query=input_query)
 
         layout = pn.Column(
-            pn.pane.Markdown("# LlamaRAG Interactive Q&A"),
+            pn.pane.Markdown("# LLaMag"),
             input_query,
             output
         )
