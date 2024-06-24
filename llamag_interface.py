@@ -64,15 +64,16 @@ class LlamaRAG:
             return pd.DataFrame()
 
     def is_coding_request(self, query):
-        coding_keywords = ['code', 'script', 'program', 'function', 'class']
+        coding_keywords = ['code']
         query_lower = query.lower()
         return any(keyword in query_lower for keyword in coding_keywords)
 
-    def get_llm_answer(self, prompt):
+    def get_llm_answer(self, prompt, context=""):
         try:
+            full_prompt = f"{context}\n\n{prompt}"
             response = self.client.completions.create(
                 model=self.model,
-                prompt=prompt,
+                prompt=full_prompt,
                 max_tokens=500,
                 temperature=0.5
             )
@@ -84,13 +85,15 @@ class LlamaRAG:
 
     def get_answer(self, query):
         most_similar_qa, similarity_percentage = self.find_most_similar_question(query)
-        if similarity_percentage >= self.similarity_threshold:
+        if self.is_coding_request(query):
+            context = "\n".join([f"Q: {row['question']}\nA: {row['answer']}" for idx, row in self.df.iterrows()])
+            return self.get_llm_answer(query, context), similarity_percentage, []
+        elif similarity_percentage >= self.similarity_threshold:
             similar_responses = self.find_top_similar_questions(query)
             return most_similar_qa['answer'], similarity_percentage, similar_responses
-        elif self.is_coding_request(query):
-            return self.get_llm_answer(query), similarity_percentage, []
         else:
-            return self.get_llm_answer(query), similarity_percentage, []
+            context = "\n".join([f"Q: {row['question']}\nA: {row['answer']}" for idx, row in self.df.iterrows()])
+            return self.get_llm_answer(query, context), similarity_percentage, []
 
     def respond(self, query):
         answer, similarity_percentage, similar_responses = self.get_answer(query)
@@ -101,23 +104,22 @@ class LlamaRAG:
                 response += f"\nSimilarity: {sim_response['similarity_percentage']:.2f}%\nQuestion: {sim_response['question']}\nAnswer: {sim_response['answer']}\n"
         return response
 
-# Panel app
+    def interactive_query(self, query):
+        response = self.respond(query)
+        return pn.pane.Markdown(response)
+
+    def serve_app(self):
+        input_query = pn.widgets.TextInput(name='Enter your query:')
+        output = pn.bind(self.interactive_query, query=input_query)
+
+        layout = pn.Column(
+            pn.pane.Markdown("# LlamaRAG Interactive Q&A"),
+            input_query,
+            output
+        )
+
+        pn.serve(layout, start=True)
+
 llama_rag = LlamaRAG(base_url="http://localhost:1234/v1", api_key="lm-studio", top_n=5)
-llama_rag.load_data('Q&A_format.md')
-
-def interactive_query(query):
-    response = llama_rag.respond(query)
-    return pn.pane.Markdown(response)
-
-input_query = pn.widgets.TextInput(name='Enter your query:')
-output = pn.bind(interactive_query, query=input_query)
-
-# Create a layout
-layout = pn.Column(
-    pn.pane.Markdown("# LlamaRAG Interactive Q&A"),
-    input_query,
-    output
-)
-
-# Serve the app
-pn.serve(layout, start=True)
+llama_rag.load_data('doc/Q&A_format.md')
+llama_rag.serve_app()
