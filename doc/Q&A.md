@@ -399,8 +399,7 @@ A: We need to discard timesteps at the beginning of `train_states` when  we use 
 ## Create the ESN model
 
 Q: What is a non "canonical" method for creating and training ESNs?
-A: 
-A non-canonical method for creating and training Echo State Networks (ESNs) involves training the reservoir and readout separately rather than as a connected model. This can mean manually managing the state transitions and fitting processes outside the integrated model workflow, potentially using different configurations or additional preprocessing steps. This approach may not leverage the seamless data flow and integrated training provided by the canonical method, leading to less efficient training and potentially suboptimal performance.
+A: A non-canonical method for creating and training Echo State Networks (ESNs) involves training the reservoir and readout separately rather than as a connected model. This can mean manually managing the state transitions and fitting processes outside the integrated model workflow, potentially using different configurations or additional preprocessing steps. This approach may not leverage the seamless data flow and integrated training provided by the canonical method, leading to less efficient training and potentially suboptimal performance.
 
 ## Train the ESN
 
@@ -426,8 +425,7 @@ A: Parallelization is the process of dividing a computational task into smaller 
 For example, in ReservoirPy, parallelization can be used to train and run multiple reservoirs or nodes simultaneously, enhancing the overall computational efficiency of the model.
 
 Q: What is a deep architecture?
-A: 
-A deep architecture in machine learning refers to a neural network with multiple hidden layers between the input and output layers. These additional layers allow the network to learn and represent more complex patterns and features in the data. Deep architectures can model intricate relationships and are particularly effective in tasks such as image recognition, natural language processing, and speech recognition. The term "deep" signifies the increased depth of the network, enabling it to capture higher-level abstractions in the data.
+A: A deep architecture in machine learning refers to a neural network with multiple hidden layers between the input and output layers. These additional layers allow the network to learn and represent more complex patterns and features in the data. Deep architectures can model intricate relationships and are particularly effective in tasks such as image recognition, natural language processing, and speech recognition. The term "deep" signifies the increased depth of the network, enabling it to capture higher-level abstractions in the data.
 
 A deep architecture in reservoir computing refers to a model that contains multiple layers of reservoirs, as opposed to a single reservoir layer. These layers are connected in a hierarchical manner, allowing the model to capture and process more complex patterns in the data. Deep architectures can improve the model's ability to handle intricate tasks by providing multiple levels of feature extraction and abstraction, similar to deep neural networks in traditional machine learning.
 
@@ -447,18 +445,15 @@ A: A direct connection from input to readout in an Echo State Network (ESN) allo
 In ReservoirPy, such connections can be created using the `>>` operator for chaining and the `&` operator for merging, resulting in a combined input-to-readout pathway.
 
 Q: What is the purpose of chaining a connection?
-A: 
-The purpose of chaining a connection in an Echo State Network (ESN) is to sequentially connect different nodes, such as input, reservoir, and readout nodes, to form a complete model. This allows the flow of data through each node in the specified order, enabling the network to process the input data step-by-step. Chaining helps structure the network and ensures that each node's output is correctly passed to the subsequent node, facilitating proper data transformation and learning.
+A: The purpose of chaining a connection in an Echo State Network (ESN) is to sequentially connect different nodes, such as input, reservoir, and readout nodes, to form a complete model. This allows the flow of data through each node in the specified order, enabling the network to process the input data step-by-step. Chaining helps structure the network and ensures that each node's output is correctly passed to the subsequent node, facilitating proper data transformation and learning.
 
 Q: What are many-to-one connections?
-A: 
-Many-to-one connections refer to a setup where multiple nodes or data sources are connected to a single node.
+A: Many-to-one connections refer to a setup where multiple nodes or data sources are connected to a single node.
 
 In the context of reservoir computing, this allows the aggregation of multiple inputs before feeding them into a single readout node. This is typically handled by a special Concat node that concatenates all incoming vectors into a single vector. This approach ensures that all relevant features from different inputs are combined and utilized effectively in the readout layer, enhancing the model's ability to process complex data.
 
 Q: What are one-to-many connections?
-A: 
-One-to-many connections refer to a setup where the output from a single node is distributed to multiple subsequent nodes. This allows the same data to be processed in different ways by different nodes, enabling parallel processing paths.
+A: One-to-many connections refer to a setup where the output from a single node is distributed to multiple subsequent nodes. This allows the same data to be processed in different ways by different nodes, enabling parallel processing paths.
 
 In the context of reservoir computing, this can help in feeding the same input to both a reservoir and directly to a readout or other nodes, thus enriching the information available for downstream processing and improving the model's ability to capture various aspects of the data.
 
@@ -471,8 +466,7 @@ Q: Why does most nodes can not receive several inputs at once?
 A: Most nodes cannot receive several inputs at once because they are designed to process a single input vector, expecting a specific input shape. Handling multiple inputs simultaneously can complicate the processing and require additional mechanisms to aggregate or concatenate the inputs before they reach the node. To manage multiple inputs, a special Concat node is used to combine them into a single vector, ensuring the receiving node can process the combined input correctly.
 
 Q: What are the types of nodes that can receive several inputs at once?
-A: 
-Nodes that can receive several inputs at once typically include special types like the Concat node in reservoir computing. The Concat node aggregates multiple input vectors into a single concatenated vector, allowing subsequent nodes to process this combined input. This capability is essential for handling complex data flows where information from multiple sources needs to be integrated before further processing.
+A: Nodes that can receive several inputs at once typically include special types like the Concat node in reservoir computing. The Concat node aggregates multiple input vectors into a single concatenated vector, allowing subsequent nodes to process this combined input. This capability is essential for handling complex data flows where information from multiple sources needs to be integrated before further processing.
 
 Q: Why does a concat node resolve the issue of several inputs at once?
 A: A concat node aggregate multiple input vectors into a single concatenated vector. This allows nodes that can only process a single input to handle the combined data without modification. The concat node effectively merges the information from different sources, ensuring that the receiving node can process all relevant data in a unified manner, maintaining the integrity and flow of information through the network.
@@ -551,16 +545,13 @@ A: The `with_feedback()` context manager temporarily changes the feedback receiv
 ## Generation and long term forecasting
 
 Q: What is generation and long term forecasting?
-A: 
-Generation and long-term forecasting in the context of Echo State Networks (ESNs) involve using a trained model to predict future values of a timeseries based on past data. For generation, the model predicts the next data point and uses this prediction as input to generate subsequent points iteratively. Long-term forecasting extends this by predicting many steps ahead, providing a sequence of future values. This is useful in various applications like weather forecasting, financial market prediction, and other time-dependent phenomena.
+A: Generation and long-term forecasting in the context of Echo State Networks (ESNs) involve using a trained model to predict future values of a timeseries based on past data. For generation, the model predicts the next data point and uses this prediction as input to generate subsequent points iteratively. Long-term forecasting extends this by predicting many steps ahead, providing a sequence of future values. This is useful in various applications like weather forecasting, financial market prediction, and other time-dependent phenomena.
 
 Q: What is the purpose of reseting the internal state of an ESN after training?
-A: 
-Resetting the internal state of an Echo State Network (ESN) after training is important to clear any residual information from the training data. This ensures that the model starts fresh and the internal state reflects only the new input data. For tasks like long-term forecasting or timeseries generation, this helps in accurately capturing the dynamics of the initial input data, leading to more reliable and accurate predictions.
+A: Resetting the internal state of an Echo State Network (ESN) after training is important to clear any residual information from the training data. This ensures that the model starts fresh and the internal state reflects only the new input data. For tasks like long-term forecasting or timeseries generation, this helps in accurately capturing the dynamics of the initial input data, leading to more reliable and accurate predictions.
 
 Q: How can an ESN running over its own prediction can be so precise?
-A: 
-An ESN running over its own predictions can be precise due to its ability to capture and maintain the temporal dynamics of the input data in its reservoir. The reservoir's recurrent connections help preserve information over time, allowing the model to generate accurate future values based on its learned patterns. Additionally, the feedback mechanism and carefully tuned hyperparameters ensure that the predictions remain stable and closely follow the true dynamics of the timeseries.
+A: An ESN running over its own predictions can be precise due to its ability to capture and maintain the temporal dynamics of the input data in its reservoir. The reservoir's recurrent connections help preserve information over time, allowing the model to generate accurate future values based on its learned patterns. Additionally, the feedback mechanism and carefully tuned hyperparameters ensure that the predictions remain stable and closely follow the true dynamics of the timeseries.
 
 Q: What does the warmup_y[-1] do in the line : « x = warmup_y[-1].reshape(1, -1) »?
 A: The `warmup_y[-1]` retrieves the last element from the `warmup_y` array, which contains the state of the ESN after processing the last 10 steps of the training timeseries. This last state is then reshaped into the correct input format for the ESN. By using the last state as the starting point, the ESN can accurately continue generating the next steps in the timeseries, ensuring that the initial conditions for prediction are representative of the most recent data.
@@ -635,8 +626,7 @@ Q: Why does the sequences or timeseries can have different length in practice?
 A: Sequences or timeseries can have different lengths in practice due to variations in the duration or complexity of the data being processed, such as varying lengths of spoken sentences, audio files, or simulation episodes.
 
 Q: How can we resolve different length between sequences or timeseries?
-A: 
-To resolve different lengths between sequences or timeseries, you can use several techniques:
+A: To resolve different lengths between sequences or timeseries, you can use several techniques:
 
 1. **Padding:** Extend shorter sequences with a specific value (e.g., zeros) to match the length of the longest sequence.
 2. **Truncation:** Cut longer sequences to match the length of the shortest or a predefined length.
@@ -649,8 +639,7 @@ Q: Why does targets sequences number and length can have a different dimensional
 A: Target sequences can have a different dimensionality because the output features or targets may differ in number from the input features. For example, an input sequence could have 50 features while the target sequence has 40 features, representing different aspects of the data.
 
 Q: How can we resolve different dimensionality for sequences number and length?
-A: 
-To resolve different dimensionality for sequences number and length, you can use techniques like:
+A: To resolve different dimensionality for sequences number and length, you can use techniques like:
 
 1. **Dimensionality Reduction:** Apply methods such as PCA (Principal Component Analysis) to reduce the number of dimensions in sequences to a common size.
 2. **Feature Engineering:** Add or remove features to match the required dimensionality.
@@ -672,8 +661,7 @@ Q: What is the workers parameter and what does it do in the line: « esn = ESN(r
 A: The `workers` parameter specifies the number of parallel processes to use for training and running the ESN. Setting `workers=-1` in `esn = ESN(reservoir=reservoir, readout=readout, workers=-1)` means that all available CPU cores will be utilized for parallel computation. This allows the ESN to process multiple sequences simultaneously, significantly speeding up the training and inference processes by leveraging the full computational power of the machine.
 
 Q: What is the backend parameterin the line : « esn = ESN(reservoir=reservoir, readout=readout, backend="sequential") »?
-A: 
-The `backend` parameter specifies the method of execution. Setting it to `"sequential"` runs the ESN without parallelization, processing the sequences one after the other instead of simultaneously.
+A: The `backend` parameter specifies the method of execution. Setting it to `"sequential"` runs the ESN without parallelization, processing the sequences one after the other instead of simultaneously.
 
 ## "Deep" architectures
 
@@ -766,7 +754,7 @@ Q: What is the Absolute deviation in the line : « plt.plot(np.abs(y_test[:sampl
 A: It's the absolute difference between the true values and the predicted values for a given sample. If it's a line, the prediction didn't deviate from the actual values and is very accurate. The less acurate, the more deviation.
 
 Q: What is the meaning of 'Running Model-0: 500it [00:00, 7576.01it/s]' when running the line : « y_pred1 = esn.run(X_test1) »?
-A:  It shows that the model (here Model-0) is processing 500 iterations (or data points) from the 'X_test1' input. The [00:00, 7576.01it/s] part indicates that the operation took 00:00 seconds and was processing at a speed of 7576.01 iterations per second.
+A: It shows that the model (here Model-0) is processing 500 iterations (or data points) from the 'X_test1' input. The [00:00, 7576.01it/s] part indicates that the operation took 00:00 seconds and was processing at a speed of 7576.01 iterations per second.
 
 #### $R^2$ and NRMSE
 
@@ -858,7 +846,7 @@ Q: Why do I have an error : 'ModuleNotFoundError: No module named [name of the m
 A: You need to install the module via the console, for example : « pip install scikit-learn ». You can check in the documentation of the module not found.
 
 Q: What does the glob.glob() function do in the line : « files = glob.glob("./r4-data/experiments/*") »?
-A:  It retrieves all file paths and returns a list of all files and directories within the ./r4-data/experiments/ directory. The * wildcard matches any file or directory name, so files will contain the paths of all items in the experiments directory.
+A: It retrieves all file paths and returns a list of all files and directories within the ./r4-data/experiments/ directory. The * wildcard matches any file or directory name, so files will contain the paths of all items in the experiments directory.
 
 Q: What does the Parallel() do in the line : « with Parallel(n_jobs=-1) as parallel: »?
 A: The `Parallel()` function from the Joblib library enables parallel processing. In the line `with Parallel(n_jobs=-1) as parallel:`, it is set to use all available CPU cores (`n_jobs=-1`). This allows for the concurrent execution of tasks, such as reading multiple CSV files simultaneously, which speeds up data loading and preprocessing.
@@ -1069,7 +1057,7 @@ Q: What is the "input_scaling" parameter explored by "hp_space"?
 A: It's the input scaling. In the line : « "input_scaling": ["choice", 1.0] », it is fixed to 1.0.
 
 Q: What is the "ridge" parameter explored by "hp_space"?
-A: It's the ridge. In the line : « "ridge": ["loguniform", 1e-8, 1e1] », it is og-uniformly distributed between 1e-8 and 1e1.
+A: It's the ridge. In the line : « "ridge": ["loguniform", 1e-8, 1e1] », it is log-uniformly distributed between 1e-8 and 1e1.
 
 Q: What is the "seed" parameter explored by "hp_space"?
 A: It's another random seed for the ESN initialization. In the line : « seed": ["choice", 1234] », it is fixed to 1234.
@@ -1083,8 +1071,7 @@ Q: How to prepare the data?
 A: We split the dataset in two: a training series and a testing series. This is the most basic way of training an ESN on such timeseries, and we will keep it that way for the sake of simplicity. A K-fold setup with several training and validation sets would be more recommended.
 
 Q: What are other ways to train an ESN ?
-A: 
-Apart from the standard offline training with ridge regression, other methods to train an Echo State Network (ESN) include:
+A: Apart from the standard offline training with ridge regression, other methods to train an Echo State Network (ESN) include:
 
 1. **Online Learning**: Using algorithms like FORCE learning, where the readout weights are continuously updated with incoming data.
 2. **Hybrid Training**: Combining offline and online training methods to adapt the model to new data.
@@ -1120,8 +1107,7 @@ The violin plots below help giving an overview of the parameter distribution of 
 # 5-Classification-with-RC
 
 Q: Why does Reservoir Computing or (RC) is well suited to both regression and classification task?
-A: 
-Reservoir Computing is well suited to both regression and classification tasks because it efficiently handles temporal and sequential data, making it ideal for tasks where time-based patterns are important. The reservoir layer captures the dynamic behavior of input sequences, providing rich representations for both predicting continuous outputs (regression) and categorizing inputs into discrete classes (classification).
+A: Reservoir Computing is well suited to both regression and classification tasks because it efficiently handles temporal and sequential data, making it ideal for tasks where time-based patterns are important. The reservoir layer captures the dynamic behavior of input sequences, providing rich representations for both predicting continuous outputs (regression) and categorizing inputs into discrete classes (classification).
 
 Q: What is a regression task?
 A: A regression task involves predicting a continuous value based on input data. It aims to model the relationship between input variables and a continuous output variable. Examples include predicting house prices, stock market values, or any numerical measurement.
@@ -1139,8 +1125,7 @@ For a better explanation you can go [here](https://stats.stackexchange.com/quest
 ## Classification - The Japanese vowel dataset
 
 Q: What is a Linear Prediction Coefficient (LPC)?
-A: 
-Linear Prediction Coefficient (LPC) refers to the coefficients derived from the linear prediction model, which are used to predict the current sample of a signal based on its previous samples. Linear Predictive Coding (also LPC) is a method that uses these coefficients to represent the spectral envelope of a speech signal in a compressed form. Essentially, LPC is the process or technique, and Linear Prediction Coefficients are the result of this process used for signal representation and analysis.
+A: Linear Prediction Coefficient (LPC) refers to the coefficients derived from the linear prediction model, which are used to predict the current sample of a signal based on its previous samples. Linear Predictive Coding (also LPC) is a method that uses these coefficients to represent the spectral envelope of a speech signal in a compressed form. Essentially, LPC is the process or technique, and Linear Prediction Coefficients are the result of this process used for signal representation and analysis.
 
 Q: What is the cepstral domain?
 A: It's a representation of a signal that results from taking the inverse Fourier transform of the logarithm of the signal's spectrum. This transformation highlights periodic structures in the frequency domain. The cepstral domain separates the source and filter characteristics of a signal, which can be beneficial for tasks such as pitch detection.
