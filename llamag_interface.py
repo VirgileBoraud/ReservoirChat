@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from scipy.spatial.distance import cosine
 from openai import OpenAI
+import re
 
 class LLaMag:
     def __init__(self, base_url, api_key, model="nomic-ai/nomic-embed-text-v1.5-GGUF", similarity_threshold=75, top_n=5):
@@ -21,20 +22,29 @@ class LLaMag:
             print(f"Error getting embedding: {e}")
             return None
 
-    def load_data(self, filepath):
+    def load_data(self, filepaths):
         try:
-            with open(filepath, 'r', encoding='utf-8') as file:
-                data = file.read()
+            all_qa_pairs = []
+            for filepath in filepaths:
+                with open(filepath, 'r', encoding='utf-8') as file:
+                    data = file.read()
+                
+                if "Q&A" in filepath:
+                    questions_answers = data.split("Question: ")
+                    for qa in questions_answers[1:]:
+                        parts = qa.split("Answer: ")
+                        question = parts[0].strip()
+                        answer = parts[1].strip() if len(parts) > 1 else ""
+                        all_qa_pairs.append({"question": question, "answer": answer})
+                else:
+                    # Assume entire content as a single answer
+                    all_qa_pairs.append({"question": "Document Content", "answer": data.strip()})
 
-            questions_answers = data.split("Question: ")
-            qa_pairs = []
-            for qa in questions_answers[1:]:
-                parts = qa.split("Answer: ")
-                question = parts[0].strip()
-                answer = parts[1].strip() if len(parts) > 1 else ""
-                qa_pairs.append({"question": question, "answer": answer})
+            if not all_qa_pairs:
+                print("No data loaded.")
+                return
 
-            self.df = pd.DataFrame(qa_pairs)
+            self.df = pd.DataFrame(all_qa_pairs)
             self.df['question_embedding'] = self.df['question'].apply(lambda x: self.get_embedding(x))
             self.df.to_csv('qa_embeddings.csv', index=False)
         except Exception as e:
@@ -119,6 +129,14 @@ class LLaMag:
 
         pn.serve(layout, start=True)
 
-llama_rag = LLaMag(base_url="http://localhost:1234/v1", api_key="lm-studio", top_n=5)
-llama_rag.load_data('doc/Q&A_format.md')
-llama_rag.interface()
+    def html(self, file_path):
+        with open(file_path, 'r') as file:
+            markdown_content = file.read()
+        # Use regex to find markdown links and extract the URLs
+        links = re.findall(r'\[.*?\]\((.*?)\)', markdown_content)
+        return links
+
+llamag = LLaMag(base_url="http://localhost:1234/v1", api_key="lm-studio", top_n=5)
+#print(llamag.html('doc/Q&A_format.md'))
+llamag.load_data(['doc/Q&A_format.md','doc/RNN_Wikipedia.md'])
+llamag.interface()
