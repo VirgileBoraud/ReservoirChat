@@ -129,16 +129,14 @@ Time-series metrics or features that can be used for time series classification 
 Time series can be visualized with two categories of chart: Overlapping Charts and Separated Charts. Overlapping Charts display all-time series on the same layout while Separated Charts presents them on different layouts (but aligned for comparison purpose)[44]
 
 # Overlapping charts[edit]
+- Braided graphs
+- Line charts
+- Slope graphs
+- GapChart [fr]
 
 # Separated charts[edit]
-
-# See also[edit]
-
-# References[edit]
-
-# Further reading[edit]
-
-# External links[edit]
-
-## References
+- Horizon graphs
+- Reduced line chart (small multiples)
+- Silhouette graph
+- Circular silhouette graph
 
