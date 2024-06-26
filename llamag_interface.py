@@ -138,5 +138,5 @@ class LLaMag:
 
 llamag = LLaMag(base_url="http://localhost:1234/v1", api_key="lm-studio", top_n=5)
 #print(llamag.html('doc/Q&A_format.md'))
-llamag.load_data(['doc/Q&A_format.md','doc/RNN_Wikipedia.md','doc/ESN_Wikipedia.md','doc/Time_Series_Wikipedia.md'])
+llamag.load_data(['doc/md/Q&A_format.md','doc/md/RNN_Wikipedia.md','doc/md/ESN_Wikipedia.md','doc/md/Time_Series_Wikipedia.md'])
 llamag.interface()

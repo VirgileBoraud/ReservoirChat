@@ -44,7 +44,7 @@ def extract_qa(md):
     return qa_pairs
 
 # Reading the markdown file content
-with open('doc/Q&A.md', 'r', encoding='utf-8') as file:
+with open('doc/md/Q&A.md', 'r', encoding='utf-8') as file:
     QA = file.read()
 
 qa_pairs = extract_qa(QA)
@@ -54,10 +54,10 @@ format = ""
 for question, answer in qa_pairs:
     format += "Question: " + question + "\n" + "Answer: " + answer + "\n"
 
-with open('doc/Q&A_format.md', 'w', encoding='utf-8') as file:
+with open('doc/md/Q&A_format.md', 'w', encoding='utf-8') as file:
     file.write(format)
 
 # Creating a JSON listing
 listing = [{"Question": question, "Answer": answer} for question, answer in qa_pairs]
-with open('doc/Q&A_list.json', 'w', encoding='utf-8') as file:
+with open('doc/json/Q&A_list.json', 'w', encoding='utf-8') as file:
     json.dump(listing, file, ensure_ascii=False, indent=4)

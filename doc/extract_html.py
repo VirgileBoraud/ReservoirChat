@@ -42,7 +42,7 @@ def extract_content(soup):
     return content
 
 # URL of the Wikipedia page
-url = "https://en.wikipedia.org/wiki/Time_series"
+url = "http://www.scholarpedia.org/article/Recurrent_neural_networks"
 
 # Send a GET request to the webpage
 response = requests.get(url)
@@ -52,7 +52,7 @@ soup = BeautifulSoup(response.text, 'html.parser')
 md_content = extract_content(soup)
 
 # Save the content to a markdown file
-with open('doc/Time_Series_Wikipedia.md', 'w', encoding='utf-8') as file:
+with open('doc/md/RNN_Scholarpedia.md', 'w', encoding='utf-8') as file:
     file.write(md_content)
 
 print("Markdown file has been created.")
