@@ -44,7 +44,7 @@ def extract_qa(md):
     return qa_pairs
 
 # Reading the markdown file content
-with open('doc/md/Q&A.md', 'r', encoding='utf-8') as file:
+with open('doc/to_change/Q&A.md', 'r', encoding='utf-8') as file:
     QA = file.read()
 
 qa_pairs = extract_qa(QA)

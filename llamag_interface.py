@@ -4,6 +4,7 @@ import numpy as np
 from scipy.spatial.distance import cosine
 from openai import OpenAI
 import re
+import os
 
 class LLaMag:
     def __init__(self, base_url, api_key, model="nomic-ai/nomic-embed-text-v1.5-GGUF", similarity_threshold=75, top_n=5):
@@ -135,8 +136,23 @@ class LLaMag:
         # Use regex to find markdown links and extract the URLs
         links = re.findall(r'\[.*?\]\((.*?)\)', markdown_content)
         return links
+    
+    def file_list(self, directory_path):
+        try:
+            # Get the list of files in the directory
+            files = os.listdir(directory_path)
+            
+            # Filter out directories, only keep files and add the directory path to each file name
+            file_names = [os.path.join(directory_path, file) for file in files if os.path.isfile(os.path.join(directory_path, file))]
+            
+            return file_names
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return []
 
 llamag = LLaMag(base_url="http://localhost:1234/v1", api_key="lm-studio", top_n=5)
 #print(llamag.html('doc/Q&A_format.md'))
-llamag.load_data(['doc/md/Q&A_format.md','doc/md/RNN_Wikipedia.md','doc/md/ESN_Wikipedia.md','doc/md/Time_Series_Wikipedia.md'])
+directory_path = 'doc/md'
+file_list = llamag.file_list(directory_path)
+llamag.load_data(file_list)
 llamag.interface()

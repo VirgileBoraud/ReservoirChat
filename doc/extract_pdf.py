@@ -15,4 +15,4 @@ for page_num in range(pdf_document.page_count):
 with open('doc/md/TH2022_ReservoirPy_RC_Tool.md', 'w', encoding='utf-8') as file:
     file.write(text)
 
-print("Text extracted$'")
+print("Text extracted'")
