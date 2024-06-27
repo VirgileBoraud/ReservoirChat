@@ -1,33 +1,30 @@
 import panel as pn
+import os
 import pandas as pd
 import numpy as np
-from scipy.spatial.distance import cosine
 from openai import OpenAI
 import re
-import os
 from concurrent.futures import ThreadPoolExecutor
 
 class LLaMag:
     def __init__(self, base_url, api_key, model="nomic-ai/nomic-embed-text-v1.5-GGUF", chat_model="LM Studio Community/Meta-Llama-3-8B-Instruct-GGUF", similarity_threshold=75, top_n=5):
-        # Initialize the LLaMag class with provided parameters
-        self.client = OpenAI(base_url=base_url, api_key=api_key)  # Initialize OpenAI client
-        self.model = model  # Model for embeddings
-        self.chat_model = chat_model  # Model for chat completions
-        self.similarity_threshold = similarity_threshold  # Similarity threshold for filtering
-        self.top_n = top_n  # Number of top similar questions to consider
-        self.df = None  # Placeholder for the DataFrame
+        self.client = OpenAI(base_url=base_url, api_key=api_key)
+        self.model = model
+        self.chat_model = chat_model
+        self.similarity_threshold = similarity_threshold
+        self.top_n = top_n
+        self.df = None
 
     def get_embedding(self, text):
-        # Get embedding for the provided text using OpenAI API
         try:
-            text = text.replace("\n", " ")  # Clean text
+            text = text.replace("\n", " ")
             response = self.client.embeddings.create(input=[text], model=self.model)
             return response.data[0].embedding
         except Exception as e:
             print(f"Error getting embedding: {e}")
             return None
 
-    def load_data(self, filepaths):
+    def load(self, filepaths):
         def process_file(filepath):
             all_qa_pairs = []
             try:
@@ -86,43 +83,47 @@ class LLaMag:
         top_n_indices = np.argsort(similarities)[::-1][:n]
         return self.df.iloc[top_n_indices]
 
-    def chat(self):
-        while True:
-            user_message = input("User: ")
-            if user_message.lower() in ["exit", "quit"]:
-                break
+    def get_response(self, user_message):
+        if self.df is None or self.df.empty:
+            return "No data available to start chat. Please load data first."
 
-            top_n_results = self.get_top_n_closest_texts(user_message)
-            top_n_texts = top_n_results['question'].tolist()
+        top_n_results = self.get_top_n_closest_texts(user_message)
+        if top_n_results.empty:
+            return "No similar texts found."
 
-            system_message = "You are Llamag, a helpful, smart, kind, and efficient AI assistant. You are specialized in reservoir computing. Here are the most relevant documents for your query:\n"
-            system_message += "\n".join([f"-> Text {i+1}: {t}" for i, t in enumerate(top_n_texts)])
+        top_n_texts = top_n_results['question'].tolist()
 
-            history = [
-                {"role": "system", "content": system_message},
-                {"role": "user", "content": user_message},
-            ]
+        system_message = "You are Llamag, a helpful, smart, kind, and efficient AI assistant. You are specialized in reservoir computing. Here are the most relevant documents for your query:\n"
+        system_message += "\n".join([f"-> Text {i+1}: {t}" for i, t in enumerate(top_n_texts)])
 
-            completion = self.client.chat.completions.create(
-                model=self.chat_model,
-                messages=history,
-                temperature=0.2,
-                stream = True,
-            )
+        history = [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": user_message},
+        ]
 
-            print("LLaMag:", completion.choices[0].message.content)
-            print("\nSimilar documents for debugging purposes:\n", top_n_results[['question', 'answer']])
+        # Initialize the response text
+        response_text = "LLaMag:\n"
+        
+        # Use streaming
+        for response in self.client.chat.completions.create(
+            model=self.chat_model,
+            messages=history,
+            temperature=0.2,
+            stream=True,
+        ):
+            if response.choices[0].delta.content is not None:
+                response_text += response.choices[0].delta.content
+        
+        return response_text
 
 
     def html(self, file_path):
-        # Extract links from a markdown file
         with open(file_path, 'r') as file:
             markdown_content = file.read()
         links = re.findall(r'\[.*?\]\((.*?)\)', markdown_content)
         return links
-    
+
     def file_list(self, directory_path):
-        # List all files in a directory
         try:
             files = os.listdir(directory_path)
             file_names = [os.path.join(directory_path, file) for file in files if os.path.isfile(os.path.join(directory_path, file))]
@@ -131,9 +132,21 @@ class LLaMag:
             print(f"An error occurred: {e}")
             return []
 
-# Instantiate the LLaMag class
+def callback(input_message, input_user, instance: pn.chat.ChatInterface):
+    message = llamag.get_response(input_message)
+    return message
+
 llamag = LLaMag(base_url="http://localhost:1234/v1", api_key="lm-studio", top_n=5)
-directory_path = 'doc/md'  # Directory containing markdown files
-file_list = llamag.file_list(directory_path)  # Get list of files in the directory
-llamag.load_data(file_list)  # Load and process the data
-llamag.chat()  # Or llamag.interface() depending on your preference for CLI or GUI
+file_list = llamag.file_list('doc/md')
+llamag.load(file_list)
+
+chat_interface = pn.chat.ChatInterface(callback=callback)
+chat_interface.servable()
+
+layout = pn.Column(pn.pane.Markdown(f"## LLaMag", align='center'),chat_interface)
+
+def __panel__(self):
+    return layout
+
+if __name__ == "__main__":
+    pn.serve(layout)

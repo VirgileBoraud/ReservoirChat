@@ -25,7 +25,7 @@ class LLaMag:
             print(f"Error getting embedding: {e}")
             return None
 
-    def load_data(self, filepaths):
+    def load(self, filepaths):
         def process_file(filepath):
             all_qa_pairs = []
             try:
@@ -198,5 +198,5 @@ llamag = LLaMag(base_url="http://localhost:1234/v1", api_key="lm-studio", top_n=
 #print(llamag.html('doc/Q&A_format.md'))
 directory_path = 'doc/md'
 file_list = llamag.file_list(directory_path)
-llamag.load_data(file_list)
+#llamag.load(file_list)
 llamag.chat()
