@@ -116,7 +116,6 @@ class LLaMag:
         
         return response_text
 
-
     def html(self, file_path):
         with open(file_path, 'r') as file:
             markdown_content = file.read()
