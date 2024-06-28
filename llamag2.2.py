@@ -166,7 +166,11 @@ class LLaMag:
             response = self.get_response(contents)
             return response
 
-        chat_interface = pn.chat.ChatInterface(callback=callback)
+        chat_interface = pn.chat.ChatInterface(
+            callback=callback,
+            user="User",
+            avatar="https://assets.holoviz.org/panel/samples/png_sample.png",
+            )
         layout = pn.Column(pn.pane.Markdown("## LLaMag", align='center'), chat_interface)
     
         if __name__ == "__main__":
