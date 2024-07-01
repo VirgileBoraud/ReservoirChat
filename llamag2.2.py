@@ -16,6 +16,16 @@ class LLaMag:
         self.top_n = top_n
         self.df = self.load_embeddings_from_csv('qa_embeddings.csv')
         self.message = message
+        self.code_content = self.read_file('doc/md/codes.md')
+
+    def read_file(self, filepath):
+        try:
+            with open(filepath, 'r', encoding='utf-8') as file:
+                return file.read()
+        except Exception as e:
+            print(f"Error loading extract code content: {e}")
+            return ""
+
 
     def load_embeddings_from_csv(self, csv_file):
         try:
@@ -34,42 +44,49 @@ class LLaMag:
         except Exception as e:
             print(f"Error getting embedding: {e}")
             return None
+    
+    def process_file(self, filepath):
+        all_qa_pairs = []
+        try:
+            with open(filepath, 'r', encoding='utf-8') as file:
+                data = file.read()
+
+            if "Q&A" in filepath:
+                # Process as Q&A document
+                questions_answers = data.split("Question: ")
+                for qa in questions_answers[1:]:
+                    parts = qa.split("Answer: ")
+                    question = parts[0].strip()
+                    answer = parts[1].strip() if len(parts) > 1 else ""
+                    combined_text = f"Question: {question} Answer: {answer}"
+                    all_qa_pairs.append({"question": combined_text, "answer": answer})
+
+            elif "codes" in filepath:
+                # Process as code document with titles
+                sections = data.split("## ")
+                for section in sections[1:]:
+                    lines = section.split('\n', 1)  # Split only on the first newline
+                    title = lines[0].strip()
+                    if len(lines) > 1:
+                        code_block_match = re.search(r'```python(.*?)```', lines[1].strip(), re.DOTALL)
+                        if code_block_match:
+                            code = f"```python{code_block_match.group(1).strip()}```"
+                            all_qa_pairs.append({"question": title, "answer": code})
+            else:
+                # Process as regular Markdown document without separating code
+                sentences = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s', data)
+                for sentence in sentences:
+                    if sentence.strip():
+                        all_qa_pairs.append({"question": sentence.strip(), "answer": sentence.strip()}) ## Use of llama3 to define question ?
+
+        except Exception as e:
+            print(f"Error processing file {filepath}: {e}")
+        return all_qa_pairs
 
     def load_data(self, filepaths):
-        def process_file(filepath):
-            all_qa_pairs = []
-            try:
-                with open(filepath, 'r', encoding='utf-8') as file:
-                    data = file.read()
-
-                if "Q&A" in filepath:
-                    # Process as Q&A document
-                    questions_answers = data.split("Question: ")
-                    for qa in questions_answers[1:]:
-                        parts = qa.split("Answer: ")
-                        question = parts[0].strip()
-                        answer = parts[1].strip() if len(parts) > 1 else ""
-                        combined_text = f"Question: {question} Answer: {answer}"
-                        all_qa_pairs.append({"question": combined_text, "answer": answer})
-                else:
-                    # Process as regular Markdown document
-                    code_blocks = re.findall(r'```(.*?)```', data, re.DOTALL)
-                    data_no_code = re.sub(r'```.*?```', '', data, flags=re.DOTALL)
-                    sentences = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s', data_no_code)
-
-                    for block in code_blocks:
-                        all_qa_pairs.append({"question": block.strip(), "answer": block.strip()})
-
-                    for sentence in sentences:
-                        if sentence.strip():
-                            all_qa_pairs.append({"question": sentence.strip(), "answer": sentence.strip()})
-            except Exception as e:
-                print(f"Error processing file {filepath}: {e}")
-            return all_qa_pairs
-
         try:
             with ThreadPoolExecutor() as executor:
-                results = executor.map(process_file, filepaths)
+                results = executor.map(self.process_file, filepaths)
 
             all_qa_pairs = [qa for result in results for qa in result]
 
@@ -82,7 +99,8 @@ class LLaMag:
             self.df.to_csv('qa_embeddings.csv', index=False)
         except Exception as e:
             print(f"Error loading data: {e}")
-    
+
+
     def cosine_similarity(self, a, b):
         return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
@@ -102,6 +120,8 @@ class LLaMag:
 
         top_n_texts = top_n_results['question'].tolist()
         system_message = self.message
+        if "code" in user_message.lower():
+            system_message += f"\n\nAdditional Code Content:\n{self.code_content}\n"
         system_message += "\n".join([f"-> Text {i+1}: {t}" for i, t in enumerate(top_n_texts)])
 
         history = [
@@ -158,6 +178,9 @@ class LLaMag:
                     top_n_texts = top_n_results['question'].tolist()
                     relevant_docs = "\n".join([f"-> Text {i+1}: {t}" for i, t in enumerate(top_n_texts)])
                     history.append({"role": "system", "content": f"{self.message}\n{relevant_docs}"})
+                if "code" in user_input.lower():
+                    relevant_docs += f"\n\nAdditional Code Content:\n{self.code_content}\n"
+                    history.append({"role": "system", "content": f"{self.message}\n{relevant_docs}"})
 
             history.append({"role": "user", "content": user_input})
 
@@ -196,14 +219,13 @@ class LLaMag:
             print(f"An error occurred: {e}")
             return []
 
-
 system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI assistant. 
-        You are specialized in reservoir computing. 
-        When asked to code, you will code using the reservoirPy library. 
-        You will also serve as an interface to a RAG (Retrieval-Augmnented Generation).
+        You are specialized in reservoir computing.
+        You will also serve as an interface to a RAG (Retrieval-Augmented Generation).
         When given documents, you will respond using only these documents.
         If your are not given any document, you will respond that you don't have the response in the database.
         If your are given document but that the response is not in the documents, you will respond that the documents given doesn't countain the information.
+        When ask to code, you will use the given additional code content which is a document comporting a lot of code using the reservoirPy library
         You will never use the database llama3 has acquire elsewhere than in the documents given.
         You will use the following documents to respond to your task.
         DOCUMENTS:
@@ -211,5 +233,5 @@ system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI ass
 llamag = LLaMag(base_url="http://localhost:1234/v1", api_key="lm-studio", message=system_message, similarity_threshold=0.75, top_n=5)
 directory_path = 'doc/md'
 file_list = llamag.file_list(directory_path)
-# llamag.load_data(file_list)
-llamag.chat()
+#llamag.load_data(file_list)
+llamag.interface()
