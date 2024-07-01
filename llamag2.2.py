@@ -126,7 +126,7 @@ class LLaMag:
     def chat(self):
         history = [
             {"role": "system", "content": self.message},
-            {"role": "user", "content": "Hello, introduce yourself to someone opening this program for the first time. Be concise."},
+            {"role": "user", "content": "Hello, introduce yourself to someone opening this program for the first time."},
         ]
         
         print("Chat with an intelligent assistant. Type 'exit' to quit.")
@@ -200,11 +200,16 @@ class LLaMag:
 system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI assistant. 
         You are specialized in reservoir computing. 
         When asked to code, you will code using the reservoirPy library. 
-        You will also serve as an interface to a RAG (Retrieval-Augmneted Generation) and will use the following documents to respond to your task.
+        You will also serve as an interface to a RAG (Retrieval-Augmnented Generation).
+        When given documents, you will respond using only these documents.
+        If your are not given any document, you will respond that you don't have the response in the database.
+        If your are given document but that the response is not in the documents, you will respond that the documents given doesn't countain the information.
+        You will never use the database llama3 has acquire elsewhere than in the documents given.
+        You will use the following documents to respond to your task.
         DOCUMENTS:
         '''
-llamag = LLaMag(base_url="http://localhost:1234/v1", api_key="lm-studio", message=system_message, top_n=5)
+llamag = LLaMag(base_url="http://localhost:1234/v1", api_key="lm-studio", message=system_message, similarity_threshold=0.75, top_n=5)
 directory_path = 'doc/md'
 file_list = llamag.file_list(directory_path)
 # llamag.load_data(file_list)
-llamag.interface()
+llamag.chat()
