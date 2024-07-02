@@ -26,7 +26,6 @@ class LLaMag:
             print(f"Error loading extract code content: {e}")
             return ""
 
-
     def load_embeddings_from_csv(self, csv_file):
         try:
             df = pd.read_csv(csv_file)
@@ -72,6 +71,7 @@ class LLaMag:
                         if code_block_match:
                             code = f"```python{code_block_match.group(1).strip()}```"
                             all_qa_pairs.append({"question": title, "answer": code})
+
             else:
                 # Process as regular Markdown document without separating code
                 sentences = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s', data)
@@ -100,6 +100,28 @@ class LLaMag:
         except Exception as e:
             print(f"Error loading data: {e}")
 
+# I wanted to have the possibility to load a new file into the csv instead of loading everything, everytime
+    '''def load_new(self, filepath):
+        try:
+            with ThreadPoolExecutor() as executor:
+                results = executor.map(self.process_file, filepath)
+
+
+            all_qa_pairs = self.process_file(filepath)
+
+            if not all_qa_pairs:
+                print("No data loaded.")
+                return
+
+            df_new = pd.DataFrame(all_qa_pairs)
+            df_new['question_embedding'] = df_new['question'].apply(lambda x: self.get_embedding(x))
+            
+            # Save the new DataFrame to a CSV file named after the original file
+            csv_filename = os.path.basename(filepath).replace('.md', '.csv')
+            df_new.to_csv(csv_filename, index=False)
+            print(f"Data saved to {csv_filename}")
+        except Exception as e:
+            print(f"Error loading new data: {e}")'''
 
     def cosine_similarity(self, a, b):
         return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
@@ -178,8 +200,8 @@ class LLaMag:
                     top_n_texts = top_n_results['question'].tolist()
                     relevant_docs = "\n".join([f"-> Text {i+1}: {t}" for i, t in enumerate(top_n_texts)])
                     history.append({"role": "system", "content": f"{self.message}\n{relevant_docs}"})
-                if "code" in user_input.lower():
-                    relevant_docs += f"\n\nAdditional Code Content:\n{self.code_content}\n"
+                    if "code" in user_input.lower():
+                        relevant_docs += f"\n\nAdditional Code Content:\n{self.code_content}\n"
                     history.append({"role": "system", "content": f"{self.message}\n{relevant_docs}"})
 
             history.append({"role": "user", "content": user_input})
@@ -233,5 +255,5 @@ system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI ass
 llamag = LLaMag(base_url="http://localhost:1234/v1", api_key="lm-studio", message=system_message, similarity_threshold=0.75, top_n=5)
 directory_path = 'doc/md'
 file_list = llamag.file_list(directory_path)
-#llamag.load_data(file_list)
+# llamag.load_data(file_list)
 llamag.interface()

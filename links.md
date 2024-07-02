@@ -1,9 +1,9 @@
+## The documents used are:
+
 - https://inria.hal.science/hal-03761440/document
 - https://team.inria.fr/mnemosyne/fr/reservoirpy-library/
 - https://github.com/reservoirpy
 - https://reservoirpy.readthedocs.io/
-- https://en.wikipedia.org/wiki/Echo_state_network
-- https://en.wikipedia.org/wiki/Recurrent_neural_network
 - https://medium.com/analytics-vidhya/sequential-data-and-the-neural-network-conundrum-b2c005f8f865
 - https://en.wikipedia.org/wiki/Time_series
 - https://numpy.org/doc/stable/user/whatisnumpy.html
