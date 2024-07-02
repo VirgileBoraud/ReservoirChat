@@ -16,15 +16,7 @@ class LLaMag:
         self.top_n = top_n
         self.df = self.load_embeddings_from_csv('qa_embeddings.csv')
         self.message = message
-        self.code_content = self.read_file('doc/md/codes.md')
-
-    def read_file(self, filepath):
-        try:
-            with open(filepath, 'r', encoding='utf-8') as file:
-                return file.read()
-        except Exception as e:
-            print(f"Error loading extract code content: {e}")
-            return ""
+        self.code_content = self.load_embeddings_from_csv('codes.csv')
 
     def load_embeddings_from_csv(self, csv_file):
         try:
@@ -246,8 +238,8 @@ system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI ass
         You will also serve as an interface to a RAG (Retrieval-Augmented Generation).
         When given documents, you will respond using only these documents.
         If your are not given any document, you will respond that you don't have the response in the database.
-        If your are given document but that the response is not in the documents, you will respond that the documents given doesn't countain the information.
-        When ask to code, you will use the given additional code content which is a document comporting a lot of code using the reservoirPy library
+        When ask to code, you will use the given additional code content,
+        this document are the only inspiration you can have on the reservoirPy library, you will never use the data you had previously acquired.
         You will never use the database llama3 has acquire elsewhere than in the documents given.
         You will use the following documents to respond to your task.
         DOCUMENTS:

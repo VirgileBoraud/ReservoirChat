@@ -1,11 +1,14 @@
-github_urls = [
-    'https://github.com/reservoirpy/reservoirpy/blob/master/tutorials/1-Getting_Started.ipynb',
-    'https://github.com/reservoirpy/reservoirpy/blob/master/tutorials/2-Advanced_Features.ipynb',
-    'https://github.com/reservoirpy/reservoirpy/blob/master/tutorials/3-General_Introduction_to_Reservoir_Computing.ipynb',
-    'https://github.com/reservoirpy/reservoirpy/blob/master/tutorials/4-Understand_and_optimize_hyperparameters.ipynb',
-    'https://github.com/reservoirpy/reservoirpy/blob/master/tutorials/5-Classification-with-RC.ipynb',
-    'https://github.com/reservoirpy/reservoirpy/blob/master/tutorials/6-Interfacing_with_scikit-learn.ipynb',
-]
+import numpy as np
+from reservoirpy import Reservoir
 
-notebook_paths = ['doc/notebook/notebook_{}.ipynb'.format(i) for i in range(1, len(github_urls)+1)]
-print(notebook_paths)
+# Load Mackey-Glass time series
+X = np.load('mackey_glass.npy')
+
+# Create a reservoir with 100 nodes and a spectral radius of 0.9
+reservoir = Reservoir(n_nodes=100, spectral_radius=0.9)
+
+# Run the reservoir over the entire timeseries
+states = reservoir.run(X)
+
+# Use the last state as the output
+y_pred = states[-1]
