@@ -6,6 +6,7 @@ from openai import OpenAI
 import re
 import os
 from concurrent.futures import ThreadPoolExecutor
+import time
 
 class LLaMag:
     def __init__(self, base_url, api_key, model="nomic-ai/nomic-embed-text-v1.5-GGUF", chat_model="LM Studio Community/Meta-Llama-3-8B-Instruct-GGUF",message = "You are Llamag, a helpful, smart, kind, and efficient AI assistant. You are specialized in reservoir computing. When asked to code, you will code using the reservoirPy library. You will also serve as an interface to a RAG (Retrieval-Augmneted Generation) and will use the following documents to respond to your task. DOCUMENTS:" , similarity_threshold=0.75, top_n=5):
@@ -16,7 +17,15 @@ class LLaMag:
         self.top_n = top_n
         self.df = self.load_embeddings_from_csv('qa_embeddings.csv')
         self.message = message
-        self.code_content = self.load_embeddings_from_csv('codes.csv')
+        self.code_content = self.read_file('doc/md/codes.md')
+
+    def read_file(self, filepath):
+        try:
+            with open(filepath, 'r', encoding='utf-8') as file:
+                return file.read()
+        except Exception as e:
+            print(f"Error loading extract code content: {e}")
+            return ""
 
     def load_embeddings_from_csv(self, csv_file):
         try:
@@ -127,21 +136,18 @@ class LLaMag:
         top_n_indices = self.df[self.df['similarity'] >= self.similarity_threshold].nlargest(n, 'similarity').index
         return self.df.loc[top_n_indices]
 
-    def get_response(self, user_message):
-        top_n_results = self.get_top_n_closest_texts(user_message)
-        # if top_n_results.empty:
-            # return "No similar texts found."
+    def get_response(self, user_input, history):
+        if self.df is not None and not self.df.empty:
+            top_n_results = self.get_top_n_closest_texts(user_input)
+            if not top_n_results.empty:
+                top_n_texts = top_n_results['question'].tolist()
+                relevant_docs = "\n".join([f"-> Text {i+1}: {t}" for i, t in enumerate(top_n_texts)])
+                history.append({"role": "system", "content": f"{self.message}\n{relevant_docs}"})
+                if "code" in user_input.lower():
+                    relevant_docs += f"\n\nAdditional Code Content:\n{self.code_content}\n"
+                history.append({"role": "system", "content": f"{self.message}\n{relevant_docs}"})
 
-        top_n_texts = top_n_results['question'].tolist()
-        system_message = self.message
-        if "code" in user_message.lower():
-            system_message += f"\n\nAdditional Code Content:\n{self.code_content}\n"
-        system_message += "\n".join([f"-> Text {i+1}: {t}" for i, t in enumerate(top_n_texts)])
-
-        history = [
-            {"role": "system", "content": system_message},
-            {"role": "user", "content": user_message},
-        ]
+        history.append({"role": "user", "content": user_input})
 
         completion = self.client.chat.completions.create(
             model=self.chat_model,
@@ -150,17 +156,20 @@ class LLaMag:
             stream=True,
         )
 
-        new_message = {"role": "assistant", "content": ""}
+        llamag_message = {"role": "assistant", "content": ""}
+        
         for chunk in completion:
             if chunk.choices[0].delta.content:
-                new_message["content"] += chunk.choices[0].delta.content
+                llamag_message["content"] += chunk.choices[0].delta.content
 
-        return new_message["content"]
+        history.append(llamag_message)
+        
+        return llamag_message["content"], history
 
     def chat(self):
         history = [
             {"role": "system", "content": self.message},
-            {"role": "user", "content": "Hello, introduce yourself to someone opening this program for the first time."},
+            {"role": "user", "content": "Hello, introduce yourself to someone opening this program for the first time. Tell your name, what model and what library you use"},
         ]
         
         print("Chat with an intelligent assistant. Type 'exit' to quit.")
@@ -198,20 +207,24 @@ class LLaMag:
 
             history.append({"role": "user", "content": user_input})
 
-    def interface(self):
-        def callback(contents: str, user: str, instance: pn.widgets.ChatBox):
-            response = self.get_response(contents)
-            return response
 
+    def interface(self):
+        history = [
+            {"role": "system", "content": self.message},
+        ]
+        
+        def callback(contents: str, user: str, instance: pn.chat.ChatInterface):
+            response, updated_history = self.get_response(contents, history)
+            return response, updated_history
+        
         chat_interface = pn.chat.ChatInterface(
             callback=callback,
-            user="User",
+            user="Virgile",
             avatar="https://assets.holoviz.org/panel/samples/png_sample.png",
-            )
+        )
         layout = pn.Column(pn.pane.Markdown("## LLaMag", align='center'), chat_interface)
-    
-        if __name__ == "__main__":
-            pn.serve(layout)
+
+        pn.serve(layout)
 
     def html(self, file_path):
         with open(file_path, 'r') as file:
@@ -235,12 +248,12 @@ class LLaMag:
 
 system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI assistant. 
         You are specialized in reservoir computing.
-        You will also serve as an interface to a RAG (Retrieval-Augmented Generation).
+        You will serve as an interface to a RAG (Retrieval-Augmented Generation).
         When given documents, you will respond using only these documents.
         If your are not given any document, you will respond that you don't have the response in the database.
         When ask to code, you will use the given additional code content,
         this document are the only inspiration you can have on the reservoirPy library, you will never use the data you had previously acquired.
-        You will never use the database llama3 has acquire elsewhere than in the documents given.
+        You will never use the database you have acquire elsewhere than in the documents given.
         You will use the following documents to respond to your task.
         DOCUMENTS:
         '''

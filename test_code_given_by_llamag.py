@@ -1,14 +1,20 @@
 import numpy as np
-from reservoirpy import Reservoir
+from reservoirpy import nodes
+from sklearn import linear_model
 
-# Load Mackey-Glass time series
-X = np.load('mackey_glass.npy')
+# Create a Reservoir node
+reservoir = nodes.Reservoir(10, random_state=42)
 
-# Create a reservoir with 100 nodes and a spectral radius of 0.9
-reservoir = Reservoir(n_nodes=100, spectral_radius=0.9)
+# Create a ScikitLearnNode for classification
+node = nodes.SciketLearnNode(linear_model.Perceptron())
 
-# Run the reservoir over the entire timeseries
+# Connect the Reservoir to the ScikitLearnNode
+reservoir >> node
+
+# Generate some sample data
+X = np.random.rand(100, 5)
+y = np.random.choice([-1, 1], size=100)
+
+# Run the data through the reservoir and fit the classifier
 states = reservoir.run(X)
-
-# Use the last state as the output
-y_pred = states[-1]
+node.fit(states, y)
