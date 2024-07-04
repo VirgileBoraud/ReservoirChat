@@ -24,7 +24,7 @@ class LLaMag:
             with open(filepath, 'r', encoding='utf-8') as file:
                 return file.read()
         except Exception as e:
-            print(f"Error loading extract code content: {e}")
+            print(f"Error reading file: {e}")
             return ""
 
     def load_embeddings_from_csv(self, csv_file):
@@ -42,7 +42,7 @@ class LLaMag:
             response = self.client.embeddings.create(input=[text], model=self.model)
             return response.data[0].embedding
         except Exception as e:
-            print(f"Error getting embedding: {e}")
+            print(f"Error getting embeddings: {e}")
             return None
     
     def process_file(self, filepath):
@@ -98,14 +98,15 @@ class LLaMag:
             self.df = pd.DataFrame(all_qa_pairs)
             self.df['question_embedding'] = self.df['question'].apply(lambda x: self.get_embedding(x))
             self.df.to_csv('qa_embeddings.csv', index=False)
+            print(f"Data saved to qa_embeddings.csv")
         except Exception as e:
             print(f"Error loading data: {e}")
 
 # I wanted to have the possibility to load a new file into the csv instead of loading everything, everytime
-    '''def load_new(self, filepath):
+    def load_one(self, filepath):
         try:
-            with ThreadPoolExecutor() as executor:
-                results = executor.map(self.process_file, filepath)
+            '''with ThreadPoolExecutor() as executor:
+                results = executor.map(self.process_file, filepath)'''
 
 
             all_qa_pairs = self.process_file(filepath)
@@ -122,7 +123,7 @@ class LLaMag:
             df_new.to_csv(csv_filename, index=False)
             print(f"Data saved to {csv_filename}")
         except Exception as e:
-            print(f"Error loading new data: {e}")'''
+            print(f"Error loading new data: {e}")
 
     def cosine_similarity(self, a, b):
         return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
@@ -248,8 +249,8 @@ class LLaMag:
         except Exception as e:
             print(f"An error occurred: {e}")
             return []
-'''
-system_message = ''''''You are Llamag, a helpful, smart, kind, and efficient AI assistant. 
+
+system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI assistant. 
         You are specialized in reservoir computing.
         You will serve as an interface to a RAG (Retrieval-Augmented Generation).
         When given documents, you will respond using only these documents.
@@ -259,83 +260,8 @@ system_message = ''''''You are Llamag, a helpful, smart, kind, and efficient AI 
         You will never use the database you have acquire elsewhere than in the documents given.
         You will use the following documents to respond to your task.
         DOCUMENTS:
-        ''''''
+        '''
 llamag = LLaMag(base_url="http://localhost:1234/v1", api_key="lm-studio", message=system_message, similarity_threshold=0.75, top_n=5)
 file_list = llamag.file_list('doc/md')
-# llamag.load_data(file_list)
-llamag.interface()
-'''
-
-from uuid import uuid4
-
-from langchain.prompts import ChatPromptTemplate
-from langchain.schema.runnable import RunnablePassthrough
-
-import panel as pn
-
-TEXT = "https://raw.githubusercontent.com/langchain-ai/langchain/master/docs/docs/modules/state_of_the_union.txt"
-
-TEMPLATE = """Answer the question based only on the following context:
-
-{context}
-
-Question: {question}
-"""
-
-pn.extension(design="material")
-
-prompt = ChatPromptTemplate.from_template(TEMPLATE)
-
-
-'''@pn.cache
-def get_vector_store():
-    full_text = requests.get(TEXT).text
-    text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
-    texts = text_splitter.split_text(full_text)
-    embeddings = OpenAIEmbeddings()
-    db = Chroma.from_texts(texts, embeddings)
-    return db'''
-
-def load_embeddings_from_csv(csv_file):
-        try:
-            df = pd.read_csv(csv_file)
-            df['question_embedding'] = df['question_embedding'].apply(eval).apply(np.array)
-            return df
-        except Exception as e:
-            print(f"Error loading embeddings from CSV: {e}")
-            return pd.DataFrame()
-db = load_embeddings_from_csv('qa_embeddings.csv')
-
-
-def get_chain(callbacks):
-    retriever = db.as_retriever(callbacks=callbacks)
-    model = "nomic-ai/nomic-embed-text-v1.5-GGUF"
-
-    def format_docs(docs):
-        text = "\n\n".join([d.page_content for d in docs])
-        return text
-
-    def hack(docs):
-        # https://github.com/langchain-ai/langchain/issues/7290
-        for callback in callbacks:
-            callback.on_retriever_end(docs, run_id=uuid4())
-        return docs
-
-    return (
-        {"context": retriever | hack | format_docs, "question": RunnablePassthrough()}
-        | prompt
-        | model
-    )
-
-
-async def callback(contents, user, instance):
-    callback_handler = pn.chat.langchain.PanelCallbackHandler(instance)
-    chain = get_chain(callbacks=[callback_handler])
-    response = await chain.ainvoke(contents)
-    return response.content
-
-
-layout = pn.chat.ChatInterface(callback=callback).servable()
-
-if __name__ == "__main__":
-    pn.serve(layout)
+llamag.load_one('doc/md/Q&A_format.md')
+#llamag.interface()
