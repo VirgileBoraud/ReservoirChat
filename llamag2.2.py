@@ -136,18 +136,21 @@ class LLaMag:
         top_n_indices = self.df[self.df['similarity'] >= self.similarity_threshold].nlargest(n, 'similarity').index
         return self.df.loc[top_n_indices]
 
-    def get_response(self, user_input, history):
-        if self.df is not None and not self.df.empty:
-            top_n_results = self.get_top_n_closest_texts(user_input)
-            if not top_n_results.empty:
-                top_n_texts = top_n_results['question'].tolist()
-                relevant_docs = "\n".join([f"-> Text {i+1}: {t}" for i, t in enumerate(top_n_texts)])
-                history.append({"role": "system", "content": f"{self.message}\n{relevant_docs}"})
-                if "code" in user_input.lower():
-                    relevant_docs += f"\n\nAdditional Code Content:\n{self.code_content}\n"
-                history.append({"role": "system", "content": f"{self.message}\n{relevant_docs}"})
+    def get_response(self, user_message):
+        top_n_results = self.get_top_n_closest_texts(user_message)
+        # if top_n_results.empty:
+            # return "No similar texts found."
 
-        history.append({"role": "user", "content": user_input})
+        top_n_texts = top_n_results['question'].tolist()
+        system_message = self.message
+        if "code" in user_message.lower():
+            system_message += f"\n\nAdditional Code Content:\n{self.code_content}\n"
+        system_message += "\n".join([f"-> Text {i+1}: {t}" for i, t in enumerate(top_n_texts)])
+
+        history = [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": user_message},
+        ]
 
         completion = self.client.chat.completions.create(
             model=self.chat_model,
@@ -156,15 +159,12 @@ class LLaMag:
             stream=True,
         )
 
-        llamag_message = {"role": "assistant", "content": ""}
-        
+        new_message = {"role": "assistant", "content": ""}
         for chunk in completion:
             if chunk.choices[0].delta.content:
-                llamag_message["content"] += chunk.choices[0].delta.content
+                new_message["content"] += chunk.choices[0].delta.content
 
-        history.append(llamag_message)
-        
-        return llamag_message["content"], history
+        return new_message["content"]
 
     def chat(self):
         history = [
@@ -207,24 +207,27 @@ class LLaMag:
 
             history.append({"role": "user", "content": user_input})
 
-
     def interface(self):
-        history = [
-            {"role": "system", "content": self.message},
-        ]
-        
-        def callback(contents: str, user: str, instance: pn.chat.ChatInterface):
-            response, updated_history = self.get_response(contents, history)
-            return response, updated_history
-        
+        def callback(contents: str, user: str, instance: pn.widgets.ChatBox):
+            response = self.get_response(contents)
+            for index in range(len(response)):
+                yield response[0:index+1]
+                time.sleep(0.03) # to simulate slowish response
+            # or return response
+
         chat_interface = pn.chat.ChatInterface(
             callback=callback,
             user="Virgile",
             avatar="https://assets.holoviz.org/panel/samples/png_sample.png",
-        )
+            callback_user="Counter",
+            # widgets=pn.widgets.FileInput(name="CSV File", accept=".csv"), To add the possibility to add documents
+            # reset_on_send=False, for ne reset of writing
+            )
+        
         layout = pn.Column(pn.pane.Markdown("## LLaMag", align='center'), chat_interface)
 
-        pn.serve(layout)
+        if __name__ == "__main__":
+            pn.serve(layout)
 
     def html(self, file_path):
         with open(file_path, 'r') as file:
@@ -245,8 +248,8 @@ class LLaMag:
         except Exception as e:
             print(f"An error occurred: {e}")
             return []
-
-system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI assistant. 
+'''
+system_message = ''''''You are Llamag, a helpful, smart, kind, and efficient AI assistant. 
         You are specialized in reservoir computing.
         You will serve as an interface to a RAG (Retrieval-Augmented Generation).
         When given documents, you will respond using only these documents.
@@ -256,9 +259,83 @@ system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI ass
         You will never use the database you have acquire elsewhere than in the documents given.
         You will use the following documents to respond to your task.
         DOCUMENTS:
-        '''
+        ''''''
 llamag = LLaMag(base_url="http://localhost:1234/v1", api_key="lm-studio", message=system_message, similarity_threshold=0.75, top_n=5)
-directory_path = 'doc/md'
-file_list = llamag.file_list(directory_path)
+file_list = llamag.file_list('doc/md')
 # llamag.load_data(file_list)
 llamag.interface()
+'''
+
+from uuid import uuid4
+
+from langchain.prompts import ChatPromptTemplate
+from langchain.schema.runnable import RunnablePassthrough
+
+import panel as pn
+
+TEXT = "https://raw.githubusercontent.com/langchain-ai/langchain/master/docs/docs/modules/state_of_the_union.txt"
+
+TEMPLATE = """Answer the question based only on the following context:
+
+{context}
+
+Question: {question}
+"""
+
+pn.extension(design="material")
+
+prompt = ChatPromptTemplate.from_template(TEMPLATE)
+
+
+'''@pn.cache
+def get_vector_store():
+    full_text = requests.get(TEXT).text
+    text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+    texts = text_splitter.split_text(full_text)
+    embeddings = OpenAIEmbeddings()
+    db = Chroma.from_texts(texts, embeddings)
+    return db'''
+
+def load_embeddings_from_csv(csv_file):
+        try:
+            df = pd.read_csv(csv_file)
+            df['question_embedding'] = df['question_embedding'].apply(eval).apply(np.array)
+            return df
+        except Exception as e:
+            print(f"Error loading embeddings from CSV: {e}")
+            return pd.DataFrame()
+db = load_embeddings_from_csv('qa_embeddings.csv')
+
+
+def get_chain(callbacks):
+    retriever = db.as_retriever(callbacks=callbacks)
+    model = "nomic-ai/nomic-embed-text-v1.5-GGUF"
+
+    def format_docs(docs):
+        text = "\n\n".join([d.page_content for d in docs])
+        return text
+
+    def hack(docs):
+        # https://github.com/langchain-ai/langchain/issues/7290
+        for callback in callbacks:
+            callback.on_retriever_end(docs, run_id=uuid4())
+        return docs
+
+    return (
+        {"context": retriever | hack | format_docs, "question": RunnablePassthrough()}
+        | prompt
+        | model
+    )
+
+
+async def callback(contents, user, instance):
+    callback_handler = pn.chat.langchain.PanelCallbackHandler(instance)
+    chain = get_chain(callbacks=[callback_handler])
+    response = await chain.ainvoke(contents)
+    return response.content
+
+
+layout = pn.chat.ChatInterface(callback=callback).servable()
+
+if __name__ == "__main__":
+    pn.serve(layout)
