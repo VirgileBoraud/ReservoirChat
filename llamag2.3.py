@@ -150,51 +150,50 @@ class LLaMag:
         top_n_indices = self.df[self.df['similarity'] >= self.similarity_threshold].nlargest(n, 'similarity').index
         return self.df.loc[top_n_indices]
 
-    def chat(self):
-        # Initialize chat history with a system message
+    def get_response(self, user_message):
+        top_n_results = self.get_top_n_closest_texts(user_message)
+
+        top_n_texts = top_n_results['ticket'].tolist()
+        system_message = self.message
+        if "code" in user_message.lower():
+            system_message += f"\n\nAdditional Code Content:\n{self.code_content}\n"
+        system_message += "\n".join([f"-> Text {i+1}: {t}" for i, t in enumerate(top_n_texts)])
+
         history = [
-            {"role": "system", "content": self.message},
-            {"role": "user", "content": "Hello, introduce yourself to someone opening this program for the first time. Tell your name, what model and what library you use"},
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": user_message},
         ]
-        
-        print("Chat with an intelligent assistant. Type 'exit' to quit.")
-        while True:
-            user_input = input("> ")
-            if user_input.lower() == "exit":
-                break
-            
-            if self.df is not None and not self.df.empty:
-                # Retrieve top N closest texts based on user input
-                top_n_results = self.get_top_n_closest_texts(user_input)
-                if not top_n_results.empty:
-                    top_n_texts = top_n_results['ticket'].tolist()
-                    relevant_docs = "\n".join([f"-> Text {i+1}: {t}" for i, t in enumerate(top_n_texts)])
-                    if "code" in user_input.lower():
-                        relevant_docs += f"\n\nAdditional Code Content:\n{self.code_content}\n"
-                    history.append({"role": "system", "content": f"{self.message}\n{relevant_docs}"})
 
-            # Append user input to the history
-            history.append({"role": "user", "content": user_input})
+        completion = self.client.chat.completions.create(
+            model=self.chat_model,
+            messages=history,
+            temperature=0.7,
+            stream=True,
+        )
 
-            # Generate a response from the model with streaming
-            completion = self.client.chat.completions.create(
-                model=self.chat_model,
-                messages=history,
-                temperature=0.7,
-                stream=True,
+        new_message = {"role": "assistant", "content": ""}
+        for chunk in completion:
+            if chunk.choices[0].delta.content:
+                new_message["content"] += chunk.choices[0].delta.content
+                yield(new_message["content"])
+
+    def interface(self):
+        def callback(contents: str, user: str, instance: pn.widgets.ChatBox):
+            return self.get_response(contents)
+
+        chat_interface = pn.chat.ChatInterface(
+            callback=callback,
+            user="Virgile",
+            avatar="https://assets.holoviz.org/panel/samples/png_sample.png",
+            callback_user="Counter",
+            # widgets=pn.widgets.FileInput(name="CSV File", accept=".csv"), To add the possibility to add documents
+            # reset_on_send=False, for ne reset of writing
             )
+        
+        layout = pn.Column(pn.pane.Markdown("## LLaMag", align='center'), chat_interface)
 
-            llamag_message = {"role": "assistant", "content": ""}
-            
-            # Stream the response and print it out
-            for chunk in completion:
-                if chunk.choices[0].delta.content:
-                    print(chunk.choices[0].delta.content, end="", flush=True)
-                    llamag_message["content"] += chunk.choices[0].delta.content
-
-            history.append(llamag_message)
-            
-            print()
+        if __name__ == "__main__":
+            pn.serve(layout)
 
 system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI assistant. 
         You are specialized in reservoir computing.
@@ -210,4 +209,4 @@ system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI ass
 llamag = LLaMag(base_url="http://localhost:1234/v1", api_key="lm-studio", message=system_message, similarity_threshold=0.75, top_n=5)
 file_list = llamag.file_list('doc/md')
 # llamag.load_data(file_list)
-llamag.chat()
+llamag.interface()

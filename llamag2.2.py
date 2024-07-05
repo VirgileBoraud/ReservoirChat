@@ -164,8 +164,7 @@ class LLaMag:
         for chunk in completion:
             if chunk.choices[0].delta.content:
                 new_message["content"] += chunk.choices[0].delta.content
-
-        return new_message["content"]
+                yield(new_message["content"])
 
     def chat(self):
         history = [
@@ -210,11 +209,7 @@ class LLaMag:
 
     def interface(self):
         def callback(contents: str, user: str, instance: pn.widgets.ChatBox):
-            response = self.get_response(contents)
-            for index in range(len(response)):
-                yield response[0:index+1]
-                time.sleep(0.03) # to simulate slowish response
-            # or return response
+            return self.get_response(contents)
 
         chat_interface = pn.chat.ChatInterface(
             callback=callback,
@@ -263,5 +258,5 @@ system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI ass
         '''
 llamag = LLaMag(base_url="http://localhost:1234/v1", api_key="lm-studio", message=system_message, similarity_threshold=0.75, top_n=5)
 file_list = llamag.file_list('doc/md')
-llamag.load_one('doc/md/Q&A_format.md')
-#llamag.interface()
+# llamag.load_data(file_list)
+llamag.interface()
