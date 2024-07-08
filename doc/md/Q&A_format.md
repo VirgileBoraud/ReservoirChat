@@ -490,3 +490,4 @@ Question: How can we handle the interdependencies between hyperparameters during
 Answer: We can use hyperparameter interdependency plots to visually evaluate the loss as a function of all explored hyperparameters and their interactions. This approach helps in understanding and managing the interdependencies between hyperparameters effectively during the search​​.
 Question: What is oigejow kuwehf?
 Answer: A test to see if the ia receive the documents.
+# new question on .run(X_test)

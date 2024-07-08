@@ -14,7 +14,7 @@ current_user_message = ""
 
 history = [
     {"role": "system", "content": "You are an intelligent assistant. You always provide well-reasoned answers that are both correct and helpful."},
-    {"role": "user", "content": "Hello, introduce yourself to someone opening this program for the first time. Be concise."},
+    {"role": "user", "content": " "},
 ]
 
 # Create a function that takes as input a string prompt which is the user message and returns a string which is the response from the LLM.
@@ -80,16 +80,11 @@ page = """
 <|layout|columns=300px 1|
 <|part|class_name=sidebar|
 # LLaMag **Chat**{: .color-primary} # {: .logo-text}
-<|New Conversation|button|class_name=fullwidth plain|id=reset_app_button|on_action=reset_chat|>
-### Previous activities ### {: .h5 .mt2 .mb-half}
-<|{selected_conv}|tree|lov={past_conversations}|class_name=past_prompts_list|multiple|adapter=tree_adapter|on_change=select_conv|>
 |>
 
 <|part|class_name=p2 align-item-bottom table|
-<|{conversation}|table|style=style_conv|show_all|selected={selected_row}|rebuild|>
-<|part|class_name=card mt1|
-<|{current_user_message}|input|label=Write your message here...|on_action=send_message|class_name=fullwidth|change_delay=-1|>
-|>
+<|{conversation}|table|style=style_conv|show_all|>
+<|{current_user_message}|input|label=Write your message here...|on_action=send_message|class_name=fullwidth|>
 |>
 |>
 """
