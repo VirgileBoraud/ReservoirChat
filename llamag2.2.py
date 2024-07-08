@@ -103,10 +103,10 @@ class LLaMag:
             print(f"Error loading data: {e}")
 
 # I wanted to have the possibility to load a new file into the csv instead of loading everything, everytime
-    def load_one(self, filepath):
+    '''def load_new(self, filepath):
         try:
-            '''with ThreadPoolExecutor() as executor:
-                results = executor.map(self.process_file, filepath)'''
+            with ThreadPoolExecutor() as executor:
+                results = executor.map(self.process_file, filepath)
 
 
             all_qa_pairs = self.process_file(filepath)
@@ -123,7 +123,7 @@ class LLaMag:
             df_new.to_csv(csv_filename, index=False)
             print(f"Data saved to {csv_filename}")
         except Exception as e:
-            print(f"Error loading new data: {e}")
+            print(f"Error loading new data: {e}")'''
 
     def cosine_similarity(self, a, b):
         return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
@@ -164,7 +164,8 @@ class LLaMag:
         for chunk in completion:
             if chunk.choices[0].delta.content:
                 new_message["content"] += chunk.choices[0].delta.content
-                yield(new_message["content"])
+                yield new_message["content"]
+        # return new_message["content"]
 
     def chat(self):
         history = [

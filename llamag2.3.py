@@ -132,10 +132,10 @@ class LLaMag:
 
             else:
                 # Process as regular Markdown document without separating code
-                sentences = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s', data)
+                sentences = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s', data) ## I have to change things here
                 for sentence in sentences:
                     if sentence.strip():
-                        all_entries.append({"document": document_name,"ticket": sentence.strip(), "response": sentence.strip()}) ## Use of llama3 to define question ?
+                        all_entries.append({"document": document_name,"ticket": sentence.strip(), "response": sentence.strip()}) ## Use knowledge graph ot create big fan fiction of the docmet 9different concept, family, character, gemerate code to better respond, use this auestion to respond, split document, etc...)
 
         except Exception as e:
             print(f"Error processing file {filepath}: {e}")
