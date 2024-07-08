@@ -209,5 +209,5 @@ system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI ass
         '''
 llamag = LLaMag(base_url="http://localhost:1234/v1", api_key="lm-studio", message=system_message, similarity_threshold=0.75, top_n=5)
 file_list = llamag.file_list('doc/md')
-# llamag.load_data(file_list)
+llamag.load_data(file_list)
 llamag.interface()
