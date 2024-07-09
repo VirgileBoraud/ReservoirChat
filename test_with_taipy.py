@@ -3,7 +3,7 @@ from taipy.gui import Gui, State, notify
 from openai import OpenAI
 
 # Point to the local server
-client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
+client = OpenAI(base_url="http://localhost:8000/v1", api_key="EMPTY")
 
 context = "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly."
 ## Conversation history
@@ -11,7 +11,7 @@ conversation = {
     "Conversation": ["Present Yourself", "Hi! I am LLaMag. How can I help you today?"]
 }
 current_user_message = ""
-
+past_conversations = []
 history = [
     {"role": "system", "content": "You are an intelligent assistant. You always provide well-reasoned answers that are both correct and helpful."},
     {"role": "user", "content": " "},
@@ -20,7 +20,7 @@ history = [
 # Create a function that takes as input a string prompt which is the user message and returns a string which is the response from the LLM.
 def query(state: State, prompt: str) -> str:
     completion = client.chat.completions.create(
-        model="lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF",
+        model="meta-llama/Meta-Llama-3-8B",
         messages=history,
         temperature=0.7,
         stream=True,
