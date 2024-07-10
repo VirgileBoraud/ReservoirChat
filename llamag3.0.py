@@ -7,11 +7,14 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 import time
 from taipy.gui import Gui, State, notify
+import requests
+import json
 
 class LLaMag:
     def __init__(self, model_url="http://localhost:1234/v1", embedding_url="http://localhost:1234/v1", api_key="lm-studio", embedding_model="nomic-ai/nomic-embed-text-v1.5-GGUF", model="LM Studio Community/Meta-Llama-3-8B-Instruct-GGUF", message="You are Llamag, a helpful, smart, kind, and efficient AI assistant. You are specialized in reservoir computing. When asked to code, you will code using the reservoirPy library. You will also serve as an interface to a RAG (Retrieval-Augmented Generation) and will use the following documents to respond to your task. DOCUMENTS:", similarity_threshold=0.75, top_n=5):
         self.model_client = OpenAI(base_url=model_url, api_key=api_key)
         self.embedding_client = OpenAI(base_url=embedding_url, api_key=api_key)
+        self.embedding_url = embedding_url
         self.embedding_model = embedding_model
         self.model = model
         self.similarity_threshold = similarity_threshold
@@ -19,6 +22,8 @@ class LLaMag:
         self.df = self.load_embeddings_from_csv('embeddings.csv')
         self.message = message
         self.code_content = self.read_file('doc/md/codes.md')
+        self.history = []
+        
 
     def read_file(self, filepath):
         try:
@@ -37,15 +42,34 @@ class LLaMag:
             print(f"Error loading embeddings from CSV: {e}")
             return pd.DataFrame()
         
-    def get_embedding(self, text):
+    def get_embeddings(self, text):
         try:
             text = text.replace("\n", " ")
             response = self.embedding_client.embeddings.create(input=[text], model=self.embedding_model)
+            print(len(response.data[0].embedding))
             return response.data[0].embedding
         except Exception as e:
             print(f"Error getting embeddings: {e}")
             return None
     
+    def get_embedding(self, text):
+        try:
+            url = self.embedding_url
+            headers = {'Content-Type': 'application/json'}
+            payload = {'texts': [text.replace("\n", " ")]}
+            
+            response = requests.post(url, headers=headers, data=json.dumps(payload))
+            
+            if response.status_code == 200:
+                return response.json()[0]
+            else:
+                print(f"Error getting embeddings: {response.json()}")
+                return None
+        except Exception as e:
+            print(f"Error getting embeddings: {e}")
+            return None
+
+
     def file_list(self, directory_path):
         try:
             # Get the list of files in the directory
@@ -132,12 +156,13 @@ class LLaMag:
     def get_response(self, user_message):
         top_n_results = self.get_top_n_closest_texts(user_message)
         top_n_texts = ("document name: " + top_n_results['document'] + " | ticket: " + top_n_results['ticket'] + " | response: " + top_n_results['response']).tolist()
-        print(top_n_texts)
+        # print(top_n_texts)
         system_message = self.message
-        if "code" in user_message.lower():
-            system_message += f"\n\nAdditional Code Content:\n{self.code_content}\n"
+        system_message += f"History of the previous message: {self.history}"
+        '''if "code" in user_message.lower():
+            system_message += f"\n\nAdditional Code Content:\n{self.code_content}\n"'''
         system_message += "\n" + str(top_n_texts)
-        print(system_message)
+        # print(system_message)
         history = [
             {"role": "system", "content": system_message},
             {"role": "user", "content": user_message},
@@ -155,6 +180,7 @@ class LLaMag:
             if chunk.choices[0].delta.content:
                 response_text += chunk.choices[0].delta.content
 
+        self.history.append({"User":user_message,"Document_used":top_n_texts,"LLaMag":response_text})
         return response_text
 
 # Initialize LLaMag instance
@@ -186,8 +212,8 @@ new_message = '''
     DOCUMENTS:
     '''
 
-#llamag = LLaMag(message="system_message")
-llamag = LLaMag(model_url="http://localhost:8000/v1",embedding_url="http://127.0.0.1:5000/embed" , api_key="EMPTY", embedding_model="nomic-ai/nomic-embed-text-v1.5", model="meta-llama/Meta-Llama-3-8B-Instruct", message=new_message, similarity_threshold=0.75, top_n=5)
+# llamag = LLaMag(message="system_message")
+llamag = LLaMag(model_url='http://localhost:8000/v1', embedding_url='http://localhost:5000/embed', api_key='EMPTY', embedding_model='nomic-ai/nomic-embed-text-v1.5', model='meta-llama/Meta-Llama-3-8B-Instruct', message=system_message, similarity_threshold=0.6, top_n=5)
 
 # Initialize conversation and history
 conversation = {
