@@ -12,6 +12,7 @@ class LLaMag:
     def __init__(self, model_url="http://localhost:1234/v1", embedding_url="http://localhost:1234/v1", api_key="lm-studio", embedding_model="nomic-ai/nomic-embed-text-v1.5-GGUF", model="LM Studio Community/Meta-Llama-3-8B-Instruct-GGUF", message="You are Llamag, a helpful, smart, kind, and efficient AI assistant. You are specialized in reservoir computing. When asked to code, you will code using the reservoirPy library. You will also serve as an interface to a RAG (Retrieval-Augmented Generation) and will use the following documents to respond to your task. DOCUMENTS:", similarity_threshold=0.75, top_n=5):
         self.model_client = OpenAI(base_url=model_url, api_key=api_key)
         self.embedding_client = OpenAI(base_url=embedding_url, api_key=api_key)
+        self.embedding_url = embedding_url
         self.embedding_model = embedding_model
         self.model = model
         self.similarity_threshold = similarity_threshold
@@ -19,6 +20,8 @@ class LLaMag:
         self.df = self.load_embeddings_from_csv('embeddings.csv')
         self.message = message
         self.code_content = self.read_file('doc/md/codes.md')
+        self.history = []
+        
 
     def read_file(self, filepath):
         try:
@@ -47,9 +50,9 @@ class LLaMag:
             print(f"Error getting embeddings: {e}")
             return None
     
-    def get_embedding(self, text): ### Why does it work with local but not with the terminal ???????
+    def get_embedding(self, text):
         try:
-            url = 'http://localhost:5000/embed'
+            url = self.embedding_url
             headers = {'Content-Type': 'application/json'}
             payload = {'texts': [text.replace("\n", " ")]}
             
@@ -153,8 +156,9 @@ class LLaMag:
         top_n_texts = ("document name: " + top_n_results['document'] + " | ticket: " + top_n_results['ticket'] + " | response: " + top_n_results['response']).tolist()
         # print(top_n_texts)
         system_message = self.message
-        if "code" in user_message.lower():
-            system_message += f"\n\nAdditional Code Content:\n{self.code_content}\n"
+        system_message += f"History of the previous message: {self.history}"
+        '''if "code" in user_message.lower():
+            system_message += f"\n\nAdditional Code Content:\n{self.code_content}\n"'''
         system_message += "\n" + str(top_n_texts)
         # print(system_message)
         history = [
@@ -174,6 +178,8 @@ class LLaMag:
             if chunk.choices[0].delta.content:
                 response_text += chunk.choices[0].delta.content
                 yield response_text
+
+        self.history.append({"User":user_message,"Document_used":top_n_texts,"LLaMag":response_text})
 
     def interface(self):
         def callback(contents: str, user: str, instance: pn.widgets.ChatBox):
@@ -201,8 +207,10 @@ system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI ass
         these documents are the only inspiration you can have on the reservoirPy library.
         You will not return the exact responses your were provided, but they will serve as inspiration for your real response.
         You will never use the database you have acquired elsewhere other than in the documents given.
-        You will however access the history of the conversation.
-        You will use the following documents to respond to your task (You will never display or talk about their existence, only use their information):
+        You will be given a list in this format:
+        {"User": where the previous question of the user is,"Document_used": where the previous documents used are,"LLaMag": the response you used for the previous question, as the user can refer to them, you will take them into account for any question of the users.}
+        You will never display the two list given
+        You will use the following documents to respond to your task:
         DOCUMENTS:
         (document name : where the name of the document with the similarity are, you will display the name of these documents when you are asked to give the source | ticket: Where the similar questions or embeddings are | answer: the answer or resulting embeddings that will serve you as inspiration to your answer)
         '''
@@ -220,8 +228,8 @@ new_message = '''
     DOCUMENTS:
     '''
 
-llamag = LLaMag(message="new_message")
-# llamag = LLaMag(model_url="http://localhost:8000/v1",embedding_url="http://127.0.0.1:5000/embed" , api_key="EMPTY", embedding_model="nomic-ai/nomic-embed-text-v1.5", model="meta-llama/Meta-Llama-3-8B-Instruct", message=system_message, similarity_threshold=0.75, top_n=5)
+# llamag = LLaMag(message="new_message")
+llamag = LLaMag(model_url='http://localhost:8000/v1', embedding_url='http://localhost:5000/embed', api_key='EMPTY', embedding_model='nomic-ai/nomic-embed-text-v1.5', model='meta-llama/Meta-Llama-3-8B-Instruct', message=system_message, similarity_threshold=0.6, top_n=5)
 file_list = llamag.file_list('doc/md')
 # llamag.load_data(file_list)
 llamag.interface()
