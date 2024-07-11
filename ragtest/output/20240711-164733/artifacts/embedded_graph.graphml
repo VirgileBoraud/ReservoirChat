@@ -1,0 +1,45 @@
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key id="d5" for="edge" attr.name="source_id" attr.type="string" />
+  <key id="d4" for="edge" attr.name="description" attr.type="string" />
+  <key id="d3" for="edge" attr.name="weight" attr.type="double" />
+  <key id="d2" for="node" attr.name="source_id" attr.type="string" />
+  <key id="d1" for="node" attr.name="description" attr.type="string" />
+  <key id="d0" for="node" attr.name="type" attr.type="string" />
+  <graph edgedefault="undirected">
+    <node id="&quot;MA&#206;TRE RENARD&quot;">
+      <data key="d0">"PERSON"</data>
+      <data key="d1">"Ma&#238;tre Renard is a character who is attracted by the smell of the cheese and engages in a conversation with Ma&#238;tre Corbeau."</data>
+      <data key="d2">a7eac0c9d7821ff237e9366bcee29bbf</data>
+    </node>
+    <node id="&quot;PH&#201;NIX DES H&#212;TES DE CES BOIS&quot;">
+      <data key="d0">"CONCEPT"</data>
+      <data key="d1">"Ph&#233;nix des h&#244;tes de ces bois is a metaphorical description of Ma&#238;tre Corbeau as the most beautiful bird in the woods."</data>
+      <data key="d2">a7eac0c9d7821ff237e9366bcee29bbf</data>
+    </node>
+    <node id="&quot;FROMAGE&quot;">
+      <data key="d0">"TECHNOLOGY"</data>
+      <data key="d1">"fromage is a piece of cheese that is being held by Ma&#238;tre Corbeau and is the subject of the conversation."</data>
+      <data key="d2">a7eac0c9d7821ff237e9366bcee29bbf</data>
+    </node>
+    <node id="&quot;MA&#206;TRE CORBEAU&quot;">
+      <data key="d0" />
+      <data key="d1" />
+      <data key="d2">a7eac0c9d7821ff237e9366bcee29bbf</data>
+    </node>
+    <node id="&quot;JURA&quot;">
+      <data key="d0">"GEO"</data>
+      <data key="d1">"Jura is a geographic location, possibly a region or a country."</data>
+      <data key="d2">6aaf3040dcc38e753147747d9677bd90</data>
+    </node>
+    <edge source="&quot;MA&#206;TRE RENARD&quot;" target="&quot;MA&#206;TRE CORBEAU&quot;">
+      <data key="d3">1.0</data>
+      <data key="d4">"Ma&#238;tre Corbeau and Ma&#238;tre Renard engage in a conversation, with Ma&#238;tre Renard flattering Ma&#238;tre Corbeau and ultimately taking the cheese from him."</data>
+      <data key="d5">a7eac0c9d7821ff237e9366bcee29bbf</data>
+    </edge>
+    <edge source="&quot;MA&#206;TRE RENARD&quot;" target="&quot;FROMAGE&quot;">
+      <data key="d3">1.0</data>
+      <data key="d4">"Ma&#238;tre Renard takes the fromage (cheese) from Ma&#238;tre Corbeau, illustrating the lesson that flatterers live at the expense of those who listen to them."</data>
+      <data key="d5">a7eac0c9d7821ff237e9366bcee29bbf</data>
+    </edge>
+  </graph>
+</graphml>

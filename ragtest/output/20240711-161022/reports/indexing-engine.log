@@ -1,0 +1,347 @@
+16:10:22,434 graphrag.config.read_dotenv INFO Loading pipeline .env file
+16:10:22,439 graphrag.index.cli INFO using default configuration: {
+    "llm": {
+        "api_key": "REDACTED, length 9",
+        "type": "openai_chat",
+        "model": "meta-llama/Meta-Llama-3-8B-Instruct",
+        "max_tokens": 3000,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "n": 1,
+        "request_timeout": 180.0,
+        "api_base": "http://localhost:8000/v1",
+        "api_version": null,
+        "proxy": null,
+        "cognitive_services_endpoint": null,
+        "deployment_name": null,
+        "model_supports_json": true,
+        "tokens_per_minute": 3000,
+        "requests_per_minute": 100,
+        "max_retries": 3,
+        "max_retry_wait": 10.0,
+        "sleep_on_rate_limit_recommendation": true,
+        "concurrent_requests": 25
+    },
+    "parallelization": {
+        "stagger": 0.3,
+        "num_threads": 50
+    },
+    "async_mode": "threaded",
+    "root_dir": "./ragtest",
+    "reporting": {
+        "type": "file",
+        "base_dir": "output/${timestamp}/reports",
+        "storage_account_blob_url": null
+    },
+    "storage": {
+        "type": "file",
+        "base_dir": "output/${timestamp}/artifacts",
+        "storage_account_blob_url": null
+    },
+    "cache": {
+        "type": "file",
+        "base_dir": "cache",
+        "storage_account_blob_url": null
+    },
+    "input": {
+        "type": "file",
+        "file_type": "text",
+        "base_dir": "input",
+        "storage_account_blob_url": null,
+        "encoding": "utf-8",
+        "file_pattern": ".*\\.txt$",
+        "file_filter": null,
+        "source_column": null,
+        "timestamp_column": null,
+        "timestamp_format": null,
+        "text_column": "text",
+        "title_column": null,
+        "document_attribute_columns": []
+    },
+    "embed_graph": {
+        "enabled": false,
+        "num_walks": 10,
+        "walk_length": 40,
+        "window_size": 2,
+        "iterations": 3,
+        "random_seed": 597832,
+        "strategy": null
+    },
+    "embeddings": {
+        "llm": {
+            "api_key": "REDACTED, length 9",
+            "type": "openai_embedding",
+            "model": "nomic-ai/nomic-embed-text-v1.5-GGUF",
+            "max_tokens": 4000,
+            "temperature": 0,
+            "top_p": 1,
+            "n": 1,
+            "request_timeout": 180.0,
+            "api_base": "http://localhost:1234/v1",
+            "api_version": null,
+            "proxy": null,
+            "cognitive_services_endpoint": null,
+            "deployment_name": null,
+            "model_supports_json": null,
+            "tokens_per_minute": 0,
+            "requests_per_minute": 0,
+            "max_retries": 10,
+            "max_retry_wait": 10.0,
+            "sleep_on_rate_limit_recommendation": true,
+            "concurrent_requests": 25
+        },
+        "parallelization": {
+            "stagger": 0.3,
+            "num_threads": 50
+        },
+        "async_mode": "threaded",
+        "batch_size": 16,
+        "batch_max_tokens": 8191,
+        "target": "required",
+        "skip": [],
+        "vector_store": null,
+        "strategy": null
+    },
+    "chunks": {
+        "size": 300,
+        "overlap": 100,
+        "group_by_columns": [
+            "id"
+        ],
+        "strategy": null
+    },
+    "snapshots": {
+        "graphml": false,
+        "raw_entities": false,
+        "top_level_nodes": false
+    },
+    "entity_extraction": {
+        "llm": {
+            "api_key": "REDACTED, length 9",
+            "type": "openai_chat",
+            "model": "meta-llama/Meta-Llama-3-8B-Instruct",
+            "max_tokens": 3000,
+            "temperature": 0.0,
+            "top_p": 1.0,
+            "n": 1,
+            "request_timeout": 180.0,
+            "api_base": "http://localhost:8000/v1",
+            "api_version": null,
+            "proxy": null,
+            "cognitive_services_endpoint": null,
+            "deployment_name": null,
+            "model_supports_json": true,
+            "tokens_per_minute": 3000,
+            "requests_per_minute": 100,
+            "max_retries": 3,
+            "max_retry_wait": 10.0,
+            "sleep_on_rate_limit_recommendation": true,
+            "concurrent_requests": 25
+        },
+        "parallelization": {
+            "stagger": 0.3,
+            "num_threads": 50
+        },
+        "async_mode": "threaded",
+        "prompt": "prompts/entity_extraction.txt",
+        "entity_types": [
+            "organization",
+            "person",
+            "geo",
+            "event"
+        ],
+        "max_gleanings": 0,
+        "strategy": null
+    },
+    "summarize_descriptions": {
+        "llm": {
+            "api_key": "REDACTED, length 9",
+            "type": "openai_chat",
+            "model": "meta-llama/Meta-Llama-3-8B-Instruct",
+            "max_tokens": 3000,
+            "temperature": 0.0,
+            "top_p": 1.0,
+            "n": 1,
+            "request_timeout": 180.0,
+            "api_base": "http://localhost:8000/v1",
+            "api_version": null,
+            "proxy": null,
+            "cognitive_services_endpoint": null,
+            "deployment_name": null,
+            "model_supports_json": true,
+            "tokens_per_minute": 3000,
+            "requests_per_minute": 100,
+            "max_retries": 3,
+            "max_retry_wait": 10.0,
+            "sleep_on_rate_limit_recommendation": true,
+            "concurrent_requests": 25
+        },
+        "parallelization": {
+            "stagger": 0.3,
+            "num_threads": 50
+        },
+        "async_mode": "threaded",
+        "prompt": "prompts/summarize_descriptions.txt",
+        "max_length": 500,
+        "strategy": null
+    },
+    "community_reports": {
+        "llm": {
+            "api_key": "REDACTED, length 9",
+            "type": "openai_chat",
+            "model": "meta-llama/Meta-Llama-3-8B-Instruct",
+            "max_tokens": 3000,
+            "temperature": 0.0,
+            "top_p": 1.0,
+            "n": 1,
+            "request_timeout": 180.0,
+            "api_base": "http://localhost:8000/v1",
+            "api_version": null,
+            "proxy": null,
+            "cognitive_services_endpoint": null,
+            "deployment_name": null,
+            "model_supports_json": true,
+            "tokens_per_minute": 3000,
+            "requests_per_minute": 100,
+            "max_retries": 3,
+            "max_retry_wait": 10.0,
+            "sleep_on_rate_limit_recommendation": true,
+            "concurrent_requests": 25
+        },
+        "parallelization": {
+            "stagger": 0.3,
+            "num_threads": 50
+        },
+        "async_mode": "threaded",
+        "prompt": null,
+        "max_length": 2000,
+        "max_input_length": 8000,
+        "strategy": null
+    },
+    "claim_extraction": {
+        "llm": {
+            "api_key": "REDACTED, length 9",
+            "type": "openai_chat",
+            "model": "meta-llama/Meta-Llama-3-8B-Instruct",
+            "max_tokens": 3000,
+            "temperature": 0.0,
+            "top_p": 1.0,
+            "n": 1,
+            "request_timeout": 180.0,
+            "api_base": "http://localhost:8000/v1",
+            "api_version": null,
+            "proxy": null,
+            "cognitive_services_endpoint": null,
+            "deployment_name": null,
+            "model_supports_json": true,
+            "tokens_per_minute": 3000,
+            "requests_per_minute": 100,
+            "max_retries": 3,
+            "max_retry_wait": 10.0,
+            "sleep_on_rate_limit_recommendation": true,
+            "concurrent_requests": 25
+        },
+        "parallelization": {
+            "stagger": 0.3,
+            "num_threads": 50
+        },
+        "async_mode": "threaded",
+        "enabled": false,
+        "prompt": "prompts/claim_extraction.txt",
+        "description": "Any claims or facts that could be relevant to information discovery.",
+        "max_gleanings": 0,
+        "strategy": null
+    },
+    "cluster_graph": {
+        "max_cluster_size": 10,
+        "strategy": null
+    },
+    "umap": {
+        "enabled": false
+    },
+    "local_search": {
+        "text_unit_prop": 0.5,
+        "community_prop": 0.1,
+        "conversation_history_max_turns": 5,
+        "top_k_entities": 10,
+        "top_k_relationships": 10,
+        "max_tokens": 12000,
+        "llm_max_tokens": 2000
+    },
+    "global_search": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "n": 1,
+        "max_tokens": 12000,
+        "data_max_tokens": 12000,
+        "map_max_tokens": 1000,
+        "reduce_max_tokens": 2000,
+        "concurrency": 32
+    },
+    "encoding_model": "cl100k_base",
+    "skip_workflows": []
+}
+16:10:22,440 graphrag.index.create_pipeline_config INFO skipping workflows 
+16:10:22,443 graphrag.index.run INFO Running pipeline
+16:10:22,443 graphrag.index.storage.file_pipeline_storage INFO Creating file storage at ragtest/output/20240711-161022/artifacts
+16:10:22,444 graphrag.index.input.load_input INFO loading input from root_dir=input
+16:10:22,444 graphrag.index.input.load_input INFO using file storage for input
+16:10:22,446 graphrag.index.storage.file_pipeline_storage INFO search ragtest/input for files matching .*\.txt$
+16:10:22,447 graphrag.index.input.text INFO found text files from input, found [('book.txt', {})]
+16:10:22,451 graphrag.index.workflows.load INFO Workflow Run Order: ['create_base_text_units', 'create_base_extracted_entities', 'create_summarized_entities', 'create_base_entity_graph', 'create_final_entities', 'create_final_nodes', 'create_final_communities', 'join_text_units_to_entity_ids', 'create_final_relationships', 'join_text_units_to_relationship_ids', 'create_final_community_reports', 'create_final_text_units', 'create_base_documents', 'create_final_documents']
+16:10:22,451 graphrag.index.run INFO Final # of rows loaded: 1
+16:10:22,565 graphrag.index.run INFO Running workflow: create_base_text_units...
+16:10:22,565 graphrag.index.run INFO dependencies for create_base_text_units: []
+16:10:22,569 datashaper.workflow.workflow INFO executing verb orderby
+16:10:22,572 datashaper.workflow.workflow INFO executing verb zip
+16:10:22,576 datashaper.workflow.workflow INFO executing verb aggregate_override
+16:10:22,584 datashaper.workflow.workflow INFO executing verb chunk
+16:10:22,784 datashaper.workflow.workflow INFO executing verb select
+16:10:22,790 datashaper.workflow.workflow INFO executing verb unroll
+16:10:22,799 datashaper.workflow.workflow INFO executing verb rename
+16:10:22,805 datashaper.workflow.workflow INFO executing verb genid
+16:10:22,811 datashaper.workflow.workflow INFO executing verb unzip
+16:10:22,819 datashaper.workflow.workflow INFO executing verb copy
+16:10:22,824 datashaper.workflow.workflow INFO executing verb filter
+16:10:22,839 graphrag.index.emit.parquet_table_emitter INFO emitting parquet table create_base_text_units.parquet
+16:10:22,973 graphrag.index.run INFO Running workflow: create_base_extracted_entities...
+16:10:22,973 graphrag.index.run INFO dependencies for create_base_extracted_entities: ['create_base_text_units']
+16:10:22,973 graphrag.index.run INFO read table from storage: create_base_text_units.parquet
+16:10:22,990 datashaper.workflow.workflow INFO executing verb entity_extract
+16:10:22,992 graphrag.llm.openai.create_openai_client INFO Creating OpenAI client base_url=http://localhost:8000/v1
+16:10:23,43 graphrag.index.llm.load_llm INFO create TPM/RPM limiter for meta-llama/Meta-Llama-3-8B-Instruct: TPM=3000, RPM=100
+16:10:23,44 graphrag.index.llm.load_llm INFO create concurrency limiter for meta-llama/Meta-Llama-3-8B-Instruct: 25
+16:10:23,57 datashaper.workflow.workflow INFO executing verb merge_graphs
+16:10:23,62 graphrag.index.emit.parquet_table_emitter INFO emitting parquet table create_base_extracted_entities.parquet
+16:10:23,208 graphrag.index.run INFO Running workflow: create_summarized_entities...
+16:10:23,208 graphrag.index.run INFO dependencies for create_summarized_entities: ['create_base_extracted_entities']
+16:10:23,208 graphrag.index.run INFO read table from storage: create_base_extracted_entities.parquet
+16:10:23,226 datashaper.workflow.workflow INFO executing verb summarize_descriptions
+16:10:23,232 graphrag.index.emit.parquet_table_emitter INFO emitting parquet table create_summarized_entities.parquet
+16:10:23,359 graphrag.index.run INFO Running workflow: create_base_entity_graph...
+16:10:23,359 graphrag.index.run INFO dependencies for create_base_entity_graph: ['create_summarized_entities']
+16:10:23,359 graphrag.index.run INFO read table from storage: create_summarized_entities.parquet
+16:10:23,376 datashaper.workflow.workflow INFO executing verb cluster_graph
+16:10:23,392 datashaper.workflow.workflow INFO executing verb select
+16:10:23,394 graphrag.index.emit.parquet_table_emitter INFO emitting parquet table create_base_entity_graph.parquet
+16:10:23,538 graphrag.index.run INFO Running workflow: create_final_entities...
+16:10:23,543 graphrag.index.run INFO dependencies for create_final_entities: ['create_base_entity_graph']
+16:10:23,545 graphrag.index.run INFO read table from storage: create_base_entity_graph.parquet
+16:10:23,571 datashaper.workflow.workflow INFO executing verb unpack_graph
+16:10:23,583 datashaper.workflow.workflow INFO executing verb rename
+16:10:23,595 datashaper.workflow.workflow INFO executing verb select
+16:10:23,608 datashaper.workflow.workflow INFO executing verb dedupe
+16:10:23,621 datashaper.workflow.workflow INFO executing verb rename
+16:10:23,633 datashaper.workflow.workflow INFO executing verb filter
+16:10:23,662 datashaper.workflow.workflow INFO executing verb text_split
+16:10:23,675 datashaper.workflow.workflow INFO executing verb drop
+16:10:23,688 datashaper.workflow.workflow INFO executing verb merge
+16:10:23,704 datashaper.workflow.workflow INFO executing verb text_embed
+16:10:23,704 graphrag.llm.openai.create_openai_client INFO Creating OpenAI client base_url=http://localhost:1234/v1
+16:10:23,753 graphrag.index.llm.load_llm INFO create TPM/RPM limiter for nomic-ai/nomic-embed-text-v1.5-GGUF: TPM=0, RPM=0
+16:10:23,753 graphrag.index.llm.load_llm INFO create concurrency limiter for nomic-ai/nomic-embed-text-v1.5-GGUF: 25
+16:10:23,753 graphrag.index.verbs.text.embed.strategies.openai INFO embedding 5 inputs via 5 snippets using 1 batches. max_batch_size=16, max_tokens=8191
+16:10:23,764 graphrag.index.reporting.file_workflow_callbacks INFO Error Invoking LLM details={'input': ['"MAÎTRE RENARD":"Maître Renard is a character who is attracted by the smell of the cheese and engages in a conversation with Maître Corbeau."', '"PHÉNIX DES HÔTES DE CES BOIS":"Phénix des hôtes de ces bois is a metaphorical description of Maître Corbeau as the most beautiful bird in the woods."', '"FROMAGE":"fromage is a piece of cheese that is being held by Maître Corbeau and is the subject of the conversation."', '"MAÎTRE CORBEAU":', '"JURA":"Jura is a geographic location, possibly a region or a country."']}
+16:10:25,524 graphrag.index.reporting.file_workflow_callbacks INFO Error Invoking LLM details={'input': ['"MAÎTRE RENARD":"Maître Renard is a character who is attracted by the smell of the cheese and engages in a conversation with Maître Corbeau."', '"PHÉNIX DES HÔTES DE CES BOIS":"Phénix des hôtes de ces bois is a metaphorical description of Maître Corbeau as the most beautiful bird in the woods."', '"FROMAGE":"fromage is a piece of cheese that is being held by Maître Corbeau and is the subject of the conversation."', '"MAÎTRE CORBEAU":', '"JURA":"Jura is a geographic location, possibly a region or a country."']}
+16:10:28,430 graphrag.index.reporting.file_workflow_callbacks INFO Error Invoking LLM details={'input': ['"MAÎTRE RENARD":"Maître Renard is a character who is attracted by the smell of the cheese and engages in a conversation with Maître Corbeau."', '"PHÉNIX DES HÔTES DE CES BOIS":"Phénix des hôtes de ces bois is a metaphorical description of Maître Corbeau as the most beautiful bird in the woods."', '"FROMAGE":"fromage is a piece of cheese that is being held by Maître Corbeau and is the subject of the conversation."', '"MAÎTRE CORBEAU":', '"JURA":"Jura is a geographic location, possibly a region or a country."']}
+16:10:33,421 graphrag.index.reporting.file_workflow_callbacks INFO Error Invoking LLM details={'input': ['"MAÎTRE RENARD":"Maître Renard is a character who is attracted by the smell of the cheese and engages in a conversation with Maître Corbeau."', '"PHÉNIX DES HÔTES DE CES BOIS":"Phénix des hôtes de ces bois is a metaphorical description of Maître Corbeau as the most beautiful bird in the woods."', '"FROMAGE":"fromage is a piece of cheese that is being held by Maître Corbeau and is the subject of the conversation."', '"MAÎTRE CORBEAU":', '"JURA":"Jura is a geographic location, possibly a region or a country."']}

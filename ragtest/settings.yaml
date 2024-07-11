@@ -4,20 +4,21 @@ skip_workflows: []
 llm:
   api_key: ${GRAPHRAG_API_KEY}
   type: openai_chat # or azure_openai_chat
-  model: gpt-4o
+  model: meta-llama/Meta-Llama-3-8B-Instruct
   model_supports_json: true # recommended if this is available for your model.
-  # max_tokens: 4000
+  max_tokens: 3000
   # request_timeout: 180.0
-  # api_base: https://<instance>.openai.azure.com
+  api_base: http://localhost:8000/v1
   # api_version: 2024-02-15-preview
   # organization: <organization_id>
   # deployment_name: <azure_model_deployment_name>
-  # tokens_per_minute: 150_000 # set a leaky bucket throttle
-  # requests_per_minute: 10_000 # set a leaky bucket throttle
-  # max_retries: 10
+  tokens_per_minute: 3000 # set a leaky bucket throttle
+  requests_per_minute: 100 # set a leaky bucket throttle
+  max_retries: 3
   # max_retry_wait: 10.0
   # sleep_on_rate_limit_recommendation: true # whether to sleep when azure suggests wait-times
   # concurrent_requests: 25 # the number of parallel inflight requests that may be made
+  concurrent_requests: 25
 
 parallelization:
   stagger: 0.3
@@ -31,8 +32,8 @@ embeddings:
   llm:
     api_key: ${GRAPHRAG_API_KEY}
     type: openai_embedding # or azure_openai_embedding
-    model: text-embedding-3-small
-    # api_base: https://<instance>.openai.azure.com
+    model: nomic-ai/nomic-embed-text-v1.5-GGUF
+    api_base: http://localhost:1234/v1
     # api_version: 2024-02-15-preview
     # organization: <organization_id>
     # deployment_name: <azure_model_deployment_name>
@@ -125,7 +126,7 @@ umap:
   enabled: false # if true, will generate UMAP embeddings for nodes
 
 snapshots:
-  graphml: false
+  graphml: True
   raw_entities: false
   top_level_nodes: false
 
