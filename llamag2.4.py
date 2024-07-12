@@ -9,7 +9,7 @@ import requests
 import json
 
 class LLaMag:
-    def __init__(self, model_url="http://localhost:1234/v1", embedding_url="http://localhost:1234/v1", api_key="lm-studio", embedding_model="nomic-ai/nomic-embed-text-v1.5-GGUF", model="LM Studio Community/Meta-Llama-3-8B-Instruct-GGUF", message="You are Llamag, a helpful, smart, kind, and efficient AI assistant. You are specialized in reservoir computing. When asked to code, you will code using the reservoirPy library. You will also serve as an interface to a RAG (Retrieval-Augmented Generation) and will use the following documents to respond to your task. DOCUMENTS:", similarity_threshold=0.75, top_n=5):
+    def __init__(self, model_url="http://localhost:1234/v1", embedding_url="http://localhost:1234", api_key="lm-studio", embedding_model="nomic-ai/nomic-embed-text-v1.5-GGUF", model="LM Studio Community/Meta-Llama-3-8B-Instruct-GGUF", message="You are Llamag, a helpful, smart, kind, and efficient AI assistant. You are specialized in reservoir computing. When asked to code, you will code using the reservoirPy library. You will also serve as an interface to a RAG (Retrieval-Augmented Generation) and will use the following documents to respond to your task. DOCUMENTS:", similarity_threshold=0.75, top_n=5):
         self.model_client = OpenAI(base_url=model_url, api_key=api_key)
         self.embedding_client = OpenAI(base_url=embedding_url, api_key=api_key)
         self.embedding_url = embedding_url
@@ -228,8 +228,8 @@ new_message = '''
     DOCUMENTS:
     '''
 
-# llamag = LLaMag(message="new_message")
-llamag = LLaMag(model_url='http://localhost:8000/v1', embedding_url='http://localhost:5000/embed', api_key='EMPTY', embedding_model='nomic-ai/nomic-embed-text-v1.5', model='meta-llama/Meta-Llama-3-8B-Instruct', message=system_message, similarity_threshold=0.6, top_n=5)
+llamag = LLaMag(message="new_message")
+# llamag = LLaMag(model_url='http://localhost:8000/v1', embedding_url='http://localhost:5000/embed', api_key='EMPTY', embedding_model='nomic-ai/nomic-embed-text-v1.5', model='meta-llama/Meta-Llama-3-8B-Instruct', message=system_message, similarity_threshold=0.6, top_n=5)
 file_list = llamag.file_list('doc/md')
 # llamag.load_data(file_list)
 llamag.interface()

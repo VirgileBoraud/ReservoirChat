@@ -212,8 +212,8 @@ new_message = '''
     DOCUMENTS:
     '''
 
-# llamag = LLaMag(message="system_message")
-llamag = LLaMag(model_url='http://localhost:8000/v1', embedding_url='http://localhost:5000/embed', api_key='EMPTY', embedding_model='nomic-ai/nomic-embed-text-v1.5', model='meta-llama/Meta-Llama-3-8B-Instruct', message=system_message, similarity_threshold=0.6, top_n=5)
+llamag = LLaMag(message="system_message")
+# llamag = LLaMag(model_url='http://localhost:8000/v1', embedding_url='http://localhost:5000/embed', api_key='EMPTY', embedding_model='nomic-ai/nomic-embed-text-v1.5', model='meta-llama/Meta-Llama-3-8B-Instruct', message=system_message, similarity_threshold=0.6, top_n=5)
 
 # Initialize conversation and history
 conversation = {
