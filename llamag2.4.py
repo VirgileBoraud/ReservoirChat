@@ -7,18 +7,11 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 import requests
 import json
-import httpx
-
-# Configuration du proxy
-proxy = "socks5://localhost:41725"
-
-# Créer un client HTTPX avec le proxy
-http_client = httpx.Client(proxies={"http://": proxy, "https://": proxy})
 
 class LLaMag:
     def __init__(self, model_url="http://localhost:1234/v1", embedding_url="http://localhost:1234", api_key="lm-studio", embedding_model="nomic-ai/nomic-embed-text-v1.5-GGUF", model="LM Studio Community/Meta-Llama-3-8B-Instruct-GGUF", message="You are Llamag, a helpful, smart, kind, and efficient AI assistant. You are specialized in reservoir computing. When asked to code, you will code using the reservoirPy library. You will also serve as an interface to a RAG (Retrieval-Augmented Generation) and will use the following documents to respond to your task. DOCUMENTS:", similarity_threshold=0.75, top_n=5):
-        self.model_client = OpenAI(http_client=http_client, api_key=api_key)
-        self.embedding_client = OpenAI(http_client=http_client, api_key=api_key)
+        self.model_client = OpenAI(base_url=model_url, api_key=api_key)
+        self.embedding_client = OpenAI(base_url=embedding_url, api_key=api_key)
         self.embedding_url = embedding_url
         self.embedding_model = embedding_model
         self.model = model
@@ -28,7 +21,7 @@ class LLaMag:
         self.message = message
         self.code_content = self.read_file('doc/md/codes.md')
         self.history = []
-
+        
 
     def read_file(self, filepath):
         try:
@@ -37,7 +30,7 @@ class LLaMag:
         except Exception as e:
             print(f"Error reading file: {e}")
             return ""
-
+    
     def load_embeddings_from_csv(self, csv_file):
         try:
             df = pd.read_csv(csv_file)
@@ -46,7 +39,7 @@ class LLaMag:
         except Exception as e:
             print(f"Error loading embeddings from CSV: {e}")
             return pd.DataFrame()
-
+        
     # def get_embeddings(self, text):
     #     try:
     #         text = text.replace("\n", " ")
@@ -56,15 +49,15 @@ class LLaMag:
     #     except Exception as e:
     #         print(f"Error getting embeddings: {e}")
     #         return None
-
+    
     def get_embedding(self, text):
         try:
             url = self.embedding_url
             headers = {'Content-Type': 'application/json'}
             payload = {'texts': [text.replace("\n", " ")]}
-
+            
             response = requests.post(url, headers=headers, data=json.dumps(payload))
-
+            
             if response.status_code == 200:
                 return response.json()[0]
             else:
@@ -79,15 +72,15 @@ class LLaMag:
         try:
             # Get the list of files in the directory
             files = os.listdir(directory_path)
-
+            
             # Filter out directories, only keep files and add the directory path to each file name
             file_names = [os.path.join(directory_path, file) for file in files if os.path.isfile(os.path.join(directory_path, file))]
-
+            
             return file_names
         except Exception as e:
             print(f"An error occurred: {e}")
             return []
-
+    
     def load_data(self, filepaths):
         try:
             with ThreadPoolExecutor() as executor:
@@ -199,13 +192,13 @@ class LLaMag:
             # widgets=pn.widgets.FileInput(name="CSV File", accept=".csv"), To add the possibility to add documents
             # reset_on_send=False, for ne reset of writing
             )
-
+        
         layout = pn.Column(pn.pane.Markdown("## LLaMag", align='center'), chat_interface)
 
         if __name__ == "__main__":
             pn.serve(layout, port=3000)
 
-system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI assistant.
+system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI assistant. 
         You are specialized in reservoir computing.
         You will serve as an interface to a RAG (Retrieval-Augmented Generation).
         When given documents, you will respond using only these documents. They will serve as inspiration to your reponse.
@@ -237,13 +230,13 @@ new_message = '''
 
 #llamag = LLaMag(message="new_message")
 llamag = LLaMag(
-    model_url='http://localhost:8000/v1',
-    embedding_url='http://localhost:5000/v1/embeddings',
-    api_key='EMPTY',
-    embedding_model='nomic-ai/nomic-embed-text-v1.5',
-    model="TechxGenus/Codestral-22B-v0.1-GPTQ",
-    message=system_message,
-    similarity_threshold=0.6,
+    model_url='http://localhost:8000/v1', 
+    embedding_url='http://localhost:5000/v1/embeddings', 
+    api_key='EMPTY', 
+    embedding_model='nomic-ai/nomic-embed-text-v1.5', 
+    model="TechxGenus/Codestral-22B-v0.1-GPTQ", 
+    message=system_message, 
+    similarity_threshold=0.6, 
     top_n=5
 )
 file_list = llamag.file_list('doc/md')
