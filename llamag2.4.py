@@ -40,15 +40,15 @@ class LLaMag:
             print(f"Error loading embeddings from CSV: {e}")
             return pd.DataFrame()
         
-    def get_embeddings(self, text):
-        try:
-            text = text.replace("\n", " ")
-            response = self.embedding_client.embeddings.create(input=[text], model=self.embedding_model)
-            print(len(response.data[0].embedding))
-            return response.data[0].embedding
-        except Exception as e:
-            print(f"Error getting embeddings: {e}")
-            return None
+    # def get_embeddings(self, text):
+    #     try:
+    #         text = text.replace("\n", " ")
+    #         response = self.embedding_client.embeddings.create(input=[text], model=self.embedding_model)
+    #         print(len(response.data[0].embedding))
+    #         return response.data[0].embedding
+    #     except Exception as e:
+    #         print(f"Error getting embeddings: {e}")
+    #         return None
     
     def get_embedding(self, text):
         try:
@@ -196,7 +196,7 @@ class LLaMag:
         layout = pn.Column(pn.pane.Markdown("## LLaMag", align='center'), chat_interface)
 
         if __name__ == "__main__":
-            pn.serve(layout)
+            pn.serve(layout, port=3000)
 
 system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI assistant. 
         You are specialized in reservoir computing.
@@ -228,8 +228,17 @@ new_message = '''
     DOCUMENTS:
     '''
 
-llamag = LLaMag(message="new_message")
-# llamag = LLaMag(model_url='http://localhost:8000/v1', embedding_url='http://localhost:5000/embed', api_key='EMPTY', embedding_model='nomic-ai/nomic-embed-text-v1.5', model='meta-llama/Meta-Llama-3-8B-Instruct', message=system_message, similarity_threshold=0.6, top_n=5)
+#llamag = LLaMag(message="new_message")
+llamag = LLaMag(
+    model_url='http://localhost:8000/v1', 
+    embedding_url='http://localhost:5000/v1/embeddings', 
+    api_key='EMPTY', 
+    embedding_model='nomic-ai/nomic-embed-text-v1.5', 
+    model="TechxGenus/Codestral-22B-v0.1-GPTQ", 
+    message=system_message, 
+    similarity_threshold=0.6, 
+    top_n=5
+)
 file_list = llamag.file_list('doc/md')
 # llamag.load_data(file_list)
 llamag.interface()
