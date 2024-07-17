@@ -20,8 +20,6 @@ class LLaMag:
         self.df = self.load_embeddings_from_csv('embeddings.csv')
         self.message = message
         self.code_content = self.read_file('doc/md/codes.md')
-        self.history = []
-        
 
     def read_file(self, filepath):
         try:
@@ -151,24 +149,24 @@ class LLaMag:
         print(self.df.loc[top_n_indices])
         return self.df.loc[top_n_indices]
 
-    def get_response(self, user_message):
+    def get_response(self, user_message, history):
         top_n_results = self.get_top_n_closest_texts(user_message)
         top_n_texts = ("document name: " + top_n_results['document'] + " | ticket: " + top_n_results['ticket'] + " | response: " + top_n_results['response']).tolist()
         # print(top_n_texts)
         system_message = self.message
-        system_message += f"History of the previous message: {self.history}"
+        system_message += f"History of the previous message: {history}"
         '''if "code" in user_message.lower():
             system_message += f"\n\nAdditional Code Content:\n{self.code_content}\n"'''
         system_message += "\n" + str(top_n_texts)
         # print(system_message)
-        history = [
+        n_history = [
             {"role": "system", "content": system_message},
             {"role": "user", "content": user_message},
         ]
 
         completion = self.model_client.chat.completions.create(
             model=self.model,
-            messages=history,
+            messages=n_history,
             temperature=0.7,
             stream=True,
         )
@@ -179,25 +177,24 @@ class LLaMag:
                 response_text += chunk.choices[0].delta.content
                 yield response_text
 
-        self.history.append({"User":user_message,"Document_used":top_n_texts,"LLaMag":response_text})
+        history.append({"User":user_message,"Document_used":top_n_texts,"LLaMag":response_text})
 
     def interface(self):
+        history = [] 
         def callback(contents: str, user: str, instance: pn.widgets.ChatBox):
-            return self.get_response(contents)
+            return self.get_response(contents, history)
 
         chat_interface = pn.chat.ChatInterface(
             callback=callback,
             user="Virgile",
             callback_user="LLaMag",
-            #callback_avatar=,
+            # callback_avatar=,
             # widgets=pn.widgets.FileInput(name="CSV File", accept=".csv"), To add the possibility to add documents
             # reset_on_send=False, for ne reset of writing
             )
         
         layout = pn.Column(pn.pane.Markdown("## ReservoirChat", align='center'), chat_interface)
-
-        if __name__ == "__main__":
-            pn.serve(layout, title="ReservoirChat")
+        return layout
 
 system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI assistant. 
         You are specialized in reservoir computing.
@@ -229,8 +226,33 @@ new_message = '''
     DOCUMENTS:
     '''
 
-# llamag = LLaMag(message="new_message")
-llamag = LLaMag(model_url='http://localhost:8000/v1', embedding_url='http://127.0.0.1:5000/v1/embeddings', api_key='EMPTY', embedding_model='nomic-ai/nomic-embed-text-v1.5', model='TechxGenus/Codestral-22B-v0.1-GPTQ', message=system_message, similarity_threshold=0.6, top_n=5)
-file_list = llamag.file_list('doc/md')
-# llamag.load_data(file_list)
-llamag.interface()
+'''
+def create_layout():
+    user_input = pn.widgets.TextInput(name='Enter your name:', placeholder='Type here...')
+    start_button = pn.widgets.Button(name='Start Chat', button_type='primary')
+
+    def start_chat(event):
+        user = user_input.value
+        if user:
+            # Replace the user input and start button with the chat interface
+            layout[:] = [llamag.interface(user)]
+
+    start_button.on_click(start_chat)
+
+    layout = pn.Column(
+        pn.pane.Markdown("## Welcome to ReservoirChat", align='center'), 
+        user_input, 
+        start_button
+    )
+    
+    return layout'''
+
+def create_layout():
+    return llamag.interface()
+
+if __name__ == "__main__":
+    llamag = LLaMag(model_url='http://localhost:8000/v1', embedding_url='http://127.0.0.1:5000/v1/embeddings', api_key='EMPTY', embedding_model='nomic-ai/nomic-embed-text-v1.5', model='TechxGenus/Codestral-22B-v0.1-GPTQ', message=system_message, similarity_threshold=0.6, top_n=5)
+    file_list = llamag.file_list('doc/md')
+    # llamag.load_data(file_list)
+
+    pn.serve(create_layout, title="ReservoirChat")
