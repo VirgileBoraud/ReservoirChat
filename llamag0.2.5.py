@@ -192,8 +192,23 @@ class LLaMag:
             # widgets=pn.widgets.FileInput(name="CSV File", accept=".csv"), To add the possibility to add documents
             # reset_on_send=False, for ne reset of writing
             )
-        
+        '''
+        theme_toggle = pn.widgets.Toggle(name='Dark Mode', button_type='success')
+
+        def toggle_theme(event):
+            if theme_toggle.value:
+                pn.config.theme = 'light'
+                theme_toggle.name = 'Light Mode'
+                theme_toggle.button_type = 'warning'
+            else:
+                pn.config.theme = 'dark'
+                theme_toggle.name = 'Dark Mode'
+                theme_toggle.button_type = 'success'
+
+        theme_toggle.param.watch(toggle_theme, 'value')'''
+
         layout = pn.Column(pn.pane.Markdown("## ReservoirChat", align='center'),
+                           # theme_toggle,
                            chat_interface,
                            sizing_mode='stretch_width'
                            )
