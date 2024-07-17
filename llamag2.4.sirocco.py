@@ -38,15 +38,15 @@ class LLaMag:
             print(f"Error loading embeddings from CSV: {e}")
             return pd.DataFrame()
         
-    def get_embeddings(self, text):
-        try:
-            text = text.replace("\n", " ")
-            response = self.embedding_client.embeddings.create(input=[text], model=self.embedding_model)
-            print(len(response.data[0].embedding))
-            return response.data[0].embedding
-        except Exception as e:
-            print(f"Error getting embeddings: {e}")
-            return None
+    # def get_embeddings(self, text):
+    #     try:
+    #         text = text.replace("\n", " ")
+    #         response = self.embedding_client.embeddings.create(input=[text], model=self.embedding_model)
+    #         print(len(response.data[0].embedding))
+    #         return response.data[0].embedding
+    #     except Exception as e:
+    #         print(f"Error getting embeddings: {e}")
+    #         return None
     
     def get_embedding(self, text):
         try:
@@ -193,7 +193,10 @@ class LLaMag:
             # reset_on_send=False, for ne reset of writing
             )
         
-        layout = pn.Column(pn.pane.Markdown("## ReservoirChat", align='center'), chat_interface)
+        layout = pn.Column(pn.pane.Markdown("## ReservoirChat", align='center'),
+                           chat_interface,
+                           sizing_mode='stretch_width'
+                           )
         return layout
 
 system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI assistant. 
@@ -251,8 +254,16 @@ def create_layout():
     return llamag.interface()
 
 if __name__ == "__main__":
-    llamag = LLaMag(model_url='http://localhost:8000/v1', embedding_url='http://127.0.0.1:5000/v1/embeddings', api_key='EMPTY', embedding_model='nomic-ai/nomic-embed-text-v1.5', model='TechxGenus/Codestral-22B-v0.1-GPTQ', message=system_message, similarity_threshold=0.6, top_n=5)
+    llamag = LLaMag(model_url='http://localhost:8000/v1',
+                    embedding_url='http://127.0.0.1:5000/v1/embeddings',
+                    api_key='EMPTY',
+                    embedding_model='nomic-ai/nomic-embed-text-v1.5',
+                    model='TechxGenus/Codestral-22B-v0.1-GPTQ',
+                    message=system_message,
+                    similarity_threshold=0.6,
+                    top_n=5)
+
     file_list = llamag.file_list('doc/md')
     # llamag.load_data(file_list)
 
-    pn.serve(create_layout, title="ReservoirChat")
+    pn.serve(create_layout, title="ReservoirChat", port=8080)
