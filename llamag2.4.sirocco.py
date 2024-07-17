@@ -189,14 +189,15 @@ class LLaMag:
             callback=callback,
             user="Virgile",
             callback_user="LLaMag",
+            #callback_avatar=,
             # widgets=pn.widgets.FileInput(name="CSV File", accept=".csv"), To add the possibility to add documents
             # reset_on_send=False, for ne reset of writing
             )
         
-        layout = pn.Column(pn.pane.Markdown("## LLaMag", align='center'), chat_interface)
+        layout = pn.Column(pn.pane.Markdown("## ReservoirChat", align='center'), chat_interface)
 
         if __name__ == "__main__":
-            pn.serve(layout)
+            pn.serve(layout, title="ReservoirChat")
 
 system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI assistant. 
         You are specialized in reservoir computing.
@@ -229,7 +230,7 @@ new_message = '''
     '''
 
 # llamag = LLaMag(message="new_message")
-llamag = LLaMag(model_url='http://localhost:8000/v1', embedding_url='http://localhost:5000/embed', api_key='EMPTY', embedding_model='nomic-ai/nomic-embed-text-v1.5', model='meta-llama/Meta-Llama-3-8B-Instruct', message=system_message, similarity_threshold=0.6, top_n=5)
+llamag = LLaMag(model_url='http://localhost:8000/v1', embedding_url='http://127.0.0.1:5000/v1/embeddings', api_key='EMPTY', embedding_model='nomic-ai/nomic-embed-text-v1.5', model='TechxGenus/Codestral-22B-v0.1-GPTQ', message=system_message, similarity_threshold=0.6, top_n=5)
 file_list = llamag.file_list('doc/md')
 # llamag.load_data(file_list)
 llamag.interface()

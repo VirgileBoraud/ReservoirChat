@@ -49,24 +49,6 @@ class LLaMag:
         except Exception as e:
             print(f"Error getting embeddings: {e}")
             return None
-    
-    def get_embeddings(self, text):
-        try:
-            url = self.embedding_url
-            headers = {'Content-Type': 'application/json'}
-            payload = {'texts': [text.replace("\n", " ")]}
-            
-            response = requests.post(url, headers=headers, data=json.dumps(payload))
-            
-            if response.status_code == 200:
-                return response.json()[0]
-            else:
-                print(f"Error getting embeddings: {response.json()}")
-                return None
-        except Exception as e:
-            print(f"Error getting embeddings: {e}")
-            return None
-
 
     def file_list(self, directory_path):
         try:
@@ -182,8 +164,13 @@ class LLaMag:
         self.history.append({"User":user_message,"Document_used":top_n_texts,"LLaMag":response_text})
 
     def interface(self):
+        user_sessions = {}
+
         def callback(contents: str, user: str, instance: pn.widgets.ChatBox):
-            return self.get_response(contents)
+            if user not in user_sessions:
+                user_sessions[user] = LLaMag()  # Create a new session for each user
+            user_llamag = user_sessions[user]
+            return user_llamag.get_response(contents)
 
         chat_interface = pn.chat.ChatInterface(
             callback=callback,
@@ -229,7 +216,6 @@ new_message = '''
     '''
 
 llamag = LLaMag(message="system_message")
-# llamag = LLaMag(model_url='http://localhost:8000/v1', embedding_url='http://localhost:5000/embed', api_key='EMPTY', embedding_model='nomic-ai/nomic-embed-text-v1.5', model='meta-llama/Meta-Llama-3-8B-Instruct', message=system_message, similarity_threshold=0.6, top_n=5)
 file_list = llamag.file_list('doc/md')
 # llamag.load_data(file_list)
 llamag.interface()
