@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 import requests
 import json
 from panel.chat import ChatMessage
+from http.cookies import SimpleCookie
 
 class LLaMag:
     def __init__(self, model_url="http://localhost:1234/v1", embedding_url="http://localhost:1234/v1", api_key="lm-studio", embedding_model="nomic-ai/nomic-embed-text-v1.5-GGUF", model="LM Studio Community/Meta-Llama-3-8B-Instruct-GGUF", message="You are Llamag, a helpful, smart, kind, and efficient AI assistant. You are specialized in reservoir computing. When asked to code, you will code using the reservoirPy library. You will also serve as an interface to a RAG (Retrieval-Augmented Generation) and will use the following documents to respond to your task. DOCUMENTS:", similarity_threshold=0.75, top_n=5):
@@ -150,7 +151,7 @@ class LLaMag:
         print(self.df.loc[top_n_indices])
         return self.df.loc[top_n_indices]
 
-    def get_response(self, user_message, history):
+    async def get_response(self, user_message, history):
         top_n_results = self.get_top_n_closest_texts(user_message)
         top_n_texts = ("document name: " + top_n_results['document'] + " | ticket: " + top_n_results['ticket'] + " | response: " + top_n_results['response']).tolist()
         # print(top_n_texts)
@@ -181,12 +182,13 @@ class LLaMag:
         history.append({"User":user_message,"Document_used":top_n_texts,"LLaMag":response_text})
 
     def interface(self):
-        history = [] 
-        def callback(contents: str, user: str, instance: pn.widgets.ChatBox):
+        history = []
+        
+        def callback(contents: str, user: str, instance: pn.chat.ChatInterface):
             # To avoid having too much history
             if len(history) >= 10:
                 history.pop(3)
-                print
+                print(history)
             return self.get_response(contents, history)
 
         def clear_history(instance, event):
@@ -209,23 +211,26 @@ class LLaMag:
 
         layout = pn.Row(
                     pn.Column(
-                        pn.pane.Markdown("## Conversations", align='center'),
-                        pn.widgets.Button(name='Button 1', button_type='primary'),
-                        pn.widgets.Button(name='Button 2', button_type='primary'),
-                        background='#f0f0f0',
-                        styles={'padding': '10px', 'border': '2px solid #d3d3d3'},
-                        width=200,
+                        pn.pane.Markdown("<h2 style='color:white; font-size:28px;'>Conversations</h2>", align='center'),
+                        pn.widgets.Button(name='New Conversation', button_type='primary', align='center'),
+                        styles={'padding': '10px', 'border': '2px solid #2FA6BD','background': '#31ABC7'},
+                        width=300,
                         sizing_mode='stretch_height'
                     ),
                     pn.Column(
-                        pn.pane.Markdown("# ReservoirChat", align='center'),
+                        pn.pane.HTML("""
+                        <div style="display: flex; align-items: center;">
+                            <h2 style='font-size:32px;'>Reservoir</h2><h2 style='color:#31ABC7; font-size:32px;'>Chat</h2>
+                        </div>
+                        """, align='center'),
+                        #pn.pane.HTML(html_content, align='center'),
                         # theme_toggle,
                         pn.chat.ChatInterface(
                             # ChatMessage("Hi and welcome! My name is LLaMag, I'm a Large Language Model (LLM), serving as a RAG (Retrieval-Augmented Generation) interface, specialised in reservoir computing. I will based my responses on a large database consisting of several documents ([See the documents here](https://github.com/VirgileBoraud/Llamag/tree/main/doc/md))"),
                             user="Virgile",
                             callback=callback,
                             callback_user="LLaMag",
-                            # callback_avatar=,
+                            # callback_avatar="Sir_Gillington.png",
                             # widgets=pn.widgets.FileInput(name="CSV File", accept=".csv"), To add the possibility to add documents
                             # reset_on_send=False, for ne reset of writing
                         ),
