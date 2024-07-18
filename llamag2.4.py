@@ -266,4 +266,4 @@ if __name__ == "__main__":
     file_list = llamag.file_list('doc/md')
     # llamag.load_data(file_list)
 
-    pn.serve(create_layout, title="ReservoirChat", port=8080)
+    pn.serve(create_layout, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"])
