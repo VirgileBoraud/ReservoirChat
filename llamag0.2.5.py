@@ -7,6 +7,7 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 import requests
 import json
+from panel.chat import ChatMessage
 
 class LLaMag:
     def __init__(self, model_url="http://localhost:1234/v1", embedding_url="http://localhost:1234/v1", api_key="lm-studio", embedding_model="nomic-ai/nomic-embed-text-v1.5-GGUF", model="LM Studio Community/Meta-Llama-3-8B-Instruct-GGUF", message="You are Llamag, a helpful, smart, kind, and efficient AI assistant. You are specialized in reservoir computing. When asked to code, you will code using the reservoirPy library. You will also serve as an interface to a RAG (Retrieval-Augmented Generation) and will use the following documents to respond to your task. DOCUMENTS:", similarity_threshold=0.75, top_n=5):
@@ -182,19 +183,18 @@ class LLaMag:
     def interface(self):
         history = [] 
         def callback(contents: str, user: str, instance: pn.widgets.ChatBox):
+            # To avoid having too much history
+            if len(history) >= 10:
+                history.pop(3)
+                print
             return self.get_response(contents, history)
 
-        chat_interface = pn.chat.ChatInterface(
-            callback=callback,
-            user="Virgile",
-            callback_user="LLaMag",
-            # callback_avatar=,
-            # widgets=pn.widgets.FileInput(name="CSV File", accept=".csv"), To add the possibility to add documents
-            # reset_on_send=False, for ne reset of writing
-            )
+        def clear_history(instance, event):
+            history.clear()
+
         '''
         theme_toggle = pn.widgets.Toggle(name='Dark Mode', button_type='success')
-
+        
         def toggle_theme(event):
             if theme_toggle.value:
                 pn.config.theme = 'light'
@@ -207,11 +207,32 @@ class LLaMag:
 
         theme_toggle.param.watch(toggle_theme, 'value')'''
 
-        layout = pn.Column(pn.pane.Markdown("## ReservoirChat", align='center'),
-                           # theme_toggle,
-                           chat_interface,
-                           sizing_mode='stretch_width'
-                           )
+        layout = pn.Row(
+                    pn.Column(
+                        pn.pane.Markdown("## Conversations", align='center'),
+                        pn.widgets.Button(name='Button 1', button_type='primary'),
+                        pn.widgets.Button(name='Button 2', button_type='primary'),
+                        background='#f0f0f0',
+                        styles={'padding': '10px', 'border': '2px solid #d3d3d3'},
+                        width=200,
+                        sizing_mode='stretch_height'
+                    ),
+                    pn.Column(
+                        pn.pane.Markdown("# ReservoirChat", align='center'),
+                        # theme_toggle,
+                        pn.chat.ChatInterface(
+                            # ChatMessage("Hi and welcome! My name is LLaMag, I'm a Large Language Model (LLM), serving as a RAG (Retrieval-Augmented Generation) interface, specialised in reservoir computing. I will based my responses on a large database consisting of several documents ([See the documents here](https://github.com/VirgileBoraud/Llamag/tree/main/doc/md))"),
+                            user="Virgile",
+                            callback=callback,
+                            callback_user="LLaMag",
+                            # callback_avatar=,
+                            # widgets=pn.widgets.FileInput(name="CSV File", accept=".csv"), To add the possibility to add documents
+                            # reset_on_send=False, for ne reset of writing
+                        ),
+                        # button_properties={"clear": {"callback": clear_history}},
+                        sizing_mode='stretch_width'
+                    )
+                )
         return layout
 
 system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI assistant. 
