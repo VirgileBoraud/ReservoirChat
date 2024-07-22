@@ -235,14 +235,15 @@ class LLaMag:
         def new_conversation(event):
             if not event:
                 return
-            history_history.append([chat_interface.serialize()])
-            history = history
+            # history_history.append([chat_interface.serialize()]) I wan't to change the method here cause I wan't (maybe ?) the documents given before
+            old = history
+            history_history.append(old)
+            history.clear()
             print("-------------------------History--------------------------------")
             print(history)
             print("---------------------History-History-----------------------------")
             print(history_history)
             print("-----------------------------------------------------------------")
-            history = []
             layout.pop(1)
             new_chat = New_Chat_Interface()
             new_right = right_column(new_chat)
