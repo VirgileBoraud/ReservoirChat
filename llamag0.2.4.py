@@ -180,80 +180,102 @@ class LLaMag:
                 yield response_text
 
         history.append({"User":user_message,"Document_used":top_n_texts,"LLaMag":response_text})
-        #return response_text
-    
+
     def interface(self):
+        history_history = []
         history = []
         
-        def callback(contents: str, user: str, instance: pn.chat.ChatInterface):
-            # To avoid having too much history
-            if len(history) >= 10:
-                history.pop(3)
-                print(history)
-            if(chat_input.param.value == "exit"):
-                exit()
-            else:
-                chat_interface.send(self.get_response(contents, history),
-                                    user="Sir Gillington",
-                                    avatar="Sir_Gillington.png",
-                                    respond=False
-                                    )
-
-        def clear_history(instance, event):
-            history.clear()
-
-        '''
-        theme_toggle = pn.widgets.Toggle(name='Dark Mode', button_type='success')
+        def New_Chat_Interface():
+            return pn.chat.ChatInterface(
+                            # ChatMessage("Hi and welcome! My name is LLaMag, I'm a Large Language Model (LLM), serving as a RAG (Retrieval-Augmented Generation) interface, specialised in reservoir computing. I will based my responses on a large database consisting of several documents ([See the documents here](https://github.com/VirgileBoraud/Llamag/tree/main/doc/md))"),
+                            user="Virgile",
+                            callback=callback,
+                            callback_user="LLaMag",
+                            # callback_avatar="Sir_Gillington.png",
+                            # widgets=pn.widgets.FileInput(name="CSV File", accept=".csv"), To add the possibility to add documents
+                            # reset_on_send=False, for ne reset of writing
+                        )
         
-        def toggle_theme(event):
-            if theme_toggle.value:
-                pn.config.theme = 'light'
-                theme_toggle.name = 'Light Mode'
-                theme_toggle.button_type = 'warning'
-            else:
-                pn.config.theme = 'dark'
-                theme_toggle.name = 'Dark Mode'
-                theme_toggle.button_type = 'success'
-
-        theme_toggle.param.watch(toggle_theme, 'value')'''
-        chat_input = pn.chat.ChatAreaInput(placeholder="Type something, and press Enter to clear!", sizing_mode='stretch_width')
-        chat_interface = pn.chat.ChatInterface(
-            user="Virgile",
-            callback=callback,
-            # callback_user="Sir Gillington",
-            # avatar="Sir_Gillington.png",
-            # widgets=pn.widgets.FileInput(name="CSV File", accept=".csv"), To add the possibility to add documents
-            # reset_on_send=False, for ne reset of writing
-        )
-        layout = pn.Row(
-                    pn.Column(
+        def layout(left, right):
+            return pn.Row(
+                    left,
+                    right
+                    )
+        
+        def left_column():
+            return pn.Column(
                         pn.pane.Markdown("<h2 style='color:white; font-size:28px;'>Conversations</h2>", align='center'),
-                        pn.widgets.Button(name='New Conversation', button_type='primary', align='center'),
+                        new_conversation_button,
                         styles={'padding': '10px', 'border': '2px solid #2FA6BD','background': '#31ABC7'},
                         width=300,
                         sizing_mode='stretch_height'
-                    ),
-                    pn.Column(
+                        )
+        
+        def right_column(chat_interface):
+            return pn.Column(
                         pn.pane.HTML("""
                         <div style="display: flex; align-items: center;">
                             <h2 style='font-size:32px;'>Reservoir</h2><h2 style='color:#31ABC7; font-size:32px;'>Chat</h2>
                         </div>
                         """, align='center'),
+                        #pn.pane.HTML(html_content, align='center'),
                         # theme_toggle,
                         chat_interface,
-                        # chat_feed.send("Hi and welcome! My name is Sir Gillington. I'm a RAG (Retrieval-Augmented Generation) interface specialised in reservoir computing using a Large Language Model (LLM) to help respond to your questions. I will based my responses on a large database consisting of several documents ([See the documents here](https://github.com/VirgileBoraud/Llamag/tree/main/doc/md))", user="Sir Gillington", avatar="Sir_Gillington.png"),
-                        chat_input,
                         # button_properties={"clear": {"callback": clear_history}},
                         sizing_mode='stretch_width'
-                    )
-                )
+                        )
         
-        chat_interface.send("Hi and welcome! My name is Sir Gillington. I'm a RAG (Retrieval-Augmented Generation) interface specialised in reservoir computing using a Large Language Model (LLM) to help respond to your questions. I will based my responses on a large database consisting of several documents ([See the documents here](https://github.com/VirgileBoraud/Llamag/tree/main/doc/md))",
-                       user="Sir Gillington",
-                       avatar="Sir_Gillington.png",
-                       respond=False,
-                       ),
+        def introduction(chat):
+            chat.send("Hi and welcome! My name is Sir Gillington. I'm a RAG (Retrieval-Augmented Generation) interface specialised in reservoir computing using a Large Language Model (LLM) to help respond to your questions. I will based my responses on a large database consisting of several documents ([See the documents here](https://github.com/VirgileBoraud/Llamag/tree/main/doc/md))",
+                    user="Sir Gillington",
+                    avatar="Sir_Gillington.png",
+                    respond=False
+                    )
+        
+        def new_conversation(event):
+            if not event:
+                return
+            history_history.append([chat_interface.serialize()])
+            history = history
+            print("-------------------------History--------------------------------")
+            print(history)
+            print("---------------------History-History-----------------------------")
+            print(history_history)
+            print("-----------------------------------------------------------------")
+            history = []
+            layout.pop(1)
+            new_chat = New_Chat_Interface()
+            new_right = right_column(new_chat)
+            layout.append(new_right)
+            introduction(new_chat)
 
+        def callback(contents: str, user: str, instance: pn.chat.ChatInterface):
+            # To avoid having too much history
+            if len(history) >= 10:
+                history.pop(3)
+                print(history)
+            return self.get_response(contents, history)
+
+        def clear_history(instance, event):
+            history.clear()
+
+        new_conversation_button = pn.widgets.Button(name='New Conversation', button_type='primary', align='center')
+        pn.bind(new_conversation, new_conversation_button, watch=True)
+        
+        def new_conversation(event):
+            if not event:
+                return
+            
+            print("Hello")
+        
+        chat_interface = New_Chat_Interface()
+        left = left_column()
+        right = right_column(chat_interface)
+
+        introduction(chat_interface)
+        
+        layout = layout(left, right)
+        
         pn.serve(layout, title="ReservoirChat", port=8080)
 
 system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI assistant. 
@@ -273,39 +295,8 @@ system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI ass
         (document name : where the name of the document with the similarity are, you will display the name of these documents when you are asked to give the source | ticket: Where the similar questions or embeddings are | answer: the answer or resulting embeddings that will serve you as inspiration to your answer)
         '''
 
-new_message = '''
-    You are LLaMag, a helpful, smart, kind and efficient LLM using a RAG (Retrieval-Augmented Generation) application to fetch documents and give relevant answers.
-    You are specialised in reservoir computing and in the reservoirPy library.
-    You will receive a list of this form:
-    (document name :  | ticket:  | answer: )
-    document name : is where the name of the document with the similarity are, you will display the name of these documents when you are asked to give the source.
-    ticket : are where the similar questions or embeddings are.
-    answer : are the answer or resulting embeddings that will serve you as inspiration to your answer.
-    If asked to code, you will receive an additional document with a lot of code using the reservoirPy library, you will then code using this codes as references.
-    If the documents is empty then you will respond that you don't know.
-    DOCUMENTS:
-    '''
-
-'''
 def create_layout():
-    user_input = pn.widgets.TextInput(name='Enter your name:', placeholder='Type here...')
-    start_button = pn.widgets.Button(name='Start Chat', button_type='primary')
-
-    def start_chat(event):
-        user = user_input.value
-        if user:
-            # Replace the user input and start button with the chat interface
-            layout[:] = [llamag.interface(user)]
-
-    start_button.on_click(start_chat)
-
-    layout = pn.Column(
-        pn.pane.Markdown("## Welcome to ReservoirChat", align='center'), 
-        user_input, 
-        start_button
-    )
-    
-    return layout'''
+    return llamag.interface()
 
 if __name__ == "__main__":
     llamag = LLaMag(model_url='http://localhost:8000/v1',

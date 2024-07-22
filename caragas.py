@@ -1,15 +1,16 @@
 import panel as pn
 pn.extension()
+button = pn.widgets.Button(name='Click me', button_type='primary')
+indicator = pn.indicators.LoadingSpinner(value=False, size=25)
 
-chat_input = pn.chat.ChatAreaInput(placeholder='Type a message...')
+def new_conversation(event):
+    if not event:
+        return
+    
+    print("Hello")
 
-chat_feed = pn.chat.ChatFeed()
+pn.bind(new_conversation, button, watch=True)
 
-def handle_message(event):
-    chat_feed.append(pn.chat.ChatMessage(text=event.new, name='User'))
-    chat_input.value = ''
+layout = pn.Column(button, indicator)
 
-chat_input.param.watch(handle_message, 'value')
-
-chat_interface = pn.Column(chat_feed, chat_input)
-chat_interface.show()
+pn.serve(layout)
