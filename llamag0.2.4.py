@@ -9,6 +9,8 @@ import requests
 import json
 from panel.chat import ChatMessage
 from http.cookies import SimpleCookie
+from datetime import date, datetime
+import time
 
 class LLaMag:
     def __init__(self, model_url="http://localhost:1234/v1", embedding_url="http://localhost:1234/v1", api_key="lm-studio", embedding_model="nomic-ai/nomic-embed-text-v1.5-GGUF", model="LM Studio Community/Meta-Llama-3-8B-Instruct-GGUF", message="You are Llamag, a helpful, smart, kind, and efficient AI assistant. You are specialized in reservoir computing. When asked to code, you will code using the reservoirPy library. You will also serve as an interface to a RAG (Retrieval-Augmented Generation) and will use the following documents to respond to your task. DOCUMENTS:", similarity_threshold=0.75, top_n=5):
@@ -22,6 +24,8 @@ class LLaMag:
         self.df = self.load_embeddings_from_csv('embeddings.csv')
         self.message = message
         self.code_content = self.read_file('doc/md/codes.md')
+        self.history = []
+        self.history_history = []
 
     def read_file(self, filepath):
         try:
@@ -179,11 +183,9 @@ class LLaMag:
                 response_text += chunk.choices[0].delta.content
                 yield response_text
 
-        history.append({"User":user_message,"Document_used":top_n_texts,"LLaMag":response_text})
+        self.history.append({"User":user_message,"Document_used":top_n_texts,"LLaMag":response_text})
 
     def interface(self):
-        history_history = []
-        history = []
         
         def New_Chat_Interface():
             return pn.chat.ChatInterface(
@@ -232,42 +234,74 @@ class LLaMag:
                     respond=False
                     )
         
-        def new_conversation(event):
-            if not event:
-                return
-            # history_history.append([chat_interface.serialize()]) I wan't to change the method here cause I wan't (maybe ?) the documents given before
-            old = history
-            history_history.append(old)
-            history.clear()
-            print("-------------------------History--------------------------------")
-            print(history)
-            print("---------------------History-History-----------------------------")
-            print(history_history)
-            print("-----------------------------------------------------------------")
+        def this_conversation(event):
+            old_chat = New_Chat_Interface()
+            old_right = right_column(old_chat)
             layout.pop(1)
-            new_chat = New_Chat_Interface()
-            new_right = right_column(new_chat)
-            layout.append(new_right)
-            introduction(new_chat)
+            layout.append(old_right)
+            list_history_history = self.history_history
+            list_of_conversation = list_history_history[1] # I need to change some things here because i doesn't show the right conversation when clicking
+            print(list_of_conversation)
+            for i in list_of_conversation:
+                old_chat.send(
+                            "Hi and welcome! My name is Sir Gillington. I'm a RAG (Retrieval-Augmented Generation) interface specialised in reservoir computing using a Large Language Model (LLM) to help respond to your questions. I will based my responses on a large database consisting of several documents ([See the documents here](https://github.com/VirgileBoraud/Llamag/tree/main/doc/md))",
+                            user="Sir Gillington",
+                            avatar="Sir_Gillington.png",
+                            respond=False
+                            )
 
-        def callback(contents: str, user: str, instance: pn.chat.ChatInterface):
-            # To avoid having too much history
-            if len(history) >= 10:
-                history.pop(3)
-                print(history)
-            return self.get_response(contents, history)
-
-        def clear_history(instance, event):
-            history.clear()
-
-        new_conversation_button = pn.widgets.Button(name='New Conversation', button_type='primary', align='center')
-        pn.bind(new_conversation, new_conversation_button, watch=True)
-        
         def new_conversation(event):
             if not event:
                 return
             
-            print("Hello")
+            self.history_history.append(self.history)
+            print(self.history_history)
+            new_chat = New_Chat_Interface()
+            new_right = right_column(new_chat)
+
+            current_time = time.ctime()
+            time_components = current_time.split()
+            date_part = " ".join(time_components[0:4])
+            time_part = time_components[3]
+
+            llm_message = [
+                            {"role": "system", "content": f"Resume the questions asked by the user in less than 5 words in this conversation : {self.history}"},
+                            {"role": "user", "content": "Resume it"},
+                           ]
+            
+            completion = self.model_client.chat.completions.create(
+                                                                    model=self.model,
+                                                                    messages=llm_message,
+                                                                    temperature=0.7,
+                                                                    stream=True,
+                                                                    )
+            resume_llm = ""
+
+            layout.pop(1)
+            layout.append(new_right)
+            introduction(new_chat)
+
+            for chunk in completion:
+                if chunk.choices[0].delta.content:
+                    resume_llm += chunk.choices[0].delta.content
+
+            self.history = []
+            history_conversation_button = pn.widgets.Button(name=f"{time_part}", button_type='primary', align='center', width=220, height=60, description=f"{resume_llm}")
+            pn.bind(this_conversation, history_conversation_button, watch=True)
+            left.append(history_conversation_button)
+
+        def callback(contents: str, user: str, instance: pn.chat.ChatInterface):
+            # To avoid having too much history
+            if len(self.history) >= 10:
+                self.history.pop(3)
+                print(self.history)
+            return self.get_response(contents, self.history)
+
+        def clear_history(instance, event):
+            self.history.clear()
+
+        new_conversation_button = pn.widgets.Button(name='New Conversation', button_type='primary', align='center')
+        pn.bind(new_conversation, new_conversation_button, watch=True)
         
         chat_interface = New_Chat_Interface()
         left = left_column()
