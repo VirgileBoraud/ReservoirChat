@@ -186,35 +186,6 @@ class ReservoirChat:
                 yield response_text
 
         self.history.append({"User":user_message,"Document_used":top_n_texts,"ReservoirChat":response_text})
-    
-    def cookie():
-        from flask import Flask, request, jsonify, make_response
-
-        app = Flask(__name__)
-
-        @app.route('/login', methods=['POST'])
-        def login():
-            data = request.get_json()
-            username = data.get('username')
-            password = data.get('password')
-
-            if username == 'testuser' and password == 'testpass':
-                res = make_response(jsonify(success=True))
-                res.set_cookie('session', 'logged_in')
-                return res
-            else:
-                return jsonify(success=False), 401
-
-        @app.route('/protected')
-        def protected():
-            session_cookie = request.cookies.get('session')
-            if session_cookie == 'logged_in':
-                return jsonify(access=True)
-            else:
-                return jsonify(access=False), 403
-
-        app.run(debug=True)
-
 
     def interface(self):
         
@@ -252,6 +223,7 @@ class ReservoirChat:
                         """, align='center'),
                         # pn.pane.HTML(html_content, align='center'),
                         # theme_toggle,
+                        cookie_popup,
                         chat_interface,
                         # button_properties={"clear": {"callback": clear_history}},
                         sizing_mode='stretch_width'
@@ -361,9 +333,39 @@ class ReservoirChat:
         def clear_history(instance, event):
             self.history.clear()
 
+        def set_cookie_consent(consent):
+            if consent == 'accepted':
+                cookie_popup.visible = False
+            elif consent == 'declined':
+                return
+        
+        def cookie_consent_popup():
+            consent_text = pn.pane.Markdown(
+                "Hello, we use cookies to store your conversations and messages. By accepting, you agree to our use of cookies",
+                align="center"
+            )
+            accept_button = pn.widgets.Button(name='Accept', button_type='primary')
+            decline_button = pn.widgets.Button(name='Decline', button_type='warning')
+
+            accept_button.on_click(lambda event: set_cookie_consent('accepted'))
+            decline_button.on_click(lambda event: set_cookie_consent('declined'))
+
+            popup = pn.Column(
+                consent_text,
+                pn.Row(accept_button, decline_button, align="center"),
+                background='lightgray',
+                margin=(10, 10, 10, 10),
+                width=400,
+                align='center',
+                css_classes=['cookie-consent']
+            )
+            
+            return popup
+
         new_conversation_button = pn.widgets.Button(name='New Conversation', button_type='primary', align='center')
         pn.bind(new_conversation, new_conversation_button, watch=True)
         
+        cookie_popup = cookie_consent_popup()
         chat_interface = New_Chat_Interface()
         left = left_column()
         right = right_column(chat_interface)
