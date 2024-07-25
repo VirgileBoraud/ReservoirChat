@@ -11,9 +11,10 @@ from panel.chat import ChatMessage
 from http.cookies import SimpleCookie
 from datetime import date, datetime
 import time
+import param
 
-class LLaMag:
-    def __init__(self, model_url="http://localhost:1234/v1", embedding_url="http://localhost:1234/v1", api_key="lm-studio", embedding_model="nomic-ai/nomic-embed-text-v1.5-GGUF", model="LM Studio Community/Meta-Llama-3-8B-Instruct-GGUF", message="You are Llamag, a helpful, smart, kind, and efficient AI assistant. You are specialized in reservoir computing. When asked to code, you will code using the reservoirPy library. You will also serve as an interface to a RAG (Retrieval-Augmented Generation) and will use the following documents to respond to your task. DOCUMENTS:", similarity_threshold=0.75, top_n=5):
+class ReservoirChat:
+    def __init__(self, model_url="http://localhost:1234/v1", embedding_url="http://localhost:1234/v1", api_key="lm-studio", embedding_model="nomic-ai/nomic-embed-text-v1.5-GGUF", model="LM Studio Community/Meta-Llama-3-8B-Instruct-GGUF", message="You are ReservoirChat, a helpful, smart, kind, and efficient AI assistant. You are specialized in reservoir computing. When asked to code, you will code using the reservoirPy library. You will also serve as an interface to a RAG (Retrieval-Augmented Generation) and will use the following documents to respond to your task. DOCUMENTS:", similarity_threshold=0.75, top_n=5):
         self.model_client = OpenAI(base_url=model_url, api_key=api_key)
         self.embedding_client = OpenAI(base_url=embedding_url, api_key=api_key)
         self.embedding_url = embedding_url
@@ -26,6 +27,8 @@ class LLaMag:
         self.code_content = self.read_file('doc/md/codes.md')
         self.history = []
         self.history_history = []
+        self.count = 0
+        self.day = 0
 
     def read_file(self, filepath):
         try:
@@ -183,16 +186,15 @@ class LLaMag:
                 response_text += chunk.choices[0].delta.content
                 yield response_text
 
-        self.history.append({"User":user_message,"Document_used":top_n_texts,"LLaMag":response_text})
+        self.history.append({"User":user_message,"Document_used":top_n_texts,"ReservoirChat":response_text})
 
     def interface(self):
         
         def New_Chat_Interface():
             return pn.chat.ChatInterface(
-                            # ChatMessage("Hi and welcome! My name is LLaMag, I'm a Large Language Model (LLM), serving as a RAG (Retrieval-Augmented Generation) interface, specialised in reservoir computing. I will based my responses on a large database consisting of several documents ([See the documents here](https://github.com/VirgileBoraud/Llamag/tree/main/doc/md))"),
                             user="Virgile",
                             callback=callback,
-                            callback_user="LLaMag",
+                            callback_user="ReservoirChat",
                             # callback_avatar="Sir_Gillington.png",
                             # widgets=pn.widgets.FileInput(name="CSV File", accept=".csv"), To add the possibility to add documents
                             # reset_on_send=False, for ne reset of writing
@@ -220,7 +222,7 @@ class LLaMag:
                             <h2 style='font-size:32px;'>Reservoir</h2><h2 style='color:#31ABC7; font-size:32px;'>Chat</h2>
                         </div>
                         """, align='center'),
-                        #pn.pane.HTML(html_content, align='center'),
+                        # pn.pane.HTML(html_content, align='center'),
                         # theme_toggle,
                         chat_interface,
                         # button_properties={"clear": {"callback": clear_history}},
@@ -228,32 +230,21 @@ class LLaMag:
                         )
         
         def introduction(chat):
-            chat.send("Hi and welcome! My name is Sir Gillington. I'm a RAG (Retrieval-Augmented Generation) interface specialised in reservoir computing using a Large Language Model (LLM) to help respond to your questions. I will based my responses on a large database consisting of several documents ([See the documents here](https://github.com/VirgileBoraud/Llamag/tree/main/doc/md))",
-                    user="Sir Gillington",
-                    avatar="Sir_Gillington.png",
+            chat.send("When using ReservoirPy Chat, we ask you not to include any personal data about yourself in your exchanges with the system in order to protect your data. The data contained in the chat will be analyzed by Inria",
+                    user="Legal Notice",
+                    avatar='gavel.png',
+                    respond=False
+                    )
+            chat.send("Hi and welcome! My name is ReservoirChat. I'm a RAG (Retrieval-Augmented Generation) interface specialised in reservoir computing using a Large Language Model (LLM) to help respond to your questions. I will based my responses on a large database consisting of several documents ([See the documents here](https://github.com/VirgileBoraud/Llamag/tree/main/doc/md))",
+                    user="ReservoirChat",
+                    avatar="logo.png",
                     respond=False
                     )
         
-        def this_conversation(event):
-            old_chat = New_Chat_Interface()
-            old_right = right_column(old_chat)
-            layout.pop(1)
-            layout.append(old_right)
-            list_history_history = self.history_history
-            list_of_conversation = list_history_history[1] # I need to change some things here because i doesn't show the right conversation when clicking
-            print(list_of_conversation)
-            for i in list_of_conversation:
-                old_chat.send(
-                            "Hi and welcome! My name is Sir Gillington. I'm a RAG (Retrieval-Augmented Generation) interface specialised in reservoir computing using a Large Language Model (LLM) to help respond to your questions. I will based my responses on a large database consisting of several documents ([See the documents here](https://github.com/VirgileBoraud/Llamag/tree/main/doc/md))",
-                            user="Sir Gillington",
-                            avatar="Sir_Gillington.png",
-                            respond=False
-                            )
-
         def new_conversation(event):
             if not event:
                 return
-            
+
             self.history_history.append(self.history)
             print(self.history_history)
             new_chat = New_Chat_Interface()
@@ -261,20 +252,20 @@ class LLaMag:
 
             current_time = time.ctime()
             time_components = current_time.split()
-            date_part = " ".join(time_components[0:4])
+            date_part = " ".join(time_components[0:3])
             time_part = time_components[3]
 
             llm_message = [
-                            {"role": "system", "content": f"Resume the questions asked by the user in less than 5 words in this conversation : {self.history}"},
-                            {"role": "user", "content": "Resume it"},
-                           ]
-            
+                {"role": "system", "content": f"Resume the questions asked by the user in less than 5 words in this conversation : {self.history}"},
+                {"role": "user", "content": "Resume it"},
+            ]
+
             completion = self.model_client.chat.completions.create(
-                                                                    model=self.model,
-                                                                    messages=llm_message,
-                                                                    temperature=0.7,
-                                                                    stream=True,
-                                                                    )
+                model=self.model,
+                messages=llm_message,
+                temperature=0.7,
+                stream=True,
+            )
             resume_llm = ""
 
             layout.pop(1)
@@ -285,10 +276,41 @@ class LLaMag:
                 if chunk.choices[0].delta.content:
                     resume_llm += chunk.choices[0].delta.content
 
+            globals()[time_part] = self.history
             self.history = []
             history_conversation_button = pn.widgets.Button(name=f"{time_part}", button_type='primary', align='center', width=220, height=60, description=f"{resume_llm}")
-            pn.bind(this_conversation, history_conversation_button, watch=True)
+            history_conversation_button.history = self.history_history[-1]  # Store the history in the button
+
+            history_conversation_button.on_click(this_conversation)  # Bind the function
+            if self.day == 0:  # Need to change this method to take into account the day
+                left.append(pn.pane.Markdown(f"<h2 style='color:white; font-size:18px;'>{date_part}</h2>", align='center'))
+                self.day += 1
             left.append(history_conversation_button)
+
+        def this_conversation(event):
+            button = event.obj
+            old_chat = New_Chat_Interface()
+            old_right = right_column(old_chat)
+            layout.pop(1)
+            layout.append(old_right)
+
+            introduction(old_chat)
+
+            list_of_conversation = button.history  # Access the history from the button
+
+            for entry in list_of_conversation:
+                if entry:
+                    user = entry.get('User')
+                    document_used = entry.get('Document_used')
+                    reservoirchat = entry.get('ReservoirChat')
+                    old_chat.send(user,
+                                user="User",
+                                respond=False
+                                )
+                    old_chat.send(reservoirchat,
+                                user="ReservoirChat",
+                                respond=False
+                                )
 
         def callback(contents: str, user: str, instance: pn.chat.ChatInterface):
             # To avoid having too much history
@@ -313,28 +335,30 @@ class LLaMag:
         
         pn.serve(layout, title="ReservoirChat", port=8080)
 
-system_message = '''You are Llamag, a helpful, smart, kind, and efficient AI assistant. 
+system_message = '''You are ReservoirChat, a helpful, smart, kind, and efficient AI assistant. 
         You are specialized in reservoir computing.
         You will serve as an interface to a RAG (Retrieval-Augmented Generation).
-        When given documents, you will respond using only these documents. They will serve as inspiration to your reponse.
-        If you are not given any document, you will respond that you don't have the response in the database.
+        When given documents, you will respond using only these documents. They will serve as inspiration to your response.
+        If you are not given any document, you will only respond : "I didn't found any relevant information about {what the user asked} on the documents I was provided, please refer to the [issue](https://github.com/VirgileBoraud/Llamag/issues) of the github if it should be".
+        You will never invent a source if it was not given.
         When asked to code, you will use the given additional code content,
-        these documents are the only inspiration you can have on the reservoirPy library.
+        these documents are the only inspiration you can have to respond to the query of the user.
         You will not return the exact responses your were provided, but they will serve as inspiration for your real response.
         You will never use the database you have acquired elsewhere other than in the documents given.
         You will be given a list in this format:
-        {"User": where the previous question of the user is,"Document_used": where the previous documents used are,"LLaMag": the response you used for the previous question, as the user can refer to them, you will take them into account for any question of the users.}
-        You will never display the two list given
+        {"User": where the previous question of the user is,"Document_used": where the previous documents used are,"ReservoirChat": the response you used for the previous question, as the user can refer to them, you will take them into account for any question of the users.}
+        You will never display the two list your are given (The code and DOCUMENTS).
+        You will never display the history as well unless the user ask for it.
         You will use the following documents to respond to your task:
         DOCUMENTS:
         (document name : where the name of the document with the similarity are, you will display the name of these documents when you are asked to give the source | ticket: Where the similar questions or embeddings are | answer: the answer or resulting embeddings that will serve you as inspiration to your answer)
         '''
 
 def create_layout():
-    return llamag.interface()
+    return reservoirchat.interface()
 
 if __name__ == "__main__":
-    llamag = LLaMag(model_url='http://localhost:8000/v1',
+    reservoirchat = ReservoirChat(model_url='http://localhost:8000/v1',
                     embedding_url='http://127.0.0.1:5000/v1/embeddings',
                     api_key='EMPTY',
                     embedding_model='nomic-ai/nomic-embed-text-v1.5',
@@ -343,7 +367,7 @@ if __name__ == "__main__":
                     similarity_threshold=0.6,
                     top_n=5)
 
-    file_list = llamag.file_list('doc/md')
-    # llamag.load_data(file_list)
+    file_list = reservoirchat.file_list('doc/md')
+    # reservoirchat.load_data(file_list)
 
-    llamag.interface()
+    reservoirchat.interface()
