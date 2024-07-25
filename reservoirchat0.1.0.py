@@ -25,10 +25,19 @@ class ReservoirChat:
         self.df = self.load_embeddings_from_csv('embeddings.csv')
         self.message = message
         self.code_content = self.read_file('doc/md/codes.md')
-        self.history = []
-        self.history_history = []
+        self.history = self.load_from_cookies('history', [])
+        self.history_history = self.load_from_cookies('history_history', [])
         self.count = 0
         self.day = 0
+
+    def load_from_cookies(self, name, default):
+        cookie_value = pn.state.cookies.get(name)
+        if cookie_value:
+            return json.loads(cookie_value)
+        return default
+
+    def save_to_cookies(self, name, value):
+        pn.state.cookies[name] = json.dumps(value)
 
     def read_file(self, filepath):
         try:
@@ -46,16 +55,6 @@ class ReservoirChat:
         except Exception as e:
             print(f"Error loading embeddings from CSV: {e}")
             return pd.DataFrame()
-        
-    # def get_embeddings(self, text):
-    #     try:
-    #         text = text.replace("\n", " ")
-    #         response = self.embedding_client.embeddings.create(input=[text], model=self.embedding_model)
-    #         print(len(response.data[0].embedding))
-    #         return response.data[0].embedding
-    #     except Exception as e:
-    #         print(f"Error getting embeddings: {e}")
-    #         return None
     
     def get_embedding(self, text):
         try:
@@ -187,6 +186,35 @@ class ReservoirChat:
                 yield response_text
 
         self.history.append({"User":user_message,"Document_used":top_n_texts,"ReservoirChat":response_text})
+    
+    def cookie():
+        from flask import Flask, request, jsonify, make_response
+
+        app = Flask(__name__)
+
+        @app.route('/login', methods=['POST'])
+        def login():
+            data = request.get_json()
+            username = data.get('username')
+            password = data.get('password')
+
+            if username == 'testuser' and password == 'testpass':
+                res = make_response(jsonify(success=True))
+                res.set_cookie('session', 'logged_in')
+                return res
+            else:
+                return jsonify(success=False), 401
+
+        @app.route('/protected')
+        def protected():
+            session_cookie = request.cookies.get('session')
+            if session_cookie == 'logged_in':
+                return jsonify(access=True)
+            else:
+                return jsonify(access=False), 403
+
+        app.run(debug=True)
+
 
     def interface(self):
         
@@ -235,17 +263,19 @@ class ReservoirChat:
                     avatar='gavel.png',
                     respond=False
                     )
-            chat.send("Hi and welcome! My name is ReservoirChat. I'm a RAG (Retrieval-Augmented Generation) interface specialised in reservoir computing using a Large Language Model (LLM) to help respond to your questions. I will based my responses on a large database consisting of several documents ([See the documents here](https://github.com/VirgileBoraud/Llamag/tree/main/doc/md))",
+            chat.send("Hi and welcome! My name is ReservoirChat. I'm a RAG (Retrieval-Augmented Generation) interface specialized in reservoir computing using a Large Language Model (LLM) to help respond to your questions. I will based my responses on a large database consisting of several documents ([See the documents here](https://github.com/VirgileBoraud/ReservoirChat/tree/main/doc/md))",
                     user="ReservoirChat",
                     avatar="logo.png",
                     respond=False
                     )
         
         def new_conversation(event):
-            if not event:
-                return
-
+            for obj in left.objects:
+                if not isinstance(obj, pn.widgets.Button) and self.history == []:
+                    return
+            
             self.history_history.append(self.history)
+            self.save_to_cookies('history_history', self.history_history)
             print(self.history_history)
             new_chat = New_Chat_Interface()
             new_right = right_column(new_chat)
@@ -255,30 +285,17 @@ class ReservoirChat:
             date_part = " ".join(time_components[0:3])
             time_part = time_components[3]
 
-            llm_message = [
-                {"role": "system", "content": f"Resume the questions asked by the user in less than 5 words in this conversation : {self.history}"},
-                {"role": "user", "content": "Resume it"},
-            ]
-
-            completion = self.model_client.chat.completions.create(
-                model=self.model,
-                messages=llm_message,
-                temperature=0.7,
-                stream=True,
-            )
-            resume_llm = ""
-
             layout.pop(1)
             layout.append(new_right)
             introduction(new_chat)
 
-            for chunk in completion:
-                if chunk.choices[0].delta.content:
-                    resume_llm += chunk.choices[0].delta.content
-
-            globals()[time_part] = self.history
             self.history = []
-            history_conversation_button = pn.widgets.Button(name=f"{time_part}", button_type='primary', align='center', width=220, height=60, description=f"{resume_llm}")
+            for obj in left.objects:
+                if isinstance(obj, pn.widgets.Button) and obj.button_type == 'success':
+                    obj.button_type = 'primary'
+                    return
+            
+            history_conversation_button = pn.widgets.Button(name=f"{time_part}", button_type='primary', align='center', width=220, height=60) # The name could be the n first letters of the first question of the user
             history_conversation_button.history = self.history_history[-1]  # Store the history in the button
 
             history_conversation_button.on_click(this_conversation)  # Bind the function
@@ -288,6 +305,27 @@ class ReservoirChat:
             left.append(history_conversation_button)
 
         def this_conversation(event):
+            check = 0
+            for obj in left.objects:
+                if isinstance(obj, pn.widgets.Button) and obj.button_type == 'success':
+                    obj.button_type = 'primary'
+                    check += 1
+
+            if check == 0:
+                if self.history != []:
+                    current_time = time.ctime()
+                    time_components = current_time.split()
+                    date_part = " ".join(time_components[0:3])
+                    time_part = time_components[3]
+                    history_conversation_button = pn.widgets.Button(name=f"{time_part}", button_type='primary', align='center', width=220, height=60)
+                    history_conversation_button.history = self.history  # Store the history in the button
+                    history_conversation_button.on_click(this_conversation)
+                    if self.day == 0:  # Need to change this method to take into account the day
+                        left.append(pn.pane.Markdown(f"<h2 style='color:white; font-size:18px;'>{date_part}</h2>", align='center'))
+                        self.day += 1
+                    left.append(history_conversation_button)
+
+            event.obj.button_type = 'success'
             button = event.obj
             old_chat = New_Chat_Interface()
             old_right = right_column(old_chat)
@@ -297,7 +335,7 @@ class ReservoirChat:
             introduction(old_chat)
 
             list_of_conversation = button.history  # Access the history from the button
-
+            self.history = button.history
             for entry in list_of_conversation:
                 if entry:
                     user = entry.get('User')
@@ -311,6 +349,7 @@ class ReservoirChat:
                                 user="ReservoirChat",
                                 respond=False
                                 )
+
 
         def callback(contents: str, user: str, instance: pn.chat.ChatInterface):
             # To avoid having too much history
@@ -339,7 +378,7 @@ system_message = '''You are ReservoirChat, a helpful, smart, kind, and efficient
         You are specialized in reservoir computing.
         You will serve as an interface to a RAG (Retrieval-Augmented Generation).
         When given documents, you will respond using only these documents. They will serve as inspiration to your response.
-        If you are not given any document, you will only respond : "I didn't found any relevant information about {what the user asked} on the documents I was provided, please refer to the [issue](https://github.com/VirgileBoraud/Llamag/issues) of the github if it should be".
+        If you are not given any document, you will only respond : "I didn't found any relevant information about {what the user asked} on the documents I was provided, please refer to the [issue](https://github.com/VirgileBoraud/ReservoirChat/issues) of the github if it should be".
         You will never invent a source if it was not given.
         When asked to code, you will use the given additional code content,
         these documents are the only inspiration you can have to respond to the query of the user.
