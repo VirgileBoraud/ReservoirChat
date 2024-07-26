@@ -7,11 +7,7 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 import requests
 import json
-from panel.chat import ChatMessage
-from http.cookies import SimpleCookie
-from datetime import date, datetime
 import time
-import param
 
 class ReservoirChat:
     def __init__(self, model_url="http://localhost:1234/v1", embedding_url="http://localhost:1234/v1", api_key="lm-studio", embedding_model="nomic-ai/nomic-embed-text-v1.5-GGUF", model="LM Studio Community/Meta-Llama-3-8B-Instruct-GGUF", message="You are ReservoirChat, a helpful, smart, kind, and efficient AI assistant. You are specialized in reservoir computing. When asked to code, you will code using the reservoirPy library. You will also serve as an interface to a RAG (Retrieval-Augmented Generation) and will use the following documents to respond to your task. DOCUMENTS:", similarity_threshold=0.75, top_n=5):
@@ -26,8 +22,10 @@ class ReservoirChat:
         self.message = message
         self.code_content = self.read_file('doc/md/codes.md')
         self.history = self.load_from_cookies('history', [])
-        self.history_history = self.load_from_cookies('history_history', [])
-        self.count = 0
+        if 'history_history' in pn.state.cache:
+            self.history_history = pn.state.cache['history_history']
+        else:
+            self.history_history = self.load_from_cookies('history_history', [])
         self.day = 0
 
     def load_from_cookies(self, name, default):
@@ -38,6 +36,7 @@ class ReservoirChat:
 
     def save_to_cookies(self, name, value):
         pn.state.cookies[name] = json.dumps(value)
+        return pn.state.cookies[name]
 
     def read_file(self, filepath):
         try:
@@ -101,7 +100,7 @@ class ReservoirChat:
             self.df = pd.DataFrame(all_qa_pairs)
             self.df['ticket_embedding'] = self.df['ticket'].apply(lambda x: self.get_embedding(x))
             self.df.to_csv('embeddings.csv', index=False)
-            print(f"Data saved to embeddings.csv")
+            print("Data saved to embeddings.csv")
         except Exception as e:
             print(f"Error loading data: {e}")
 
@@ -188,13 +187,12 @@ class ReservoirChat:
         self.history.append({"User":user_message,"Document_used":top_n_texts,"ReservoirChat":response_text})
 
     def interface(self):
-        
         def New_Chat_Interface():
             return pn.chat.ChatInterface(
                             user="Virgile",
                             callback=callback,
                             callback_user="ReservoirChat",
-                            # callback_avatar="Sir_Gillington.png",
+                            # callback_avatar="png/Sir_Gillington.png",
                             # widgets=pn.widgets.FileInput(name="CSV File", accept=".csv"), To add the possibility to add documents
                             # reset_on_send=False, for ne reset of writing
                         )
@@ -232,12 +230,12 @@ class ReservoirChat:
         def introduction(chat):
             chat.send("When using ReservoirPy Chat, we ask you not to include any personal data about yourself in your exchanges with the system in order to protect your data. The data contained in the chat will be analyzed by Inria",
                     user="Legal Notice",
-                    avatar='gavel.png',
+                    avatar='png/gavel.png',
                     respond=False
                     )
             chat.send("Hi and welcome! My name is ReservoirChat. I'm a RAG (Retrieval-Augmented Generation) interface specialized in reservoir computing using a Large Language Model (LLM) to help respond to your questions. I will based my responses on a large database consisting of several documents ([See the documents here](https://github.com/VirgileBoraud/ReservoirChat/tree/main/doc/md))",
                     user="ReservoirChat",
-                    avatar="logo.png",
+                    avatar="png/logo.png",
                     respond=False
                     )
         
@@ -247,8 +245,7 @@ class ReservoirChat:
                     return
             
             self.history_history.append(self.history)
-            self.save_to_cookies('history_history', self.history_history)
-            print(self.history_history)
+            pn.state.cache['history_history'] = self.history_history
             new_chat = New_Chat_Interface()
             new_right = right_column(new_chat)
 
@@ -311,7 +308,7 @@ class ReservoirChat:
             for entry in list_of_conversation:
                 if entry:
                     user = entry.get('User')
-                    document_used = entry.get('Document_used')
+                    # document_used = entry.get('Document_used')
                     reservoirchat = entry.get('ReservoirChat')
                     old_chat.send(user,
                                 user="User",
@@ -322,7 +319,6 @@ class ReservoirChat:
                                 respond=False
                                 )
 
-
         def callback(contents: str, user: str, instance: pn.chat.ChatInterface):
             # To avoid having too much history
             if len(self.history) >= 10:
@@ -330,8 +326,9 @@ class ReservoirChat:
                 print(self.history)
             return self.get_response(contents, self.history)
 
-        def clear_history(instance, event):
-            self.history.clear()
+        def clear_history(event, chat):
+            self.history = []
+            introduction(chat)
 
         def set_cookie_consent(consent):
             if consent == 'accepted':
@@ -353,7 +350,7 @@ class ReservoirChat:
             popup = pn.Column(
                 consent_text,
                 pn.Row(accept_button, decline_button, align="center"),
-                background='lightgray',
+                styles = {'background': 'lightgray'},
                 margin=(10, 10, 10, 10),
                 width=400,
                 align='center',
@@ -373,6 +370,17 @@ class ReservoirChat:
         introduction(chat_interface)
         
         layout = layout(left, right)
+
+        if 'history_history' in pn.state.cache: # If there is a cache, append the history stored inside into new conversation buttons
+            for i in range(pn.state.cache['history_history']):
+                history_conversation_button = pn.widgets.Button(name="time_part", button_type='primary', align='center', width=220, height=60) # The name could be the n first letters of the first question of the user
+                history_conversation_button.history = self.history_history[i]  # Store the history in the button
+
+                history_conversation_button.on_click(this_conversation)  # Bind the function
+                if self.day == 0:  # Need to change this method to take into account the day
+                    left.append(pn.pane.Markdown("<h2 style='color:white; font-size:18px;'>date_part</h2>", align='center'))
+                    self.day += 1
+                left.append(history_conversation_button)
         
         pn.serve(layout, title="ReservoirChat", port=8080)
 
