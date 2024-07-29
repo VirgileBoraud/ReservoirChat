@@ -1,28 +1,20 @@
-import reservoirpy as rpy
-from reservoirpy.datasets import mackey_glass
-from reservoirpy.observables import rmse
-from reservoirpy.nodes import Reservoir, Ridge
+import panel as pn
+import param
 
-rpy.set_seed(0)
+# Function to create the app
+def create_app():
+    class UserState(param.Parameterized):
+        name = param.String(default='')
 
-# Load the Mackey-Glass dataset
-X = mackey_glass(2500)
+        @param.depends('name', watch=True)
+        def view(self):
+            return pn.pane.Markdown(f"Hello, {self.name}!")
 
-# Split dataset for training
-X_train, Y_train = X[:2000], X[10:2010]
-X_test, Y_test = X[2000:-10], X[2010:]
+    user_state = UserState()
+    name_input = pn.widgets.TextInput(name='Name')
+    name_input.param.watch(lambda event: setattr(user_state, 'name', event.new), 'value')
 
-# Create a reservoir node
-reservoir = Reservoir(100, lr=0.3, sr=0.9)
+    return pn.Column(name_input, user_state.view)
 
-# Create a readout node (ridge linear regression)
-readout = Ridge(ridge=1e-6)
-
-# Create an Echo State Network (ESN)
-esn = reservoir >> readout
-
-# Train and run the ESN
-Y_pred = esn.fit(X_train, Y_train).run(X_test)
-
-# Print the Root Mean Squared Error
-print("Root Mean Squared Error:", rmse(Y_test, Y_pred))
+# Serve the app
+pn.serve(create_app)
