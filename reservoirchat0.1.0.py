@@ -372,8 +372,8 @@ def app():
             
             layout = layout(left, right)
 
-            if 'history_history' in pn.state.cache: # If there is a cache, append the history stored inside into new conversation buttons
-                for i in range(pn.state.cache['history_history']):
+            '''if 'history_history' in pn.state.cache: # If there is a cache, append the history stored inside into new conversation buttons
+                for i in pn.state.cache['history_history']:
                     history_conversation_button = pn.widgets.Button(name="time_part", button_type='primary', align='center', width=220, height=60) # The name could be the n first letters of the first question of the user
                     history_conversation_button.history = self.history_history[i]  # Store the history in the button
 
@@ -381,7 +381,7 @@ def app():
                     if self.day == 0:  # Need to change this method to take into account the day
                         left.append(pn.pane.Markdown("<h2 style='color:white; font-size:18px;'>date_part</h2>", align='center'))
                         self.day += 1
-                    left.append(history_conversation_button)
+                    left.append(history_conversation_button)''' # Need to work on that in the future to recreate the history of conversation from the cache
             
             return layout
 
