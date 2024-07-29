@@ -382,7 +382,7 @@ class ReservoirChat:
                     self.day += 1
                 left.append(history_conversation_button)
         
-        pn.serve(layout, title="ReservoirChat", port=8080)
+        pn.serve(layout, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"])
 
 system_message = '''You are ReservoirChat, a helpful, smart, kind, and efficient AI assistant. 
         You are specialized in reservoir computing.
