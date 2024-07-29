@@ -1,44 +1,28 @@
-import panel as pn
-import param
+import reservoirpy as rpy
+from reservoirpy.datasets import mackey_glass
+from reservoirpy.observables import rmse
+from reservoirpy.nodes import Reservoir, Ridge
 
-pn.extension()
+rpy.set_seed(0)
 
-# Define a class that will manage the buttons and track clicks
-class ButtonTracker(param.Parameterized):
-    # Define actions for each button
-    button1 = param.Action(lambda x: x.param.trigger('button1'), label='Button 1')
-    button2 = param.Action(lambda x: x.param.trigger('button2'), label='Button 2')
-    button3 = param.Action(lambda x: x.param.trigger('button3'), label='Button 3')
+# Load the Mackey-Glass dataset
+X = mackey_glass(2500)
 
-    # Initialize the class
-    def __init__(self, **params):
-        super().__init__(**params)
-        # Create a layout to hold the buttons
-        self.layout = pn.Column()
-        # Map button names to their corresponding Panel Button widgets
-        self.button_map = {
-            'button1': pn.widgets.Button(name='Button 1'),
-            'button2': pn.widgets.Button(name='Button 2'),
-            'button3': pn.widgets.Button(name='Button 3')
-        }
-        # Add each button to the layout and bind click events to the button_click method
-        for name, button in self.button_map.items():
-            button.on_click(lambda event, name=name: self.button_click(name))
-            self.layout.append(button)
-        # Watch for the button actions and bind them to the button_click method
-        self.param.watch(self.button_click, 'button1')
-        self.param.watch(self.button_click, 'button2')
-        self.param.watch(self.button_click, 'button3')
+# Split dataset for training
+X_train, Y_train = X[:2000], X[10:2010]
+X_test, Y_test = X[2000:-10], X[2010:]
 
-    # Method to handle button clicks
-    def button_click(self, name):
-        # Get the position of the clicked button in the layout
-        position = self.layout.objects.index(self.button_map[name])
-        # Print the name and position of the clicked button
-        print(f"Button {self.button_map[name].name} was clicked at position {position}")
+# Create a reservoir node
+reservoir = Reservoir(100, lr=0.3, sr=0.9)
 
-# Create an instance of the class
-button_tracker = ButtonTracker()
+# Create a readout node (ridge linear regression)
+readout = Ridge(ridge=1e-6)
 
-# Serve the layout so it can be viewed in a web browser
-pn.serve(button_tracker.layout)
+# Create an Echo State Network (ESN)
+esn = reservoir >> readout
+
+# Train and run the ESN
+Y_pred = esn.fit(X_train, Y_train).run(X_test)
+
+# Print the Root Mean Squared Error
+print("Root Mean Squared Error:", rmse(Y_test, Y_pred))

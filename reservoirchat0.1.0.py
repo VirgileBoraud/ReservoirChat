@@ -174,7 +174,7 @@ class ReservoirChat:
         completion = self.model_client.chat.completions.create(
             model=self.model,
             messages=n_history,
-            temperature=0.7,
+            temperature=0.1,
             stream=True,
         )
 
@@ -382,13 +382,13 @@ class ReservoirChat:
                     self.day += 1
                 left.append(history_conversation_button)
         
-        pn.serve(layout, title="ReservoirChat", port=8080)
+        pn.serve(layout, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"])
 
 system_message = '''You are ReservoirChat, a helpful, smart, kind, and efficient AI assistant. 
         You are specialized in reservoir computing.
         You will serve as an interface to a RAG (Retrieval-Augmented Generation).
         When given documents, you will respond using only these documents. They will serve as inspiration to your response.
-        If you are not given any document, you will only respond : "I didn't found any relevant information about {what the user asked} on the documents I was provided, please refer to the [issue](https://github.com/VirgileBoraud/ReservoirChat/issues) of the github if it should be".
+        If you are not given any document, you will exactly respond : "I didn't found any relevant information about on the documents I was provided, please refer to the [issue](https://github.com/VirgileBoraud/ReservoirChat/issues) of the github if it should be".
         You will never invent a source if it was not given.
         When asked to code, you will use the given additional code content,
         these documents are the only inspiration you can have to respond to the query of the user.
@@ -396,8 +396,7 @@ system_message = '''You are ReservoirChat, a helpful, smart, kind, and efficient
         You will never use the database you have acquired elsewhere other than in the documents given.
         You will be given a list in this format:
         {"User": where the previous question of the user is,"Document_used": where the previous documents used are,"ReservoirChat": the response you used for the previous question, as the user can refer to them, you will take them into account for any question of the users.}
-        You will never display the two list your are given (The code and DOCUMENTS).
-        You will never display the history as well unless the user ask for it.
+        Don't ever ever ever write the source when speaking to the user.
         You will use the following documents to respond to your task:
         DOCUMENTS:
         (document name : where the name of the document with the similarity are, you will display the name of these documents when you are asked to give the source | ticket: Where the similar questions or embeddings are | answer: the answer or resulting embeddings that will serve you as inspiration to your answer)
