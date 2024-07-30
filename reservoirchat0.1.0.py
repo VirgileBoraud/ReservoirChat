@@ -27,7 +27,10 @@ def app():
                 self.history_history = pn.state.cache['history_history']
             else:
                 self.history_history = self.load_from_cookies('history_history', [])
-            self.day = 0
+            current_time = time.ctime()
+            time_components = current_time.split()
+            self.day = " ".join(time_components[0:3])
+            self.check_day = 0
 
         def load_from_cookies(self, name, default):
             cookie_value = pn.state.cookies.get(name)
@@ -245,33 +248,34 @@ def app():
                     if not isinstance(obj, pn.widgets.Button) and self.history == []:
                         return
                 
-                self.history_history.append(self.history)
-                pn.state.cache['history_history'] = self.history_history
                 new_chat = New_Chat_Interface()
                 new_right = right_column(new_chat)
-
-                current_time = time.ctime()
-                time_components = current_time.split()
-                date_part = " ".join(time_components[0:3])
-                time_part = time_components[3]
 
                 layout.pop(1)
                 layout.append(new_right)
                 introduction(new_chat)
 
-                self.history = []
                 for obj in left.objects:
                     if isinstance(obj, pn.widgets.Button) and obj.button_type == 'success':
                         obj.button_type = 'primary'
+                        self.history = []
                         return
                 
-                history_conversation_button = pn.widgets.Button(name=f"{time_part}", button_type='primary', align='center', width=220, height=60) # The name could be the n first letters of the first question of the user
-                history_conversation_button.history = self.history_history[-1]  # Store the history in the button
+                self.history_history.append(self.history)
+                pn.state.cache['history_history'] = self.history_history
 
-                history_conversation_button.on_click(this_conversation)  # Bind the function
-                if self.day == 0:  # Need to change this method to take into account the day
-                    left.append(pn.pane.Markdown(f"<h2 style='color:white; font-size:18px;'>{date_part}</h2>", align='center'))
-                    self.day += 1
+                name = self.history[0]['User']
+                name = name.split()
+                name = ' '.join(name[:6])
+                self.history = []
+
+                history_conversation_button = pn.widgets.Button(name=f"{name}", button_type='primary', align='center', width=220, height=60) # The name could be the n first letters of the first question of the user
+                history_conversation_button.history = self.history_history[-1] # Store the history in the button
+
+                history_conversation_button.on_click(this_conversation) # Bind the function
+                if self.check_day == 0: # Need to change this method to take into account the day
+                    left.append(pn.pane.Markdown(f"<h2 style='color:white; font-size:18px;'>{self.day}</h2>", align='center'))
+                    self.check_day += 1
                 left.append(history_conversation_button)
 
             def this_conversation(event):
@@ -283,17 +287,19 @@ def app():
 
                 if check == 0:
                     if self.history != []:
-                        current_time = time.ctime()
-                        time_components = current_time.split()
-                        date_part = " ".join(time_components[0:3])
-                        time_part = time_components[3]
-                        history_conversation_button = pn.widgets.Button(name=f"{time_part}", button_type='primary', align='center', width=220, height=60)
+
+                        name = self.history[0]['User']
+                        name = name.split()
+                        name = ' '.join(name[:6])
+                        history_conversation_button = pn.widgets.Button(name=f"{name}", button_type='primary', align='center', width=220, height=60)
                         history_conversation_button.history = self.history  # Store the history in the button
                         history_conversation_button.on_click(this_conversation)
-                        if self.day == 0:  # Need to change this method to take into account the day
-                            left.append(pn.pane.Markdown(f"<h2 style='color:white; font-size:18px;'>{date_part}</h2>", align='center'))
-                            self.day += 1
+                        if self.check_day == 0:  # Need to change this method to take into account the day
+                            left.append(pn.pane.Markdown(f"<h2 style='color:white; font-size:18px;'>{self.day}</h2>", align='center'))
+                            self.check_day += 1
                         left.append(history_conversation_button)
+                        self.history_history.append(self.history)
+                        pn.state.cache['history_history'] = self.history_history
 
                 event.obj.button_type = 'success'
                 button = event.obj
@@ -371,17 +377,21 @@ def app():
             introduction(chat_interface)
             
             layout = layout(left, right)
-
-            '''if 'history_history' in pn.state.cache: # If there is a cache, append the history stored inside into new conversation buttons
-                for i in pn.state.cache['history_history']:
-                    history_conversation_button = pn.widgets.Button(name="time_part", button_type='primary', align='center', width=220, height=60) # The name could be the n first letters of the first question of the user
-                    history_conversation_button.history = self.history_history[i]  # Store the history in the button
+            c = 0
+            if 'history_history' in pn.state.cache: # If there is a cache, append the history stored inside into new conversation buttons
+                for list in pn.state.cache['history_history']:
+                    name = list[0]['User']
+                    name = name.split()
+                    name = ' '.join(name[:6])
+                    history_conversation_button = pn.widgets.Button(name=name, button_type='primary', align='center', width=220, height=60) # The name could be the n first letters of the first question of the user
+                    history_conversation_button.history = self.history_history[c]  # Store the history in the button
 
                     history_conversation_button.on_click(this_conversation)  # Bind the function
-                    if self.day == 0:  # Need to change this method to take into account the day
-                        left.append(pn.pane.Markdown("<h2 style='color:white; font-size:18px;'>date_part</h2>", align='center'))
-                        self.day += 1
-                    left.append(history_conversation_button)''' # Need to work on that in the future to recreate the history of conversation from the cache
+                    if self.check_day == 0:  # Need to change this method to take into account the day
+                        left.append(pn.pane.Markdown(f"<h2 style='color:white; font-size:18px;'>{self.day}</h2>", align='center'))
+                        self.check_day += 1
+                    c += 1
+                    left.append(history_conversation_button)
             
             return layout
 
@@ -419,4 +429,5 @@ def app():
         layout = reservoirchat.interface()
         return layout
 
-pn.serve(app, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"])
+pn.serve(app, title="ReservoirChat", port=8080) # For local
+# pn.serve(app, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"]) # For web
