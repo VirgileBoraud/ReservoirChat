@@ -26,7 +26,7 @@ def app():
             if 'history_history' in pn.state.cache:
                 self.history_history = pn.state.cache['history_history']
             else:
-                self.history_history = self.load_from_cookies('history_history', [])
+                self.history_history = []
             current_time = time.ctime()
             time_components = current_time.split()
             self.day = " ".join(time_components[0:3])
