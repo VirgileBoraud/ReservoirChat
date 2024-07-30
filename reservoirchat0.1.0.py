@@ -429,5 +429,5 @@ def app():
         layout = reservoirchat.interface()
         return layout
 
-pn.serve(app, title="ReservoirChat", port=8080) # For local
-# pn.serve(app, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"]) # For web
+# pn.serve(app, title="ReservoirChat", port=8080) # For local
+pn.serve(app, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"]) # For web
