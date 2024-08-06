@@ -14,4 +14,4 @@ def convert(directory):
             subprocess.run(['pandoc', file_path, '-f', 'markdown', '-t', 'plain', '-o', output_file_path])
             print(f"Converted {file_path} to {output_file_path}")
 
-convert('doc/papiers_Mnemosyne')
+convert('doc/md')
