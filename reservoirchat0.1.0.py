@@ -22,11 +22,18 @@ def app():
             self.df = self.load_embeddings_from_csv('embeddings.csv')
             self.message = message
             self.code_content = self.read_file('doc/md/codes.md')
+            print(pn.state.cookies.get("check"))
+            if pn.state.cookies.get("check"):
+                self.cookie_check = True
+            else:
+                self.cookie_check = False
             self.history = self.load_from_cookies('history', [])
             if 'history_history' in pn.state.cache:
                 self.history_history = pn.state.cache['history_history']
+                # Other method for cache with per-session exception : https://panel.holoviz.org/how_to/caching/memoization.html
+                # We can now use cookies to store information instead of cache
             else:
-                self.history_history = []
+                self.history_history = self.load_from_cookies('history_history', [])
             current_time = time.ctime()
             time_components = current_time.split()
             self.day = " ".join(time_components[0:3])
@@ -39,8 +46,14 @@ def app():
             return default
 
         def save_to_cookies(self, name, value):
-            pn.state.cookies[name] = json.dumps(value)
-            return pn.state.cookies[name]
+            cookie = pn.pane.HTML(f"""
+                            <script>
+                            document.cookie="{name}={value};expires=" +
+                            new Date(Date.now()+(30*24*60*60*1000)).toUTCString() + ";SameSite=Strict";
+                            </script>
+                            """)
+            print(f"Cookie {name} set with value {value}")
+            return cookie
 
         def read_file(self, filepath):
             try:
@@ -262,7 +275,8 @@ def app():
                         return
                 
                 self.history_history.append(self.history)
-                pn.state.cache['history_history'] = self.history_history
+                if self.cookie_check:
+                    pn.state.cache['history_history'] = self.history_history
 
                 name = self.history[0]['User']
                 name = name.split()
@@ -299,7 +313,8 @@ def app():
                             self.check_day += 1
                         left.append(history_conversation_button)
                         self.history_history.append(self.history)
-                        pn.state.cache['history_history'] = self.history_history
+                        if self.cookie_check:
+                            pn.state.cache['history_history'] = self.history_history
 
                 event.obj.button_type = 'success'
                 button = event.obj
@@ -340,10 +355,16 @@ def app():
             def set_cookie_consent(consent):
                 if consent == 'accepted':
                     cookie_popup.visible = False
+                    cookie = self.save_to_cookies("check", True)
+                    layout.append(cookie)
+                    print(pn.state.cookies.get("check"))
+                    self.cookie_check = True
                 elif consent == 'declined':
-                    return
+                    cookie_popup.visible = False
             
             def cookie_consent_popup():
+                if self.cookie_check:
+                    return
                 consent_text = pn.pane.Markdown(
                     "Hello, we use cookies to store your conversations and messages. By accepting, you agree to our use of cookies",
                     align="center"
@@ -378,29 +399,32 @@ def app():
             
             layout = layout(left, right)
             c = 0
-            if 'history_history' in pn.state.cache: # If there is a cache, append the history stored inside into new conversation buttons
-                for list in pn.state.cache['history_history']:
-                    name = list[0]['User']
-                    name = name.split()
-                    name = ' '.join(name[:6])
-                    history_conversation_button = pn.widgets.Button(name=name, button_type='primary', align='center', width=220, height=60) # The name could be the n first letters of the first question of the user
-                    history_conversation_button.history = self.history_history[c]  # Store the history in the button
+            if self.cookie_check:
+                if 'history_history' in pn.state.cache: # If there is a cache, append the history stored inside into new conversation buttons
+                    for list in pn.state.cache['history_history']:
+                        name = list[0]['User']
+                        name = name.split()
+                        name = ' '.join(name[:6])
+                        history_conversation_button = pn.widgets.Button(name=name, button_type='primary', align='center', width=220, height=60) # The name could be the n first letters of the first question of the user
+                        history_conversation_button.history = self.history_history[c]  # Store the history in the button
 
-                    history_conversation_button.on_click(this_conversation)  # Bind the function
-                    if self.check_day == 0:  # Need to change this method to take into account the day
-                        left.append(pn.pane.Markdown(f"<h2 style='color:white; font-size:18px;'>{self.day}</h2>", align='center'))
-                        self.check_day += 1
-                    c += 1
-                    left.append(history_conversation_button)
+                        history_conversation_button.on_click(this_conversation)  # Bind the function
+                        if self.check_day == 0:  # Need to change this method to take into account the day
+                            left.append(pn.pane.Markdown(f"<h2 style='color:white; font-size:18px;'>{self.day}</h2>", align='center'))
+                            self.check_day += 1
+                        c += 1
+                        left.append(history_conversation_button)
             
             return layout
 
     system_message = '''You are ReservoirChat, a helpful, smart, kind, and efficient AI assistant. 
             You are specialized in reservoir computing.
+            If a user ask a question in a language, you will respond in this language.
             You will serve as an interface to a RAG (Retrieval-Augmented Generation).
             When given documents, you will respond using only these documents. They will serve as inspiration to your response.
             If you are not given any document, you will exactly respond : "I didn't found any relevant information about on the documents I was provided, please refer to the [issue](https://github.com/VirgileBoraud/ReservoirChat/issues) of the github if it should be".
             You will never invent a source if it was not given.
+            You will give the source if given.
             When asked to code, you will use the given additional code content,
             these documents are the only inspiration you can have to respond to the query of the user.
             You will not return the exact responses your were provided, but they will serve as inspiration for your real response.
@@ -430,4 +454,5 @@ def app():
         return layout
 
 # pn.serve(app, title="ReservoirChat", port=8080) # For local
+# pn.serve(app, title="ReservoirChat", port=8080, address='127.0.0.1', allow_websocket_origin=['127.0.0.1:8080']) # Test
 pn.serve(app, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"]) # For web
