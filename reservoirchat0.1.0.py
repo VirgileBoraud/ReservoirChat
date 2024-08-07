@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 import requests
 import json
 import time
+import subprocess
 
 def app():
     class ReservoirChat:
@@ -203,7 +204,7 @@ def app():
             return self.df.loc[top_n_indices]
 
         # Function to get the response (with history of current conversation) from the query of the user
-        def get_response(self, user_message, history):
+        def get_responses(self, user_message, history):
             top_n_results = self.get_top_n_closest_texts(user_message)
             top_n_texts = ("document name: " + top_n_results['document'] + " | ticket: " + top_n_results['ticket'] + " | response: " + top_n_results['response']).tolist()
             # print(top_n_texts)
@@ -234,10 +235,28 @@ def app():
 
             self.history.append({"User":user_message,"Document_used":top_n_texts,"ReservoirChat":response_text})
 
+        def get_response(self, user_message, history):
+            result = subprocess.run(f'python3 -m graphrag.query --root ragtest --method global "{user_message}"', shell=True, capture_output=True, text=True)
 
+            if result.returncode != 0:
+                raise Exception(f"Command failed with return code {result.returncode}: {result.stderr}")
+
+            match = re.search(r"Global Search Response:\s*(.*)", result.stdout)
+            if match:
+                yield match.group(1)
+        
+            '''popen = subprocess.Popen(f'python3 -m graphrag.query --root ragtest --method global "{user_message}"', shell=True, text=True, stdout=subprocess.PIPE, universal_newlines=True)
+            for stdout_line in iter(popen.stdout.readline, ""):
+                yield stdout_line 
+            popen.stdout.close()'''
+
+
+            
+        
         #------------------------------------------------------------------------------------------------------------------------------------------------
 
         # This is the interface, where everything the user see is coded
+        # Note: panel 1.3.7 offer streaming where panel 1.4.4 don't. 1.4.4 offer user personalization which is less important
         def interface(self):
             
             # A function that creates a new Chat Interface where a user can ask a question of demand any information he wants.
@@ -326,7 +345,7 @@ def app():
                     # If a button is detected and it is green
                     if isinstance(obj, pn.widgets.Button) and obj.button_type == 'success':
                         # Make it blue again and reset the history, return to stop the process
-                        # If we do not do that, the green button will remain green (Thus highligting the current conversation is impossible)
+                        # If we do not do that, the green button will remain green (Thus highlighting the current conversation is impossible))
                         # And we wan't to change conversation at will, without importing the current history
                         obj.button_type = 'primary'
                         self.history = []
@@ -385,7 +404,14 @@ def app():
                 button = event.obj
                 old_chat = New_Chat_Interface()
                 old_right = right_column(old_chat)
+
+                # The length calculated to pop the too many chat interface created by the cookie method (layout.append(cookie))
+                # length = 1
+                # for obj in right.objects:
+                    # length += 1
+                
                 layout.pop(1)
+                
                 layout.append(old_right)
 
                 introduction(old_chat)
@@ -509,13 +535,13 @@ def app():
                         similarity_threshold=0.6,
                         top_n=5)
 
-        file_list = reservoirchat.file_list('doc/md') # The file list used to load the new data into the RAG application
+        # file_list = reservoirchat.file_list('doc/md') # The file list used to load the new data into the RAG application
         # reservoirchat.load_data(file_list) # To load new data into the RAG application
 
         layout = reservoirchat.interface() # Creating the layout that will be returned to be called in the pn.serve() function
         return layout
 
 # Serving the app in a bockeh server
-pn.serve(app, title="ReservoirChat", port=8080) # For local
+# pn.serve(app, title="ReservoirChat", port=8080) # For local
 # pn.serve(app, title="ReservoirChat", port=8080, address='127.0.0.1', allow_websocket_origin=['127.0.0.1:8080']) # For tests
-# pn.serve(app, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"]) # For web
+pn.serve(app, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"]) # For web
