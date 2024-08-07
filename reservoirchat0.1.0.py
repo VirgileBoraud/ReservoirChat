@@ -8,10 +8,15 @@ from concurrent.futures import ThreadPoolExecutor
 import requests
 import json
 import time
+import subprocess
 
 def app():
     class ReservoirChat:
+
+        # Initializing the class
         def __init__(self, model_url="http://localhost:1234/v1", embedding_url="http://localhost:1234/v1", api_key="lm-studio", embedding_model="nomic-ai/nomic-embed-text-v1.5-GGUF", model="LM Studio Community/Meta-Llama-3-8B-Instruct-GGUF", message="You are ReservoirChat, a helpful, smart, kind, and efficient AI assistant. You are specialized in reservoir computing. When asked to code, you will code using the reservoirPy library. You will also serve as an interface to a RAG (Retrieval-Augmented Generation) and will use the following documents to respond to your task. DOCUMENTS:", similarity_threshold=0.75, top_n=5):
+            
+            # Basic variables
             self.model_client = OpenAI(base_url=model_url, api_key=api_key)
             self.embedding_client = OpenAI(base_url=embedding_url, api_key=api_key)
             self.embedding_url = embedding_url
@@ -19,32 +24,50 @@ def app():
             self.model = model
             self.similarity_threshold = similarity_threshold
             self.top_n = top_n
-            self.df = self.load_embeddings_from_csv('embeddings.csv')
             self.message = message
+
+            # The vector store is called, it serve to keep the loaded vector created by the self.load_data function and to not have to load each document each time
+            self.df = self.load_embeddings_from_csv('embeddings.csv')
+            
+            # Read the content of the code documents, to be used by the prompt when we think the user ask to code
+            # Serve for better coding output
             self.code_content = self.read_file('doc/md/codes.md')
-            print(pn.state.cookies.get("check"))
+
+            # We check if the use of cookies was accepted by the user, if not, self.cookie_check is False
+            print(pn.state.cookies.get("check")) # Checking the cookie
             if pn.state.cookies.get("check"):
                 self.cookie_check = True
             else:
                 self.cookie_check = False
+            
+            # Load the history the user didn't "saved" into self.history_history because he didn't click New Conversation
+            # Not yet implemented
             self.history = self.load_from_cookies('history', [])
+
             if 'history_history' in pn.state.cache:
                 self.history_history = pn.state.cache['history_history']
                 # Other method for cache with per-session exception : https://panel.holoviz.org/how_to/caching/memoization.html
                 # We can now use cookies to store information instead of cache
             else:
                 self.history_history = self.load_from_cookies('history_history', [])
+            
+            # The current time for date and everything related
             current_time = time.ctime()
             time_components = current_time.split()
             self.day = " ".join(time_components[0:3])
-            self.check_day = 0
+            self.check_day = 0 # Little check to be removed when the date method is updated (Currently using only the current day, not the day the conversation was created)
 
+        # --------------------------------------------------------------------------------------------------------------------------------------------------
+        
+        # Used to load cookie, to be used in a cookie approach instead of cache approach in history of conversation
         def load_from_cookies(self, name, default):
             cookie_value = pn.state.cookies.get(name)
             if cookie_value:
                 return json.loads(cookie_value)
             return default
 
+        # Used to save cookies, this method as to be combined with layout.append().
+        # Example : cookie = self.save_to_cookies("check", True) => layout.append(cookie)
         def save_to_cookies(self, name, value):
             cookie = pn.pane.HTML(f"""
                             <script>
@@ -55,6 +78,7 @@ def app():
             print(f"Cookie {name} set with value {value}")
             return cookie
 
+        # To read markdown file (used to read the codes.md document)
         def read_file(self, filepath):
             try:
                 with open(filepath, 'r', encoding='utf-8') as file:
@@ -63,6 +87,7 @@ def app():
                 print(f"Error reading file: {e}")
                 return ""
         
+        # used to load the vector store stored on a csv_file
         def load_embeddings_from_csv(self, csv_file):
             try:
                 df = pd.read_csv(csv_file)
@@ -72,6 +97,7 @@ def app():
                 print(f"Error loading embeddings from CSV: {e}")
                 return pd.DataFrame()
         
+        # Used to get embeddings from a documents
         def get_embedding(self, text):
             try:
                 url = self.embedding_url
@@ -89,7 +115,7 @@ def app():
                 print(f"Error getting embeddings: {e}")
                 return None
 
-
+        # Get the list of files in a specified directory path (used to load the data of a list of documents)
         def file_list(self, directory_path):
             try:
                 # Get the list of files in the directory
@@ -102,25 +128,8 @@ def app():
             except Exception as e:
                 print(f"An error occurred: {e}")
                 return []
-        
-        def load_data(self, filepaths):
-            try:
-                with ThreadPoolExecutor() as executor:
-                    results = executor.map(self.process_file, filepaths)
 
-                all_qa_pairs = [qa for result in results for qa in result]
-
-                if not all_qa_pairs:
-                    print("No data loaded.")
-                    return
-
-                self.df = pd.DataFrame(all_qa_pairs)
-                self.df['ticket_embedding'] = self.df['ticket'].apply(lambda x: self.get_embedding(x))
-                self.df.to_csv('embeddings.csv', index=False)
-                print("Data saved to embeddings.csv")
-            except Exception as e:
-                print(f"Error loading data: {e}")
-
+        # Process a file (different files have different process) to create a list of JSON objects
         def process_file(self, filepath):
             all_entries = []
             document_name = os.path.basename(filepath)
@@ -159,10 +168,31 @@ def app():
             except Exception as e:
                 print(f"Error processing file {filepath}: {e}")
             return all_entries
+        
+        # Load data from a list of documents
+        def load_data(self, filepaths):
+            try:
+                with ThreadPoolExecutor() as executor:
+                    results = executor.map(self.process_file, filepaths)
 
+                all_qa_pairs = [qa for result in results for qa in result]
+
+                if not all_qa_pairs:
+                    print("No data loaded.")
+                    return
+
+                self.df = pd.DataFrame(all_qa_pairs)
+                self.df['ticket_embedding'] = self.df['ticket'].apply(lambda x: self.get_embedding(x))
+                self.df.to_csv('embeddings.csv', index=False)
+                print("Data saved to embeddings.csv")
+            except Exception as e:
+                print(f"Error loading data: {e}")
+    
+        # The cosine similarity function used when comparing 2 vectors
         def cosine_similarity(self, a, b):
             return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
+        # Returns the top n closest texts. Is used to compare the query of a user to embeddings of text.
         def get_top_n_closest_texts(self, text, n=None):
             if n is None:
                 n = self.top_n
@@ -173,7 +203,8 @@ def app():
             print(self.df.loc[top_n_indices])
             return self.df.loc[top_n_indices]
 
-        def get_response(self, user_message, history):
+        # Function to get the response (with history of current conversation) from the query of the user
+        def get_responses(self, user_message, history):
             top_n_results = self.get_top_n_closest_texts(user_message)
             top_n_texts = ("document name: " + top_n_results['document'] + " | ticket: " + top_n_results['ticket'] + " | response: " + top_n_results['response']).tolist()
             # print(top_n_texts)
@@ -199,27 +230,61 @@ def app():
             for chunk in completion:
                 if chunk.choices[0].delta.content:
                     response_text += chunk.choices[0].delta.content
+                    # For streaming purposes (which means real time response), we need to yield the response
                     yield response_text
 
             self.history.append({"User":user_message,"Document_used":top_n_texts,"ReservoirChat":response_text})
 
+        def get_response(self, user_message, history):
+            result = subprocess.run(f'python3 -m graphrag.query --root ragtest --method global "{user_message}"', shell=True, capture_output=True, text=True)
+
+            if result.returncode != 0:
+                raise Exception(f"Command failed with return code {result.returncode}: {result.stderr}")
+
+            match = re.search(r"Global Search Response:\s*(.*)", result.stdout)
+            if match:
+                yield match.group(1)
+        
+            '''popen = subprocess.Popen(f'python3 -m graphrag.query --root ragtest --method global "{user_message}"', shell=True, text=True, stdout=subprocess.PIPE, universal_newlines=True)
+            for stdout_line in iter(popen.stdout.readline, ""):
+                yield stdout_line 
+            popen.stdout.close()'''
+
+
+            
+        
+        #------------------------------------------------------------------------------------------------------------------------------------------------
+
+        # This is the interface, where everything the user see is coded
+        # Note: panel 1.3.7 offer streaming where panel 1.4.4 don't. 1.4.4 offer user personalization which is less important
         def interface(self):
+            
+            # A function that creates a new Chat Interface where a user can ask a question of demand any information he wants.
+            # It is used when we initiate the interface, or when we want a new conversation
             def New_Chat_Interface():
                 return pn.chat.ChatInterface(
                                 user="Virgile",
-                                callback=callback,
+                                callback=message_callback,
                                 callback_user="ReservoirChat",
-                                # callback_avatar="png/Sir_Gillington.png",
-                                # widgets=pn.widgets.FileInput(name="CSV File", accept=".csv"), To add the possibility to add documents
-                                # reset_on_send=False, for ne reset of writing
                             )
             
+            # This is the callback of a message used if New_Chat_Interface. When a query of the user is sent to the LLM, it returns the response the LLM gave back
+            def message_callback(contents: str, user: str, instance: pn.chat.ChatInterface):
+                # To avoid having too much history
+                if len(self.history) >= 10:
+                    self.history.pop(3)
+                    print(self.history)
+                return self.get_response(contents, self.history)
+
+            # The main layout, where the left part (the history of conversation) if dispose next to the chat_interface (where the user ask questions)
+            # and everything else like the title, etc...
             def layout(left, right):
                 return pn.Row(
                         left,
                         right
                         )
             
+            # The history of conversation column
             def left_column():
                 return pn.Column(
                             pn.pane.Markdown("<h2 style='color:white; font-size:28px;'>Conversations</h2>", align='center'),
@@ -229,6 +294,7 @@ def app():
                             sizing_mode='stretch_height'
                             )
             
+            # The Chat interface column
             def right_column(chat_interface):
                 return pn.Column(
                             pn.pane.HTML("""
@@ -236,62 +302,80 @@ def app():
                                 <h2 style='font-size:32px;'>Reservoir</h2><h2 style='color:#31ABC7; font-size:32px;'>Chat</h2>
                             </div>
                             """, align='center'),
-                            # pn.pane.HTML(html_content, align='center'),
-                            # theme_toggle,
                             cookie_popup,
                             chat_interface,
-                            # button_properties={"clear": {"callback": clear_history}},
                             sizing_mode='stretch_width'
                             )
             
+            # This is the initial information that is displayed. Mainly, the Legal Notice and Main information about ReservoirChat
             def introduction(chat):
+                # The Legal Notice
                 chat.send("When using ReservoirPy Chat, we ask you not to include any personal data about yourself in your exchanges with the system in order to protect your data. The data contained in the chat will be analyzed by Inria",
                         user="Legal Notice",
                         avatar='png/gavel.png',
                         respond=False
                         )
+                # The main information
                 chat.send("Hi and welcome! My name is ReservoirChat. I'm a RAG (Retrieval-Augmented Generation) interface specialized in reservoir computing using a Large Language Model (LLM) to help respond to your questions. I will based my responses on a large database consisting of several documents ([See the documents here](https://github.com/VirgileBoraud/ReservoirChat/tree/main/doc/md))",
                         user="ReservoirChat",
                         avatar="png/logo.png",
                         respond=False
                         )
             
+            # The Function that is executed when clicking on the New_Conversation Button
             def new_conversation(event):
+                # For each objects (mainly button here) in the left column
                 for obj in left.objects:
+                    # If no conversation exists and if nothing was written by the user (=Thus no history where created)
                     if not isinstance(obj, pn.widgets.Button) and self.history == []:
+                        # We do nothing as it could create a void conversation which serve to nothing
                         return
                 
+                # Creating a new right column (so a new chat interface)
                 new_chat = New_Chat_Interface()
                 new_right = right_column(new_chat)
 
+                # We remove the old one and add a new one with an introduction
                 layout.pop(1)
                 layout.append(new_right)
                 introduction(new_chat)
 
+                # For each conversations
                 for obj in left.objects:
+                    # If a button is detected and it is green
                     if isinstance(obj, pn.widgets.Button) and obj.button_type == 'success':
+                        # Make it blue again and reset the history, return to stop the process
+                        # If we do not do that, the green button will remain green (Thus highlighting the current conversation is impossible))
+                        # And we wan't to change conversation at will, without importing the current history
                         obj.button_type = 'primary'
                         self.history = []
                         return
                 
+                # Append the current history into the history of history to keep trace of the conversation
                 self.history_history.append(self.history)
+                # If cookie was accepted import the history of history into the cache
                 if self.cookie_check:
                     pn.state.cache['history_history'] = self.history_history
 
+                # The name variable if the 6 first words the user wrote, it will be used to name the button
                 name = self.history[0]['User']
                 name = name.split()
                 name = ' '.join(name[:6])
+
                 self.history = []
 
-                history_conversation_button = pn.widgets.Button(name=f"{name}", button_type='primary', align='center', width=220, height=60) # The name could be the n first letters of the first question of the user
+                # Creating the previous conversation button
+                history_conversation_button = pn.widgets.Button(name=f"{name}", button_type='primary', align='center', width=220, height=60)
                 history_conversation_button.history = self.history_history[-1] # Store the history in the button
 
-                history_conversation_button.on_click(this_conversation) # Bind the function
+                history_conversation_button.on_click(this_conversation) # Bind the function this_conversation to the click of the history_conversation_button
+                
                 if self.check_day == 0: # Need to change this method to take into account the day
                     left.append(pn.pane.Markdown(f"<h2 style='color:white; font-size:18px;'>{self.day}</h2>", align='center'))
                     self.check_day += 1
                 left.append(history_conversation_button)
 
+            # The function called when any history_conversation_button is clicked
             def this_conversation(event):
                 check = 0
                 for obj in left.objects:
@@ -320,7 +404,14 @@ def app():
                 button = event.obj
                 old_chat = New_Chat_Interface()
                 old_right = right_column(old_chat)
+
+                # The length calculated to pop the too many chat interface created by the cookie method (layout.append(cookie))
+                # length = 1
+                # for obj in right.objects:
+                    # length += 1
+                
                 layout.pop(1)
+                
                 layout.append(old_right)
 
                 introduction(old_chat)
@@ -341,27 +432,12 @@ def app():
                                     respond=False
                                     )
 
-            def callback(contents: str, user: str, instance: pn.chat.ChatInterface):
-                # To avoid having too much history
-                if len(self.history) >= 10:
-                    self.history.pop(3)
-                    print(self.history)
-                return self.get_response(contents, self.history)
-
+            # Not integrated yet
             def clear_history(event, chat):
                 self.history = []
                 introduction(chat)
-
-            def set_cookie_consent(consent):
-                if consent == 'accepted':
-                    cookie_popup.visible = False
-                    cookie = self.save_to_cookies("check", True)
-                    layout.append(cookie)
-                    print(pn.state.cookies.get("check"))
-                    self.cookie_check = True
-                elif consent == 'declined':
-                    cookie_popup.visible = False
             
+            # Cookie popup with 2 buttons that will callback to set_cookie_consent
             def cookie_consent_popup():
                 if self.cookie_check:
                     return
@@ -386,6 +462,17 @@ def app():
                 )
                 
                 return popup
+            
+            # The Cookie Buttons Callback
+            def set_cookie_consent(consent):
+                if consent == 'accepted':
+                    cookie_popup.visible = False
+                    cookie = self.save_to_cookies("check", True)
+                    layout.append(cookie)
+                    print(pn.state.cookies.get("check"))
+                    self.cookie_check = True
+                elif consent == 'declined':
+                    cookie_popup.visible = False
 
             new_conversation_button = pn.widgets.Button(name='New Conversation', button_type='primary', align='center')
             pn.bind(new_conversation, new_conversation_button, watch=True)
@@ -417,6 +504,7 @@ def app():
             
             return layout
 
+    # This is the instructions the LLM will follow
     system_message = '''You are ReservoirChat, a helpful, smart, kind, and efficient AI assistant. 
             You are specialized in reservoir computing.
             If a user ask a question in a language, you will respond in this language.
@@ -447,12 +535,13 @@ def app():
                         similarity_threshold=0.6,
                         top_n=5)
 
-        file_list = reservoirchat.file_list('doc/md')
-        # reservoirchat.load_data(file_list)
+        # file_list = reservoirchat.file_list('doc/md') # The file list used to load the new data into the RAG application
+        # reservoirchat.load_data(file_list) # To load new data into the RAG application
 
-        layout = reservoirchat.interface()
+        layout = reservoirchat.interface() # Creating the layout that will be returned to be called in the pn.serve() function
         return layout
 
+# Serving the app in a bockeh server
 # pn.serve(app, title="ReservoirChat", port=8080) # For local
-# pn.serve(app, title="ReservoirChat", port=8080, address='127.0.0.1', allow_websocket_origin=['127.0.0.1:8080']) # Test
+# pn.serve(app, title="ReservoirChat", port=8080, address='127.0.0.1', allow_websocket_origin=['127.0.0.1:8080']) # For tests
 pn.serve(app, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"]) # For web
