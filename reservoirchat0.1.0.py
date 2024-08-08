@@ -10,6 +10,7 @@ import json
 import time
 # import subprocess
 from graphrag.query.cli import run_global_search
+from pymongo import MongoClient
 
 
 def app():
@@ -237,8 +238,34 @@ def app():
 
             self.history.append({"User":user_message,"Document_used":top_n_texts,"ReservoirChat":response_text})
 
+        def mongo(self, database, collection, item):
+            # Connect to the MongoDB server
+            client = MongoClient('localhost', 27017)
+
+            # Create or connect to a database
+            db = client[database]
+
+            # Create or connect to a collection
+            collection = db[collection]
+
+            # Define a list of items to store in the collection
+            items = item
+
+            # Insert the list of items into the collection
+            collection.insert_many(items)
+
+            # Retrieve and print all documents in the collection
+            for item in collection.find():
+                print(item)
+
+            # Close the connection
+            client.close()
+        
+        # The function called by the message_callback, it is what ReservoirChat will respond to the user
         def get_response(self, user_message, history):
-            return run_global_search('ragtest/output/everything2/artifacts','ragtest',1,"This is a message",user_message)
+            completion =  run_global_search('ragtest/output/everything2/artifacts','ragtest',0,"This is a message",user_message) # Need to integrate history
+            self.history.append({"User":user_message, "ReservoirChat":completion})
+            return completion
         
         #------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -308,7 +335,7 @@ def app():
                         avatar="png/logo.png",
                         respond=False
                         )
-            
+
             # The Function that is executed when clicking on the New_Conversation Button
             def new_conversation(event):
                 # For each objects (mainly button here) in the left column
@@ -317,7 +344,9 @@ def app():
                     if not isinstance(obj, pn.widgets.Button) and self.history == []:
                         # We do nothing as it could create a void conversation which serve to nothing
                         return
-                
+                print(self.history_history)
+                self.mongo("ReservoirChat", "history_history", self.history_history)
+
                 # Creating a new right column (so a new chat interface)
                 new_chat = New_Chat_Interface()
                 new_right = right_column(new_chat)
@@ -393,13 +422,13 @@ def app():
                 old_right = right_column(old_chat)
 
                 # The length calculated to pop the too many chat interface created by the cookie method (layout.append(cookie))
-                # length = 1
+                # length = 0
                 # for obj in right.objects:
                     # length += 1
                 
                 layout.pop(1)
                 
-                layout.append(old_right)
+                layout.append(old_right) # Could also append the title to handle the poping method
 
                 introduction(old_chat)
 
@@ -529,6 +558,6 @@ def app():
         return layout
 
 # Serving the app in a bokeh server
-# pn.serve(app, title="ReservoirChat", port=8080) # For local
+pn.serve(app, title="ReservoirChat", port=8080) # For local
 # pn.serve(app, title="ReservoirChat", port=8080, address='127.0.0.1', allow_websocket_origin=['127.0.0.1:8080']) # For tests
-pn.serve(app, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"]) # For web
+# pn.serve(app, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"]) # For web
