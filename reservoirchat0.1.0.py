@@ -8,7 +8,9 @@ from concurrent.futures import ThreadPoolExecutor
 import requests
 import json
 import time
-import subprocess
+# import subprocess
+from graphrag.query.cli import run_global_search
+
 
 def app():
     class ReservoirChat:
@@ -236,22 +238,7 @@ def app():
             self.history.append({"User":user_message,"Document_used":top_n_texts,"ReservoirChat":response_text})
 
         def get_response(self, user_message, history):
-            result = subprocess.run(f'python3 -m graphrag.query --root ragtest --method global "{user_message}"', shell=True, capture_output=True, text=True)
-
-            if result.returncode != 0:
-                raise Exception(f"Command failed with return code {result.returncode}: {result.stderr}")
-
-            match = re.search(r"Global Search Response:\s*(.*)", result.stdout)
-            if match:
-                yield match.group(1)
-        
-            '''popen = subprocess.Popen(f'python3 -m graphrag.query --root ragtest --method global "{user_message}"', shell=True, text=True, stdout=subprocess.PIPE, universal_newlines=True)
-            for stdout_line in iter(popen.stdout.readline, ""):
-                yield stdout_line 
-            popen.stdout.close()'''
-
-
-            
+            return run_global_search('ragtest/output/everything2/artifacts','ragtest',1,"This is a message",user_message)
         
         #------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -541,7 +528,7 @@ def app():
         layout = reservoirchat.interface() # Creating the layout that will be returned to be called in the pn.serve() function
         return layout
 
-# Serving the app in a bockeh server
+# Serving the app in a bokeh server
 # pn.serve(app, title="ReservoirChat", port=8080) # For local
 # pn.serve(app, title="ReservoirChat", port=8080, address='127.0.0.1', allow_websocket_origin=['127.0.0.1:8080']) # For tests
 pn.serve(app, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"]) # For web
