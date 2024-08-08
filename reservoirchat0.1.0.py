@@ -207,7 +207,7 @@ def app():
             return self.df.loc[top_n_indices]
 
         # Function to get the response (with history of current conversation) from the query of the user
-        def get_responses(self, user_message, history):
+        def get_responses(self, user_message, history): # Response with classic Rag
             top_n_results = self.get_top_n_closest_texts(user_message)
             top_n_texts = ("document name: " + top_n_results['document'] + " | ticket: " + top_n_results['ticket'] + " | response: " + top_n_results['response']).tolist()
             # print(top_n_texts)
@@ -262,7 +262,7 @@ def app():
             client.close()
         
         # The function called by the message_callback, it is what ReservoirChat will respond to the user
-        def get_response(self, user_message, history):
+        def get_response(self, user_message, history): # Response with GraphRag
             completion =  run_global_search('ragtest/output/everything2/artifacts','ragtest',0,"This is a message",user_message) # Need to integrate history
             self.history.append({"User":user_message, "ReservoirChat":completion})
             return completion
@@ -344,8 +344,6 @@ def app():
                     if not isinstance(obj, pn.widgets.Button) and self.history == []:
                         # We do nothing as it could create a void conversation which serve to nothing
                         return
-                print(self.history_history)
-                self.mongo("ReservoirChat", "history_history", self.history_history)
 
                 # Creating a new right column (so a new chat interface)
                 new_chat = New_Chat_Interface()
@@ -369,6 +367,10 @@ def app():
                 
                 # Append the current history into the history of history to keep trace of the conversation
                 self.history_history.append(self.history)
+                print(self.history)
+                # Saving history_history in the Mongo DataBase
+                self.mongo("ReservoirChat", "history_history", self.history)
+
                 # If cookie was accepted import the history of history into the cache
                 if self.cookie_check:
                     pn.state.cache['history_history'] = self.history_history
