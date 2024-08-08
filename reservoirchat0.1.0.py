@@ -238,7 +238,7 @@ def app():
             self.history.append({"User":user_message,"Document_used":top_n_texts,"ReservoirChat":response_text})
 
         def get_response(self, user_message, history):
-            completion =  run_global_search('ragtest/output/everything2/artifacts','ragtest',0,"This is a message",user_message) # Need to integrate history
+            completion =  run_global_search('ragtest','ragtest/output/everything2/artifacts','ragtest',0,"This is a message",user_message) # Need to integrate history
             self.history.append({"User":user_message, "ReservoirChat":completion})
             return completion
         
