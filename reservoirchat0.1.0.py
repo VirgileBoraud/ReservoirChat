@@ -9,7 +9,7 @@ import requests
 import json
 import time
 # import subprocess
-from graphrag.query.cli import run_global_search
+from graphrag.query.cli import run_local_search
 
 
 def app():
@@ -239,7 +239,7 @@ def app():
 
         def get_response(self, user_message, history):
             # completion =  run_global_search('ragtest','ragtest/output/everything2/artifacts','ragtest',0,"This is a message",user_message) # For graphrag 0.2.2
-            completion =  run_global_search('ragtest/output/everything2/artifacts','ragtest',0,"This is a message",user_message) # For before 0.2.2
+            completion =  run_local_search('ragtest/output/everything2/artifacts','ragtest',0,"This is a message",user_message) # For before 0.2.2
             self.history.append({"User":user_message, "ReservoirChat":completion})
             return completion
         
@@ -517,7 +517,7 @@ def app():
 
     if __name__ == "__main__":
         reservoirchat = ReservoirChat(model_url='http://localhost:8000/v1',
-                        embedding_url='http://127.0.0.1:5000/v1/embeddings',
+                        embedding_url='http://127.0.0.1:5000/v1',
                         api_key='EMPTY',
                         embedding_model='nomic-ai/nomic-embed-text-v1.5',
                         model='TechxGenus/Codestral-22B-v0.1-GPTQ',
