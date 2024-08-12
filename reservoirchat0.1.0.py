@@ -9,7 +9,7 @@ import requests
 import json
 import time
 # import subprocess
-from graphrag.query.cli import run_local_search
+from graphrag.query.cli import run_global_search
 
 
 def app():
@@ -239,7 +239,7 @@ def app():
 
         def get_response(self, user_message, history):
             # completion =  run_global_search('ragtest','ragtest/output/everything2/artifacts','ragtest',0,"This is a message",user_message) # For graphrag 0.2.2
-            completion =  run_local_search('ragtest/output/everything2/artifacts','ragtest',0,"This is a message",user_message) # For before 0.2.2
+            completion = run_global_search('ragtest/output/everything2/artifacts','ragtest',0,"This is a message",True,user_message) # For before 0.2.2
             self.history.append({"User":user_message, "ReservoirChat":completion})
             return completion
         
@@ -256,6 +256,7 @@ def app():
                                 user="Virgile",
                                 callback=message_callback,
                                 callback_user="ReservoirChat",
+                                callback_exception="verbose",
                             )
             
             # This is the callback of a message used if New_Chat_Interface. When a query of the user is sent to the LLM, it returns the response the LLM gave back
@@ -533,5 +534,5 @@ def app():
 
 # Serving the app in a bokeh server
 # pn.serve(app, title="ReservoirChat", port=8080) # For local
-# pn.serve(app, title="ReservoirChat", port=8080, address='127.0.0.1', allow_websocket_origin=['127.0.0.1:8080']) # For tests
+# pn.serve(app, title="ReservoirChat", port=8080, address='localhost', allow_websocket_origin=['localhost:8080']) # For tests
 pn.serve(app, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"]) # For web
