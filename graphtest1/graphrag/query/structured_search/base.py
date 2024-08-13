@@ -5,7 +5,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Generator
+from typing import Any
 
 import pandas as pd
 import tiktoken
@@ -56,7 +56,7 @@ class BaseSearch(ABC):
         query: str,
         conversation_history: ConversationHistory | None = None,
         **kwargs,
-    ) -> Generator[str, None, SearchResult]:
+    ) -> SearchResult:
         """Search for the given query."""
 
     @abstractmethod

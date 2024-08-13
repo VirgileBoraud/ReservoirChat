@@ -4,7 +4,9 @@
 """Base classes for LLM and Embedding models."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Generator
+from typing import Any, Optional
+
+from openai.types import CompletionUsage
 
 
 class BaseLLMCallback:
@@ -17,6 +19,9 @@ class BaseLLMCallback:
         """Handle when a new token is generated."""
         self.response.append(token)
 
+    def on_llm_stop(self, usage: Optional[CompletionUsage]):
+        pass
+
 
 class BaseLLM(ABC):
     """The Base LLM implementation."""
@@ -28,7 +33,7 @@ class BaseLLM(ABC):
         streaming: bool = True,
         callbacks: list[BaseLLMCallback] | None = None,
         **kwargs: Any,
-    ) -> Generator[str, None, str]:
+    ) -> str:
         """Generate a response."""
 
     @abstractmethod

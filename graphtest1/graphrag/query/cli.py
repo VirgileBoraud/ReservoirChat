@@ -3,8 +3,8 @@
 
 """Command line interface for the query module."""
 
+import asyncio
 import os
-import sys
 from pathlib import Path
 from typing import cast
 
@@ -15,55 +15,27 @@ from graphrag.config import (
     create_graphrag_config,
 )
 from graphrag.index.progress import PrintProgressReporter
-from graphrag.query.input.loaders.dfs import (
-    store_entity_semantic_embeddings,
-)
-from graphrag.vector_stores import VectorStoreFactory, VectorStoreType
 
-from .factories import get_global_search_engine, get_local_search_engine
-from .indexer_adapters import (
-    read_indexer_covariates,
-    read_indexer_entities,
-    read_indexer_relationships,
-    read_indexer_reports,
-    read_indexer_text_units,
-)
+from . import api
 
 reporter = PrintProgressReporter("")
 
 
-def __get_embedding_description_store(
-    vector_store_type: str = VectorStoreType.LanceDB, config_args: dict | None = None
-):
-    """Get the embedding description store."""
-    if not config_args:
-        config_args = {}
-
-    config_args.update({
-        "collection_name": config_args.get(
-            "query_collection_name",
-            config_args.get("collection_name", "description_embedding"),
-        ),
-    })
-
-    description_embedding_store = VectorStoreFactory.get_vector_store(
-        vector_store_type=vector_store_type, kwargs=config_args
-    )
-
-    description_embedding_store.connect(**config_args)
-    return description_embedding_store
-
-
 def run_global_search(
+    config_dir: str | None,
     data_dir: str | None,
     root_dir: str | None,
     community_level: int,
     response_type: str,
-    streaming: bool,
     query: str,
 ):
-    """Run a global search with the given query."""
-    data_dir, root_dir, config = _configure_paths_and_settings(data_dir, root_dir)
+    """Perform a global search with a given query.
+
+    Loads index files required for global search and calls the Query API.
+    """
+    data_dir, root_dir, config = _configure_paths_and_settings(
+        data_dir, root_dir, config_dir
+    )
     data_path = Path(data_dir)
 
     final_nodes: pd.DataFrame = pd.read_parquet(
@@ -76,44 +48,34 @@ def run_global_search(
         data_path / "create_final_community_reports.parquet"
     )
 
-    reports = read_indexer_reports(
-        final_community_reports, final_nodes, community_level
+    return asyncio.run(
+        api.global_search(
+            config=config,
+            nodes=final_nodes,
+            entities=final_entities,
+            community_reports=final_community_reports,
+            community_level=community_level,
+            response_type=response_type,
+            query=query,
+        )
     )
-    entities = read_indexer_entities(final_nodes, final_entities, community_level)
-    search_engine = get_global_search_engine(
-        config,
-        reports=reports,
-        entities=entities,
-        response_type=response_type,
-    )
-
-    result = search_engine.search(query=query, streaming=streaming)
-    if not streaming:
-        try:
-            result.__next__()
-        except StopIteration as e:
-            result = e.value
-        reporter.success(f"Global Search Response: {result.response}")
-        return result.response
-    else:
-        reporter.success(f"Global Search Response:")
-        while True:
-            try:
-                sys.stdout.write(result.__next__())
-            except StopIteration as e:
-                return e.value.response
 
 
 def run_local_search(
+    config_dir: str | None,
     data_dir: str | None,
     root_dir: str | None,
     community_level: int,
     response_type: str,
-    streaming: bool,
     query: str,
 ):
-    """Run a local search with the given query."""
-    data_dir, root_dir, config = _configure_paths_and_settings(data_dir, root_dir)
+    """Perform a local search with a given query.
+
+    Loads index files required for local search and calls the Query API.
+    """
+    data_dir, root_dir, config = _configure_paths_and_settings(
+        data_dir, root_dir, config_dir
+    )
     data_path = Path(data_dir)
 
     final_nodes = pd.read_parquet(data_path / "create_final_nodes.parquet")
@@ -132,64 +94,34 @@ def run_local_search(
         else None
     )
 
-    vector_store_args = (
-        config.embeddings.vector_store if config.embeddings.vector_store else {}
+    # call the Query API
+    return asyncio.run(
+        api.local_search(
+            config=config,
+            nodes=final_nodes,
+            entities=final_entities,
+            community_reports=final_community_reports,
+            text_units=final_text_units,
+            relationships=final_relationships,
+            covariates=final_covariates,
+            community_level=community_level,
+            response_type=response_type,
+            query=query,
+        )
     )
-    vector_store_type = vector_store_args.get("type", VectorStoreType.LanceDB)
-
-    description_embedding_store = __get_embedding_description_store(
-        vector_store_type=vector_store_type,
-        config_args=vector_store_args,
-    )
-    entities = read_indexer_entities(final_nodes, final_entities, community_level)
-    store_entity_semantic_embeddings(
-        entities=entities, vectorstore=description_embedding_store
-    )
-    covariates = (
-        read_indexer_covariates(final_covariates)
-        if final_covariates is not None
-        else []
-    )
-
-    search_engine = get_local_search_engine(
-        config,
-        reports=read_indexer_reports(
-            final_community_reports, final_nodes, community_level
-        ),
-        text_units=read_indexer_text_units(final_text_units),
-        entities=entities,
-        relationships=read_indexer_relationships(final_relationships),
-        covariates={"claims": covariates},
-        description_embedding_store=description_embedding_store,
-        response_type=response_type,
-    )
-
-    result = search_engine.search(query=query, streaming=streaming)
-    if not streaming:
-        try:
-            result.__next__()
-        except StopIteration as e:
-            result = e.value
-        reporter.success(f"Local Search Response: {result.response}")
-        return result.response
-    else:
-        reporter.success(f"Local Search Response:")
-        while True:
-            try:
-                sys.stdout.write(result.__next__())
-            except StopIteration as e:
-                return e.value.response
 
 
 def _configure_paths_and_settings(
-    data_dir: str | None, root_dir: str | None
+    data_dir: str | None,
+    root_dir: str | None,
+    config_dir: str | None,
 ) -> tuple[str, str | None, GraphRagConfig]:
     if data_dir is None and root_dir is None:
         msg = "Either data_dir or root_dir must be provided."
         raise ValueError(msg)
     if data_dir is None:
         data_dir = _infer_data_dir(cast(str, root_dir))
-    config = _create_graphrag_config(root_dir, data_dir)
+    config = _create_graphrag_config(root_dir, config_dir)
     return data_dir, root_dir, config
 
 
@@ -205,17 +137,23 @@ def _infer_data_dir(root: str) -> str:
     raise ValueError(msg)
 
 
-def _create_graphrag_config(root: str | None, data_dir: str | None) -> GraphRagConfig:
+def _create_graphrag_config(
+    root: str | None,
+    config_dir: str | None,
+) -> GraphRagConfig:
     """Create a GraphRag configuration."""
-    return _read_config_parameters(cast(str, root or data_dir))
+    return _read_config_parameters(root or "./", config_dir)
 
 
-def _read_config_parameters(root: str):
+def _read_config_parameters(root: str, config: str | None):
     _root = Path(root)
-    settings_yaml = _root / "settings.yaml"
+    settings_yaml = (
+        Path(config)
+        if config and Path(config).suffix in [".yaml", ".yml"]
+        else _root / "settings.yaml"
+    )
     if not settings_yaml.exists():
         settings_yaml = _root / "settings.yml"
-    settings_json = _root / "settings.json"
 
     if settings_yaml.exists():
         reporter.info(f"Reading settings from {settings_yaml}")
@@ -227,6 +165,11 @@ def _read_config_parameters(root: str):
             data = yaml.safe_load(file.read().decode(encoding="utf-8", errors="strict"))
             return create_graphrag_config(data, root)
 
+    settings_json = (
+        Path(config)
+        if config and Path(config).suffix == ".json"
+        else _root / "settings.json"
+    )
     if settings_json.exists():
         reporter.info(f"Reading settings from {settings_json}")
         with settings_json.open("rb") as file:

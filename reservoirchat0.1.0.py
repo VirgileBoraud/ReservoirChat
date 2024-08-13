@@ -238,10 +238,10 @@ def app():
             self.history.append({"User":user_message,"Document_used":top_n_texts,"ReservoirChat":response_text})
 
         def get_response(self, user_message, history):
-            # completion =  run_global_search('ragtest','ragtest/output/everything2/artifacts','ragtest',0,"This is a message",user_message) # For graphrag 0.2.2
-            completion = run_global_search('ragtest/output/everything2/artifacts','ragtest',0,"This is a message",True,user_message) # For before 0.2.2
-            self.history.append({"User":user_message, "ReservoirChat":completion})
-            return completion
+            return run_global_search('ragtest','ragtest/output/everything2/artifacts','ragtest',0,"This is a message",user_message) # For graphrag 0.2.2
+            # completion = run_global_search('ragtest/output/everything2/artifacts','ragtest',0,"This is a message",True,user_message) # For before 0.2.2
+            # self.history.append({"User":user_message, "ReservoirChat":completion})
+            # return completion
         
         #------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -540,6 +540,6 @@ os.environ["TIKTOKEN_CACHE_DIR"] = tiktoken_cache_dir
 assert os.path.exists(os.path.join(tiktoken_cache_dir,"9b5ad71b2ce5302211f9c61530b329a4922fc6a4"))
 
 # Serving the app in a bokeh server
-# pn.serve(app, title="ReservoirChat", port=8080) # For local
+pn.serve(app, title="ReservoirChat", port=8080) # For local
 # pn.serve(app, title="ReservoirChat", port=8080, address='localhost', allow_websocket_origin=['localhost:8080']) # For tests
-pn.serve(app, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"]) # For web
+# pn.serve(app, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"]) # For web
