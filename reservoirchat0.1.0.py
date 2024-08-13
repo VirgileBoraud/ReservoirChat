@@ -532,6 +532,13 @@ def app():
         layout = reservoirchat.interface() # Creating the layout that will be returned to be called in the pn.serve() function
         return layout
 
+# Tiktoken has to download a file, on plafrim a tunnel must be set to access internet, so the file must be downloaded and put in a cache instead
+tiktoken_cache_dir = "tiktoken_cache"
+os.environ["TIKTOKEN_CACHE_DIR"] = tiktoken_cache_dir
+
+# validate
+assert os.path.exists(os.path.join(tiktoken_cache_dir,"9b5ad71b2ce5302211f9c61530b329a4922fc6a4"))
+
 # Serving the app in a bokeh server
 # pn.serve(app, title="ReservoirChat", port=8080) # For local
 # pn.serve(app, title="ReservoirChat", port=8080, address='localhost', allow_websocket_origin=['localhost:8080']) # For tests
