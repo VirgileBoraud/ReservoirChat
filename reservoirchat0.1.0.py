@@ -245,6 +245,7 @@ def app():
                 response_text += chunk
                 # For streaming purposes (which means real time response), we need to yield the response
                 yield response_text
+                time.sleep(0.01)
             self.history.append({"User":user_message, "ReservoirChat":response_text})
         
         #------------------------------------------------------------------------------------------------------------------------------------------------
