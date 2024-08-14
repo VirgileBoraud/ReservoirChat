@@ -4,6 +4,7 @@
 """Command line interface for the query module."""
 
 import asyncio
+import nest_asyncio
 import os
 from pathlib import Path
 from typing import cast
@@ -18,6 +19,7 @@ from graphrag.index.progress import PrintProgressReporter
 
 from . import api
 
+nest_asyncio.apply()
 reporter = PrintProgressReporter("")
 
 
