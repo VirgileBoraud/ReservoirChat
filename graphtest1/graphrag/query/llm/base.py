@@ -4,7 +4,7 @@
 """Base classes for LLM and Embedding models."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Generator
+from typing import Any
 
 
 class BaseLLMCallback:
@@ -28,7 +28,7 @@ class BaseLLM(ABC):
         streaming: bool = True,
         callbacks: list[BaseLLMCallback] | None = None,
         **kwargs: Any,
-    ) -> Generator[str, None, str]:
+    ) -> str:
         """Generate a response."""
 
     @abstractmethod

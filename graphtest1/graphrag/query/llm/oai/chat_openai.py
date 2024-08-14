@@ -4,7 +4,7 @@
 """Chat-based OpenAI LLM implementation."""
 
 from collections.abc import Callable
-from typing import Any, Generator
+from typing import Any
 
 from tenacity import (
     AsyncRetrying,
@@ -66,7 +66,7 @@ class ChatOpenAI(BaseLLM, OpenAILLMImpl):
         streaming: bool = True,
         callbacks: list[BaseLLMCallback] | None = None,
         **kwargs: Any,
-    ) -> Generator[str, None, str]:
+    ) -> str:
         """Generate text."""
         try:
             retryer = Retrying(
@@ -77,28 +77,12 @@ class ChatOpenAI(BaseLLM, OpenAILLMImpl):
             )
             for attempt in retryer:
                 with attempt:
-                    if streaming:
-                        generator = self._generate(
-                            messages=messages,
-                            streaming=True,
-                            callbacks=callbacks,
-                            **kwargs,
-                        )
-                        while True:
-                            try:
-                                yield generator.__next__()
-                            except StopIteration as e:
-                                return e.value
-                    else:
-                        try:
-                            self._generate(
-                                messages=messages,
-                                streaming=streaming,
-                                callbacks=callbacks,
-                                **kwargs,
-                            ).__next__()
-                        except StopIteration as e:
-                            return e.value
+                    return self._generate(
+                        messages=messages,
+                        streaming=streaming,
+                        callbacks=callbacks,
+                        **kwargs,
+                    )
         except RetryError as e:
             self._reporter.error(
                 message="Error at generate()", details={self.__class__.__name__: str(e)}
@@ -115,7 +99,7 @@ class ChatOpenAI(BaseLLM, OpenAILLMImpl):
         callbacks: list[BaseLLMCallback] | None = None,
         **kwargs: Any,
     ) -> str:
-        """Generate text asynchronously. TODO: implement async generator for streaming."""
+        """Generate text asynchronously."""
         try:
             retryer = AsyncRetrying(
                 stop=stop_after_attempt(self.max_retries),
@@ -144,7 +128,7 @@ class ChatOpenAI(BaseLLM, OpenAILLMImpl):
         streaming: bool = True,
         callbacks: list[BaseLLMCallback] | None = None,
         **kwargs: Any,
-    ) -> str | Generator[str, None, str]:
+    ) -> str:
         model = self.model
         if not model:
             raise ValueError(_MODEL_REQUIRED_MSG)
@@ -167,8 +151,6 @@ class ChatOpenAI(BaseLLM, OpenAILLMImpl):
                         if chunk.choices[0].delta and chunk.choices[0].delta.content
                         else ""
                     )  # type: ignore
-
-                    yield delta
 
                     full_response += delta
                     if callbacks:
