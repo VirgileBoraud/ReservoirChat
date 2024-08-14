@@ -86,6 +86,7 @@ def read_indexer_reports(
         content_embedding_col=None,
     )
 
+
 def read_indexer_entities(
     final_nodes: pd.DataFrame,
     final_entities: pd.DataFrame,

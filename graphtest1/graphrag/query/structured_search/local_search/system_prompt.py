@@ -15,8 +15,6 @@ Generate a response of the target length and format that responds to the user's 
 
 If you don't know the answer, just say so. Do not make anything up.
 
-When asked to code, return a code in python
-
 Points supported by data should list their data references as follows:
 
 "This is an example sentence supported by multiple data references [Data: <dataset name> (record ids); <dataset name> (record ids)]."

@@ -4,7 +4,7 @@
 """Base classes for LLM and Embedding models."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Generator
+from typing import Any, AsyncGenerator, Generator
 
 
 class BaseLLMCallback:
@@ -28,9 +28,18 @@ class BaseLLM(ABC):
         streaming: bool = True,
         callbacks: list[BaseLLMCallback] | None = None,
         **kwargs: Any,
-    ) -> Generator[str, None, str]:
+    ) -> str:
         """Generate a response."""
 
+    @abstractmethod
+    def stream_generate(
+        self,
+        messages: str | list[Any],
+        callbacks: list[BaseLLMCallback] | None = None,
+        **kwargs: Any,
+    ) -> Generator[str, None, None]:
+        """Generate a response with streaming."""
+    
     @abstractmethod
     async def agenerate(
         self,
@@ -40,7 +49,15 @@ class BaseLLM(ABC):
         **kwargs: Any,
     ) -> str:
         """Generate a response asynchronously."""
-
+    
+    @abstractmethod
+    async def astream_generate(
+        self,
+        messages: str | list[Any],
+        callbacks: list[BaseLLMCallback] | None = None,
+        **kwargs: Any,
+    ) -> AsyncGenerator[str, None]:
+        """Generate a response asynchronously with streaming."""
 
 class BaseTextEmbedding(ABC):
     """The text embedding interface."""
