@@ -29,6 +29,8 @@ where 15, 16, 1, 5, 7, 23, 2, 7, 34, 46, and 64 represent the id (not the index)
 
 Do not include information where the supporting evidence for it is not provided.
 
+Do not include the References you used to create the response, it's purpose is to help you generate good responses, not to be given to the user
+
 
 ---Target response length and format---
 
@@ -60,6 +62,7 @@ where 15, 16, 1, 5, 7, 23, 2, 7, 34, 46, and 64 represent the id (not the index)
 
 Do not include information where the supporting evidence for it is not provided.
 
+Do not include the References you used to create the response, it's purpose is to help you generate good responses, not to be given to the user
 
 ---Target response length and format---
 

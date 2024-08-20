@@ -10,6 +10,7 @@ import json
 import time
 # import subprocess
 from graphrag.query.cli import run_global_search
+from graphrag.query.cli import run_local_search
 
 
 def app():
@@ -238,13 +239,13 @@ def app():
             self.history.append({"User":user_message,"Document_used":top_n_texts,"ReservoirChat":response_text})
 
         def get_response(self, user_message, history):
-            # completion = run_global_search('ragtest','ragtest/output/everything2/artifacts','ragtest',0,"This is a message",user_message) # For graphrag 0.2.2
-            completion = run_global_search('ragtest','ragtest/output/everything2/artifacts','ragtest',0,"This is a message",True,user_message) # For before 0.2.2
+            completion = run_local_search('ragtest','ragtest/output/everything3/artifacts','ragtest',0,"This is a question",True,user_message)
             response_text = ""
             for chunk in completion:
                 response_text += chunk
                 # For streaming purposes (which means real time response), we need to yield the response
                 yield response_text
+                time.sleep(0.01)
             self.history.append({"User":user_message, "ReservoirChat":response_text})
         
         #------------------------------------------------------------------------------------------------------------------------------------------------
@@ -257,7 +258,7 @@ def app():
             # It is used when we initiate the interface, or when we want a new conversation
             def New_Chat_Interface():
                 return pn.chat.ChatInterface(
-                                user="Virgile",
+                                user="User",
                                 callback=message_callback,
                                 callback_user="ReservoirChat",
                                 callback_exception="verbose",
