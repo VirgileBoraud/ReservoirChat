@@ -81,6 +81,8 @@ class OpenAIEmbedding(BaseTextEmbedding, OpenAILLMImpl):
         chunk_embeddings = []
         chunk_lens = []
         for chunk in token_chunks:
+            # decode chunk from token ids to text (added line after row 83)
+            # chunk = self.token_encoder.decode(chunk)
             try:
                 embedding, chunk_len = self._embed_with_retry(chunk, **kwargs)
                 chunk_embeddings.append(embedding)

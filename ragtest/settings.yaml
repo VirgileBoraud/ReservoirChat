@@ -31,8 +31,8 @@ embeddings:
   llm:
     api_key: <API_KEY>
     type: openai_embedding # or azure_openai_embedding
-    model: nomic-ai/nomic-embed-text-v1.5
-    api_base: 'http://127.0.0.1:5000/v1/'
+    model: nomic-ai/nomic-embed-text-v1.5-GGUF
+    api_base: 'http://127.0.0.1:5000/v1'
     # api_version: 2024-02-15-preview
     # organization: <organization_id>
     # deployment_name: <azure_model_deployment_name>
