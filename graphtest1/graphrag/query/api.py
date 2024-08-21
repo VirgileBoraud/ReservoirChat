@@ -158,6 +158,7 @@ async def local_search(
     response_type: str,
     streaming: bool,
     query: str,
+    history: list,
 ) -> str | dict[str, Any] | list[dict[str, Any]]:
     """Perform a local search.
 
@@ -209,14 +210,14 @@ async def local_search(
     )
 
     if not streaming:
-        result = await search_engine.asearch(query=query)
+        result = await search_engine.asearch(query=query, history=history)
         reporter.success(f"Local Search Response: {result.response}")
         return result.response
 
     else:
         import sys
         full_resp = ''
-        results = search_engine.astream_search(query=query)
+        results = search_engine.astream_search(query=query, history=history)
         reporter.success(f'Local Search Response: \n')
         sys.stdout.write('⬤')  # display an initial progress indicator
 

@@ -239,13 +239,55 @@ def app():
             self.history.append({"User":user_message,"Document_used":top_n_texts,"ReservoirChat":response_text})
 
         def get_response(self, user_message, history):
-            completion = run_local_search('ragtest','ragtest/output/everything3/artifacts','ragtest',0,"This is a question",True,user_message)
+            completion = run_local_search('ragtest',
+                                          'ragtest/output/everything3/artifacts',
+                                          'ragtest',
+                                          0,
+                                          'This is a response',
+                                          True,
+                                          user_message,
+                                          self.history)
             response_text = ""
             for chunk in completion:
                 response_text += chunk
                 # For streaming purposes (which means real time response), we need to yield the response
                 yield response_text
                 time.sleep(0.01)
+            '''system_message = f
+                    You are ReservoirChat, a helpful, smart, kind, and efficient AI assistant.
+                    You are specialized in reservoir computing.
+                    If a user ask a question in a language, you will respond in this language.
+                    You will receive 2 things :
+                    1. A history of conversation that will serve as your memory of the conversation
+                    2. A text that will serve a documentation. Your general will not be used, only this text
+
+                    You will then remove data of references from the text you received and take into account the history of conversation.
+
+                    If you consider that the user message is only related to the history of conversation, use only the history of conversation
+
+                    HISTORY OF CONVERSATION:
+                    {history}
+
+                    DOCUMENTATION:
+                    {message}
+                    '''
+            '''prompt = [
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": user_message},
+            ]
+            completion = self.model_client.chat.completions.create(
+                model=self.model,
+                messages=prompt,
+                temperature=0.1,
+                stream=True,
+            )
+
+            response_text = ""
+            for chunk in completion:
+                if chunk.choices[0].delta.content:
+                    response_text += chunk.choices[0].delta.content
+                    # For streaming purposes (which means real time response), we need to yield the response
+                    yield response_text'''
             self.history.append({"User":user_message, "ReservoirChat":response_text})
         
         #------------------------------------------------------------------------------------------------------------------------------------------------

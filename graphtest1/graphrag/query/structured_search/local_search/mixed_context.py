@@ -91,7 +91,7 @@ class LocalSearchMixedContext(LocalContextBuilder):
     def build_context(
         self,
         query: str,
-        conversation_history: ConversationHistory | None = None,
+        conversation_history: ConversationHistory,
         include_entity_names: list[str] | None = None,
         exclude_entity_names: list[str] | None = None,
         conversation_history_max_turns: int | None = 5,
