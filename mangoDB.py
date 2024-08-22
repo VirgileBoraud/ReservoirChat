@@ -4,22 +4,10 @@ from pymongo import MongoClient
 client = MongoClient('localhost', 27017)
 
 # Create or connect to a database
-db = client['mydatabase']
+db = client['ReservoirChat']
 
 # Create or connect to a collection
-collection = db['mycollection']
-
-# Define a list of items to store in the collection
-items = [
-    {"item": "Apple", "quantity": 10},
-    {"item": "Banana", "quantity": 5},
-    {"item": "Orange", "quantity": 7},
-    {"item": "Mango", "quantity": 3},
-    {"item": "Grapes", "quantity": 12}
-]
-
-# Insert the list of items into the collection
-collection.insert_many(items)
+collection = db['35d286e5-687c-4708-821a-a1ff32a2c58a']
 
 # Retrieve and print all documents in the collection
 for item in collection.find():
