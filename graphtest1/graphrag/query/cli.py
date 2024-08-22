@@ -73,6 +73,7 @@ def run_local_search(
     response_type: str,
     streaming: bool,
     query: str,
+    history: list,
 ):
     """Perform a local search with a given query.
 
@@ -113,6 +114,7 @@ def run_local_search(
             response_type=response_type,
             streaming=streaming,
             query=query,
+            history=history,
         )
     )
 

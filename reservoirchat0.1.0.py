@@ -11,7 +11,11 @@ import time
 # import subprocess
 from graphrag.query.cli import run_global_search
 from graphrag.query.cli import run_local_search
-
+import uuid
+from pymongo import MongoClient
+# Initialize MongoClient
+client = MongoClient('localhost', 27017)
+db = client['ReservoirChat']
 
 def app():
     class ReservoirChat:
@@ -46,19 +50,20 @@ def app():
             # Load the history the user didn't "saved" into self.history_history because he didn't click New Conversation
             # Not yet implemented
             self.history = self.load_from_cookies('history', [])
-
-            if 'history_history' in pn.state.cache:
-                self.history_history = pn.state.cache['history_history']
-                # Other method for cache with per-session exception : https://panel.holoviz.org/how_to/caching/memoization.html
-                # We can now use cookies to store information instead of cache
+            
+            if pn.state.cookies.get("uuid"):
+                self.history_history = [[]]
+                for item in collection.find():
+                    self.history_history[0].append(item)
             else:
                 self.history_history = self.load_from_cookies('history_history', [])
-            
+
             # The current time for date and everything related
             current_time = time.ctime()
             time_components = current_time.split()
             self.day = " ".join(time_components[0:3])
             self.check_day = 0 # Little check to be removed when the date method is updated (Currently using only the current day, not the day the conversation was created)
+            self.count_pop = 0
 
         # --------------------------------------------------------------------------------------------------------------------------------------------------
         
@@ -237,15 +242,80 @@ def app():
                     yield response_text
 
             self.history.append({"User":user_message,"Document_used":top_n_texts,"ReservoirChat":response_text})
+        
+        def mongo(self, database, collection, item):
+            # Connect to the MongoDB server
+            client = MongoClient('localhost', 27017)
 
+            # Create or connect to a database
+            db = client[database]
+
+            # Create or connect to a collection
+            collection = db[collection]
+
+            # Define a list of items to store in the collection
+            items = item
+
+            # Insert the list of items into the collection
+            collection.insert_many(items)
+
+            # Retrieve and print all documents in the collection
+            for item in collection.find():
+                print(item)
+
+            # Close the connection
+            client.close()
+        
         def get_response(self, user_message, history):
-            completion = run_local_search('ragtest','ragtest/output/everything3/artifacts','ragtest',0,"This is a question",True,user_message)
+            completion = run_local_search('ragtest',
+                                          'ragtest/output/everything3/artifacts',
+                                          'ragtest',
+                                          0,
+                                          'This is a response',
+                                          False,
+                                          user_message,
+                                          self.history)
             response_text = ""
             for chunk in completion:
                 response_text += chunk
                 # For streaming purposes (which means real time response), we need to yield the response
                 yield response_text
                 time.sleep(0.01)
+            '''system_message = f
+                    You are ReservoirChat, a helpful, smart, kind, and efficient AI assistant.
+                    You are specialized in reservoir computing.
+                    If a user ask a question in a language, you will respond in this language.
+                    You will receive 2 things :
+                    1. A history of conversation that will serve as your memory of the conversation
+                    2. A text that will serve a documentation. Your general will not be used, only this text
+
+                    You will then remove data of references from the text you received and take into account the history of conversation.
+
+                    If you consider that the user message is only related to the history of conversation, use only the history of conversation
+
+                    HISTORY OF CONVERSATION:
+                    {history}
+
+                    DOCUMENTATION:
+                    {message}
+                    
+            prompt = [
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": user_message},
+            ]
+            completion = self.model_client.chat.completions.create(
+                model=self.model,
+                messages=prompt,
+                temperature=0.1,
+                stream=True,
+            )
+
+            response_text = ""
+            for chunk in completion:
+                if chunk.choices[0].delta.content:
+                    response_text += chunk.choices[0].delta.content
+                    # For streaming purposes (which means real time response), we need to yield the response
+                    yield response_text'''
             self.history.append({"User":user_message, "ReservoirChat":response_text})
         
         #------------------------------------------------------------------------------------------------------------------------------------------------
@@ -333,6 +403,10 @@ def app():
 
                 # We remove the old one and add a new one with an introduction
                 layout.pop(1)
+                if self.count_pop == 0:
+                    self.count_pop += 1
+                    layout.pop(1)
+
                 layout.append(new_right)
                 introduction(new_chat)
 
@@ -349,9 +423,16 @@ def app():
                 
                 # Append the current history into the history of history to keep trace of the conversation
                 self.history_history.append(self.history)
-                # If cookie was accepted import the history of history into the cache
+                # If cookie was accepted
                 if self.cookie_check:
-                    pn.state.cache['history_history'] = self.history_history
+                    # import the history of history into the cache
+                    # pn.state.cache['history_history'] = self.history_history
+                    # Saving history_history in the Mongo DataBase
+                    #self.mongo("ReservoirChat", "history_history", self.history_history)
+                    collection.delete_many({})
+                    collection.insert_many(self.history_history[0])
+                    for item in collection.find():
+                        print(item)
 
                 # The name variable if the 6 first words the user wrote, it will be used to name the button
                 name = self.history[0]['User']
@@ -394,7 +475,10 @@ def app():
                         left.append(history_conversation_button)
                         self.history_history.append(self.history)
                         if self.cookie_check:
-                            pn.state.cache['history_history'] = self.history_history
+                            collection.delete_many({})
+                            collection.insert_many(self.history_history[0])
+                            for item in collection.find():
+                                print(item)
 
                 event.obj.button_type = 'success'
                 button = event.obj
@@ -483,9 +567,9 @@ def app():
             layout = layout(left, right)
             c = 0
             if self.cookie_check:
-                if 'history_history' in pn.state.cache: # If there is a cache, append the history stored inside into new conversation buttons
-                    for list in pn.state.cache['history_history']:
-                        name = list[0]['User']
+                if pn.state.cookies.get("uuid"): # If there is a conversation already stored on the database, append the history stored inside into new conversation buttons
+                    for item in self.history_history:
+                        name = item[0]['User']
                         name = name.split()
                         name = ' '.join(name[:6])
                         history_conversation_button = pn.widgets.Button(name=name, button_type='primary', align='center', width=220, height=60) # The name could be the n first letters of the first question of the user
@@ -522,6 +606,11 @@ def app():
             '''
 
     if __name__ == "__main__":
+        if not pn.state.cookies.get("uuid"):
+            uuid_v4 = str(uuid.uuid4())
+        else:
+            uuid_v4 = pn.state.cookies.get("uuid")
+        collection = db[uuid_v4]
         reservoirchat = ReservoirChat(model_url='http://localhost:8000/v1',
                         embedding_url='http://127.0.0.1:5000/v1',
                         api_key='EMPTY',
@@ -533,8 +622,9 @@ def app():
 
         # file_list = reservoirchat.file_list('doc/md') # The file list used to load the new data into the RAG application
         # reservoirchat.load_data(file_list) # To load new data into the RAG application
-
+        uuid_cookie = reservoirchat.save_to_cookies("uuid", uuid_v4)
         layout = reservoirchat.interface() # Creating the layout that will be returned to be called in the pn.serve() function
+        layout.append(uuid_cookie)
         return layout
 
 # Tiktoken has to download a file, on plafrim a tunnel must be set to access internet, so the file must be downloaded and put in a cache instead

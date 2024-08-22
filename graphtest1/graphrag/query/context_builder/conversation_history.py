@@ -90,15 +90,11 @@ class QATurn:
 class ConversationHistory:
     """Class for storing a conversation history."""
 
-    turns: list[ConversationTurn]
-
     def __init__(self):
         self.turns = []
 
     @classmethod
-    def from_list(
-        cls, conversation_turns: list[dict[str, str]]
-    ) -> "ConversationHistory":
+    def from_list(cls, conversation_turns: list[dict[str, str]]) -> "ConversationHistory":
         """
         Create a conversation history from a list of conversation turns.
 
@@ -108,9 +104,7 @@ class ConversationHistory:
         for turn in conversation_turns:
             history.turns.append(
                 ConversationTurn(
-                    role=ConversationRole.from_string(
-                        turn.get("role", ConversationRole.USER)
-                    ),
+                    role=ConversationRole.from_string(turn.get("role", ConversationRole.USER)),
                     content=turn.get("content", ""),
                 )
             )
@@ -120,9 +114,24 @@ class ConversationHistory:
         """Add a new turn to the conversation history."""
         self.turns.append(ConversationTurn(role=role, content=content))
 
+    def stock_conversation(self, conversation_list: list[dict[str, str]]):
+        """
+        Stock the conversation history with a list of user and assistant exchanges.
+        The list should be in the format:
+        [{"User": <previous question>, "ReservoirChat": <response>}, ...]
+        """
+        for exchange in conversation_list:
+            user_turn = exchange.get("User")
+            assistant_turn = exchange.get("ReservoirChat")
+
+            if user_turn:
+                self.add_turn(ConversationRole.USER, user_turn)
+            if assistant_turn:
+                self.add_turn(ConversationRole.ASSISTANT, assistant_turn)
+
     def to_qa_turns(self) -> list[QATurn]:
         """Convert conversation history to a list of QA turns."""
-        qa_turns = list[QATurn]()
+        qa_turns = []
         current_qa_turn = None
         for turn in self.turns:
             if turn.role == ConversationRole.USER:
@@ -210,3 +219,23 @@ class ConversationHistory:
             sep=column_delimiter, index=False
         )
         return (context_text, {context_name.lower(): current_context_df})
+
+'''
+# To test the conversation:
+conversation_list = [
+    {"User": "What is the weather today?", "ReservoirChat": "The weather is sunny."},
+    {"User": "Will it rain tomorrow?", "ReservoirChat": "No, it will be clear."}
+]
+
+history = ConversationHistory()
+print(history.stock_conversation(conversation_list))
+qa_turns = history.to_qa_turns()
+
+for i, qa_turn in enumerate(qa_turns):
+    print(f"Conversation {i+1}:")
+    print(f"User: {qa_turn.user_query.content}")
+    if qa_turn.assistant_answers:
+        for answer in qa_turn.assistant_answers:
+            print(f"Assistant: {answer.content}")
+    print("-" * 20)
+'''

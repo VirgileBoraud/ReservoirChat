@@ -56,16 +56,16 @@ class LocalSearch(BaseSearch):
     async def asearch(
         self,
         query: str,
-        conversation_history: ConversationHistory | None = None,
+        history: list,
         **kwargs,
     ) -> SearchResult:
         """Build local search context that fits a single context window and generate answer for the user query."""
         start_time = time.time()
         search_prompt = ""
-
+        conversation_history = ConversationHistory()
         context_text, context_records = self.context_builder.build_context(
             query=query,
-            conversation_history=conversation_history,
+            conversation_history=conversation_history.stock_conversation(history),
             **kwargs,
             **self.context_builder_params,
         )
@@ -109,14 +109,14 @@ class LocalSearch(BaseSearch):
     async def astream_search(
         self,
         query: str,
-        conversation_history: ConversationHistory | None = None,
+        history: list,
     ) -> AsyncGenerator[str, None]:
         """Build local search context that fits a single context window and generate answer for the user query."""
         start_time = time.time()
-
+        conversation_history = ConversationHistory()
         context_text, context_records = self.context_builder.build_context(
             query=query,
-            conversation_history=conversation_history,
+            conversation_history=conversation_history.stock_conversation(history),
             **self.context_builder_params,
         )
         log.info("GENERATE ANSWER: %s. QUERY: %s", start_time, query)
@@ -138,7 +138,7 @@ class LocalSearch(BaseSearch):
     def search(
         self,
         query: str,
-        conversation_history: ConversationHistory | None = None,
+        conversation_history: ConversationHistory,
         **kwargs,
     ) -> SearchResult:
         """Build local search context that fits a single context window and generate answer for the user question."""
