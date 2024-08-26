@@ -8,11 +8,13 @@ from concurrent.futures import ThreadPoolExecutor
 import requests
 import json
 import time
+import ast
 # import subprocess
 from graphrag.query.cli import run_global_search
 from graphrag.query.cli import run_local_search
 import uuid
 from pymongo import MongoClient
+from datetime import datetime
 # Initialize MongoClient
 client = MongoClient('localhost', 27017)
 db = client['ReservoirChat']
@@ -53,10 +55,11 @@ def app():
             
             if pn.state.cookies.get("uuid"):
                 self.history_history = [[]]
-                for item in collection.find():
-                    self.history_history[0].append(item)
+                for conversation in collection.find({"user_id": uuid_v4}):
+                    self.history_history[0].append(conversation)
+
             else:
-                self.history_history = self.load_from_cookies('history_history', [])
+                self.history_history = self.load_from_cookies('history_history', [[]])
 
             # The current time for date and everything related
             current_time = time.ctime()
@@ -242,29 +245,40 @@ def app():
                     yield response_text
 
             self.history.append({"User":user_message,"Document_used":top_n_texts,"ReservoirChat":response_text})
-        
-        def mongo(self, database, collection, item):
-            # Connect to the MongoDB server
-            client = MongoClient('localhost', 27017)
 
-            # Create or connect to a database
-            db = client[database]
+        # Function to insert or update conversations from self.history_history
+        def mongo(self, history_history):
+            current_time = time.ctime()
+            time_components = current_time.split()
+            current_date = " ".join(time_components[0:3])
 
-            # Create or connect to a collection
-            collection = db[collection]
+            for conversation in history_history:
+                # Ensure conversation has interactions and process them
+                if 'interactions' in conversation and isinstance(conversation['interactions'], list):
+                    interactions_with_timestamps = []
+                    for interaction in conversation['interactions']:
+                        interaction_with_timestamp = {
+                            "User": interaction.get("User"),
+                            "ReservoirChat": interaction.get("ReservoirChat"),
+                            "timestamp": time.time()  # Current time in UTC for precision
+                        }
+                        interactions_with_timestamps.append(interaction_with_timestamp)
 
-            # Define a list of items to store in the collection
-            items = item
+                    # Prepare the document for insertion with the custom date format
+                    conversation_doc = {
+                        "user_id": conversation.get("user_id", str(uuid.uuid4())),  # Use provided user ID or generate a new one
+                        "date": current_date,  # Custom formatted date
+                        "interactions": interactions_with_timestamps
+                    }
 
-            # Insert the list of items into the collection
-            collection.insert_many(items)
+                    # Insert the conversation document into the collection
+                    try:
+                        result = collection.insert_one(conversation_doc)
+                        print('-----------Insertion-----------')
+                        print(f'The collection has been inserted with _id: {result.inserted_id}')
+                    except Exception as e:
+                        print(f"An error occurred during insertion: {e}")
 
-            # Retrieve and print all documents in the collection
-            for item in collection.find():
-                print(item)
-
-            # Close the connection
-            client.close()
         
         def get_response(self, user_message, history):
             completion = run_local_search('ragtest',
@@ -274,7 +288,7 @@ def app():
                                           'This is a response',
                                           False,
                                           user_message,
-                                          self.history)
+                                          history)
             response_text = ""
             for chunk in completion:
                 response_text += chunk
@@ -422,17 +436,18 @@ def app():
                         return
                 
                 # Append the current history into the history of history to keep trace of the conversation
-                self.history_history.append(self.history)
+                self.history_history[0][0]['interactions'].append(self.history)
+                print('----------history_history------------')
+                print(self.history_history)
                 # If cookie was accepted
                 if self.cookie_check:
                     # import the history of history into the cache
                     # pn.state.cache['history_history'] = self.history_history
                     # Saving history_history in the Mongo DataBase
-                    #self.mongo("ReservoirChat", "history_history", self.history_history)
-                    collection.delete_many({})
-                    collection.insert_many(self.history_history[0])
-                    for item in collection.find():
-                        print(item)
+                    # self.mongo("ReservoirChat", "history_history", self.history_history)
+                    self.mongo(self.history_history[1])
+                    for conversation in collection.find({"user_id": uuid_v4}):
+                        print(conversation)
 
                 # The name variable if the 6 first words the user wrote, it will be used to name the button
                 name = self.history[0]['User']
@@ -473,12 +488,20 @@ def app():
                             left.append(pn.pane.Markdown(f"<h2 style='color:white; font-size:18px;'>{self.day}</h2>", align='center'))
                             self.check_day += 1
                         left.append(history_conversation_button)
-                        self.history_history.append(self.history)
+                        print('-------------self.history---------------')
+                        print(self.history)
+                        print('---------------------------------------')
+                        self.history_history[0]['interactions'].append(self.history)
+                        print('-------------self.history_history---------------')
+                        print(self.history_history)
+                        print('---------------------------------------')
                         if self.cookie_check:
-                            collection.delete_many({})
-                            collection.insert_many(self.history_history[0])
-                            for item in collection.find():
-                                print(item)
+                            self.mongo(self.history_history[1])
+                            chiffre = 0
+                            for conversation in collection.find({"user_id": uuid_v4}):
+                                print(f'-------------{chiffre}---------------')
+                                print(conversation)
+                                chiffre += 1
 
                 event.obj.button_type = 'success'
                 button = event.obj
@@ -491,6 +514,9 @@ def app():
                     # length += 1
                 
                 layout.pop(1)
+                if self.count_pop == 0:
+                    self.count_pop += 1
+                    layout.pop(1)
                 
                 layout.append(old_right)
 
@@ -565,23 +591,42 @@ def app():
             introduction(chat_interface)
             
             layout = layout(left, right)
-            c = 0
-            if self.cookie_check:
-                if pn.state.cookies.get("uuid"): # If there is a conversation already stored on the database, append the history stored inside into new conversation buttons
-                    for item in self.history_history:
-                        name = item[0]['User']
-                        name = name.split()
-                        name = ' '.join(name[:6])
-                        history_conversation_button = pn.widgets.Button(name=name, button_type='primary', align='center', width=220, height=60) # The name could be the n first letters of the first question of the user
-                        history_conversation_button.history = self.history_history[c]  # Store the history in the button
 
-                        history_conversation_button.on_click(this_conversation)  # Bind the function
-                        if self.check_day == 0:  # Need to change this method to take into account the day
-                            left.append(pn.pane.Markdown(f"<h2 style='color:white; font-size:18px;'>{self.day}</h2>", align='center'))
-                            self.check_day += 1
-                        c += 1
-                        left.append(history_conversation_button)
-            
+            if self.cookie_check:
+                if pn.state.cookies.get("uuid") and self.history_history != [[]]:
+                    print('-------------self.history_history[0]---------------')
+                    print(self.history_history[0])
+                    print('---------------------------------------')
+                    for conversation in self.history_history[0]:
+                        if conversation['interactions']:
+                            print('-------------Conversation---------------')
+                            print(conversation)
+                            print('---------------------------------------')
+                            # Extract the first few words of the user's message to generate the button name
+                            name = conversation['interactions']['User']
+                            name = name.split()
+                            name = ' '.join(name[:6])  # Use the first six words of the user's message for the button name
+                            
+                            # Create the button
+                            history_conversation_button = pn.widgets.Button(name=name, button_type='primary', align='center', width=220, height=60)
+                            
+                            # Store the individual interaction in the button's history
+                            history_conversation_button.history = [conversation['interactions']]
+                            
+                            # Bind the button to the function
+                            history_conversation_button.on_click(this_conversation)
+                            
+                            # Check if the day has already been added
+                            if self.check_day == 0:
+                                left.append(pn.pane.Markdown(
+                                    f"<h2 style='color:white; font-size:18px;'>{self.day}</h2>",
+                                    align='center'
+                                ))
+                                self.check_day += 1
+                            
+                            # Append the button to the layout
+                            left.append(history_conversation_button)
+
             return layout
 
     # This is the instructions the LLM will follow
@@ -635,6 +680,6 @@ os.environ["TIKTOKEN_CACHE_DIR"] = tiktoken_cache_dir
 assert os.path.exists(os.path.join(tiktoken_cache_dir,"9b5ad71b2ce5302211f9c61530b329a4922fc6a4"))
 
 # Serving the app in a bokeh server
-# pn.serve(app, title="ReservoirChat", port=8080) # For local
+pn.serve(app, title="ReservoirChat", port=8080) # For local
 # pn.serve(app, title="ReservoirChat", port=8080, address='localhost', allow_websocket_origin=['localhost:8080']) # For tests
-pn.serve(app, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"]) # For web
+# pn.serve(app, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"]) # For web
