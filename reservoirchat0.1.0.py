@@ -18,7 +18,7 @@ from datetime import datetime
 # Initialize MongoClient
 client = MongoClient('localhost', 27017)
 db = client['ReservoirChat']
-
+ma = client['MangoChat']
 def app():
     class ReservoirChat:
 
@@ -277,7 +277,21 @@ def app():
                 print('COLLECTION INSERTED')
                 for conversation in collection.find({"user_id": uuid_v4}):
                     print(conversation)
-
+        
+        def mango(self, history):
+            current_time = time.ctime()
+            time_components = current_time.split()
+            custom_date = " ".join(time_components[0:3])
+            document = {
+                "UserID": uuid_v4,
+                "Date": custom_date,
+                "History": history,
+            }
+            mangollection.insert_one(document)
+            print(f"Document {document} inserted")
+            documents = mangollection.find()
+            for doc in documents:
+                print(f"UserID: {doc.get('UserID')}, Date: {doc.get('Date')}, History: {doc.get('History')}")
         
         def get_response(self, user_message, history):
             print('--------------Get_Response History-----------------')
@@ -339,6 +353,8 @@ def app():
                     # For streaming purposes (which means real time response), we need to yield the response
                     yield response_text'''
             self.history.append({"User":user_message, "ReservoirChat":response_text})
+            if self.cookie_check:
+                self.mango({"User":user_message, "ReservoirChat":response_text})
         
         #------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -697,6 +713,7 @@ def app():
         else:
             uuid_v4 = pn.state.cookies.get("uuid")
         collection = db[uuid_v4]
+        mangollection = ma[uuid_v4]
         reservoirchat = ReservoirChat(model_url='http://localhost:8000/v1',
                         embedding_url='http://127.0.0.1:5000/v1',
                         api_key='EMPTY',
