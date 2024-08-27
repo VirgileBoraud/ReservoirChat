@@ -20,7 +20,10 @@ def get_custom_date():
     return custom_date
 
 # Function to insert or update conversations from self.history_history
-def update_conversations(history_history, user_id):
+def update_conversations(history_history):
+    current_time = time.ctime()
+    time_components = current_time.split()
+    custom_date = " ".join(time_components[0:3])
     collection.delete_many({})
     for conversation in history_history:
         
@@ -37,7 +40,7 @@ def update_conversations(history_history, user_id):
         # Prepare the document for insertion with the custom date format
         conversation_doc = {
             "user_id": user_id,  # User-specific ID
-            "date": get_custom_date(),  # Custom formatted date
+            "date": custom_date,  # Custom formatted date
             "interactions": interactions_with_timestamps
         }
         
@@ -54,13 +57,14 @@ self_history_history = [
 user_id = "user123"  # Example user ID
 
 # Update the conversations in the MongoDB collection
-update_conversations(self_history_history, user_id)
+update_conversations(self_history_history)
 
 self_history_history = [
     [{"User": "How does this work?", "ReservoirChat": "This is how it works..."}, {"User": "Can you explain further?", "ReservoirChat": "Sure, here are more details..."}],
+    [{"User": "What are your hours?", "ReservoirChat": "We are open 24/7."}, {"User": "Thank you!", "ReservoirChat": "You're welcome!"}],
     [{"User": "What are your hours?", "ReservoirChat": "We are open 24/7."}, {"User": "Thank you!", "ReservoirChat": "You're welcome!"}]
 ]
-update_conversations(self_history_history, user_id)
+update_conversations(self_history_history)
 # Retrieve and print all conversations for this user in the collection
 for conversation in collection.find({"user_id": user_id}):
     print(conversation)
