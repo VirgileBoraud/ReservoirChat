@@ -1,58 +1,72 @@
-**Beginner**
+**Débutant**
 
-- What is a reservoir?
+- Qu'est-ce qu'un réservoir ?
 
-- What is reservoir computing?
+- Qu'est-ce que le reservoir computing ?
 
-- What is a readout?
+- Qu'est-ce que le readout ?
 
-- Why the name 'reservoir'?
+- Pourquoi le nom de "réservoir" ?
 
-- Why the name "readout"?
+- Pourquoi le nom de "readout" ?
 
-- On which tasks is reservoir computing good? 
+- Sur quelles tâches le reservoir computing est bon ? 
 
-- On which tasks is reservoir computing bad?
+- Sur quelles tâches le reservoir computing est mauvais ?
 
-- Approximately how many neurons should be used (10, 100, 1000, 1 million)?
+- Combien de neurones utiliser environ ? (10, 100, 1000, 1 million ?)
 
-- What is the purpose of the ridge in readout?
+- À quoi sert le ridge dans le readout ?
 
-- How are the weights set in the reservoir?
+- Comment sont fixés les poids dans le réservoir ?
 
-- Does the input weights learn from the neurons in the reservoir?
+- Est-ce qu'il y a un apprentissage des poids de l'entrée vers les neurones du réservoir ?
+
+- Crée un dataset sur la série temporelle Mackey-Glass normalisée, avec une prédiction à 20 pas de temps (import de Mackey-Glass, normalisation, séparation X/Y, train/test, etc)
+
+- Crée un réservoir/ESN simple, et entraîne-le sur un jeu de données qui contient plusieurs séries temporelles (avec le noeud ESN ou Reservoir+Ridge)
+
+- Crée un echo state network avec parallélisation
+
+**Intermédiaire**
+
+- Quelle est la différence entre "echo state network" et "reservoir computing" ?
+
+- Est-ce qu'il existe d'autres formes de reservoir computing ?
+
+- Pourquoi on parle de "computing at the edge of chaos" ?
+
+- Qu'est-ce que c'est l' "echo state property" ?
+
+- Quel est le papier qui introduit le reservoir computing / echo state network ?
+
+- Quel est le papier qui introduit l'echo state network ?
+
+- Quels sont tous les hyper-paramètres ?
+
+- Comment choisir les hyper-paramètres ?
+
+- Écris un code pour afficher l'évolution des neurones du réservoir sur la série Lorenz
+
+- Crée un modèle de NVAR avec un apprentissage online
+
+- Crée un réservoir dans lequel tous les neurones sont connectés en ligne, et l'entrée est connectée au premier neurone
+
+- Crée un modèle DeepESN
+
+- Crée un modèle avec 10 réservoirs en parallèle connectés au même readout
+
+**Avancé**
 
 
-**Intermediate**
+- Qu'est-ce qu'un liquid state machine ?
 
-- What is the difference between an echo state network and reservoir computing?
+- Quelle est l'explicabilité des modèles de reservoir computing ?
 
-- Are there other forms of reservoir computing?
+- À quel point les résultats varient entre deux réservoirs initialisés différemment ?
 
-- Why is it called "computing at the edge of chaos"?
+- Quelle est l'influence de la sparsité de la matrice des poids sur les performances ?
 
-- What is the "echo state property"?
+- Crée un node ReservoirPy qui rajoute un bruit gaussien à l'entrée qu'il reçoit
 
-- What is the paper that introduces reservoir computing?
-
-- What is the paper that introduces echo state network?
-
-- What are all the hyper-parameters?
-
-- How do you choose the hyper-parameters?
-
-
-**Advanced**
-
-
-- What is a liquid state machine?
-
-- How explainable are reservoir computing models?
-
-- How much do the results vary between two differently initialised reservoirs?
-
-- What influence does the sparsity of the weight matrix have on performance?
-
-- What is a deep reservoir?
-
-- Can you give me the method to implement a deep reservoir?
+- Écris une recherche d'hyper-paramètres avec recherche avec du TPE sampler, sur 300 instances, et en évaluant la NRMSE, le R² et l'erreur maximale
