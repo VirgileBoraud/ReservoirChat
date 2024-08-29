@@ -303,7 +303,7 @@ def app():
                     print('--------------Get_Response History Check-----------------')
                     print(history)
                     print('---------------------------------------------------')
-            completion = run_local_search('ragtest',
+            message = run_local_search('ragtest',
                                           'ragtest/output/everything3/artifacts',
                                           'ragtest',
                                           0,
@@ -312,7 +312,7 @@ def app():
                                           user_message,
                                           history)
             response_text = ""
-            for chunk in completion:
+            for chunk in message:
                 response_text += chunk
                 # For streaming purposes (which means real time response), we need to yield the response
                 yield response_text
@@ -450,7 +450,7 @@ def app():
                         respond=False
                         )
                 # The main information
-                chat.send("Hi and welcome! My name is ReservoirChat. I'm a RAG (Retrieval-Augmented Generation) interface specialized in Reservoir Computing using a Large Language Model (LLM) to help respond to your questions. Based on several documents and ReservoirPy documentation, I can answer general questions on Reservoir Computing and generate code.",
+                chat.send("Hi and welcome! My name is ReservoirChat. I'm a RAG (Retrieval-Augmented Generation) interface specialized in Reservoir Computing using a Large Language Model (LLM) to help respond to your questions. Based on several documents and ReservoirPy documentation, I can answer general questions on Reservoir Computing and generate code. ReservoirChat uses [GraphRag](https://microsoft.github.io/graphrag/) and [Codestral](https://mistral.ai/news/codestral/).",
                         user="ReservoirChat",
                         avatar="png/logo.png",
                         respond=False
