@@ -401,30 +401,66 @@ def app():
             # The Chat interface column
             def right_column(chat_interface):
                 return pn.Column(
-                            pn.pane.HTML("""
-                            <div style="display: flex; align-items: center;">
-                                <h2 style='font-size:32px;'>Reservoir</h2><h2 style='color:#31ABC7; font-size:32px;'>Chat</h2>
-                            </div>
-                            """, align='center'),
-                            cookie_popup,
-                            chat_interface,
+                    pn.Row(
+                        # First column: Empty, can be used for a logo or placeholder
+                        pn.Column(
+                            pn.Spacer(width=70),  # Adjust width as needed for your layout
                             sizing_mode='stretch_width'
-                            )
-            
+                        ),
+                        # Second column: Centered "ReservoirChat" title
+                        pn.Column(
+                            pn.pane.HTML("""
+                            <div style="display: flex; justify-content: center; align-items: center;">
+                                <h2 style='font-size:32px;'>Reservoir</h2>
+                                <h2 style='color:#31ABC7; font-size:32px;'>Chat</h2>
+                            </div>
+                            """, align='center', sizing_mode='stretch_width'),
+                            sizing_mode='stretch_width'
+                        ),
+                        # Third column: Images aligned to the right
+                        pn.Column(
+                            pn.Row(
+                                pn.pane.Image("png/reservoirpylogoclean.png", height=60, margin=(20, 20, 20, 20)),
+                                pn.pane.Image("png/INRIAlogoclean.png", height=32, margin=(31, 20, 31, 20)),
+                                pn.pane.Image("png/ANRlogoclean.png", height=28, margin=(35, 20, 35, 20)),
+                                align='end'
+                            ),
+                            align='end',
+                            sizing_mode='stretch_width'
+                        ),
+                        sizing_mode='stretch_width'
+                    ),
+                    cookie_popup,
+                    chat_interface,
+                    sizing_mode='stretch_width'
+                )
+
             # This is the initial information that is displayed. Mainly, the Legal Notice and Main information about ReservoirChat
             def introduction(chat):
+                chat.send("ReservoirChat uses up-to-date documentation and code examples from [ReservoirPy](https://github.com/reservoirpy/reservoirpy): a Python library to code reservoir computing based neural networks ([More info](https://github.com/reservoirpy/reservoirpy)). ReservoirChat is a beta tool provided by Mnemosyne lab at Inria, Bordeaux, France. It is supported by Inria ([BrainGPT project](https://www.inria.fr/en/braingpt)) and ANR ([DeepPool project](https://team.inria.fr/mnemosyne/deeppool/)).",
+                        user="Inria",
+                        avatar='png/INRIAlogoclean.png',
+                        respond=False
+                        )
+                
                 # The Legal Notice
-                chat.send("When using ReservoirPy Chat, we ask you not to include any personal data about yourself in your exchanges with the system in order to protect your data. The data contained in the chat will be analyzed by Inria",
+                chat.send("When using ReservoirChat, we ask you not to include any personal data in your interactions with the system. The data contained in the chat will be analyzed by Inria.",
                         user="Legal Notice",
                         avatar='png/gavel.png',
                         respond=False
                         )
                 # The main information
-                chat.send("Hi and welcome! My name is ReservoirChat. I'm a RAG (Retrieval-Augmented Generation) interface specialized in reservoir computing using a Large Language Model (LLM) to help respond to your questions. I will based my responses on a large database consisting of several documents ([See the documents here](https://github.com/VirgileBoraud/ReservoirChat/tree/main/doc/md))",
+                chat.send("Hi and welcome! My name is ReservoirChat. I'm a RAG (Retrieval-Augmented Generation) interface specialized in Reservoir Computing using a Large Language Model (LLM) to help respond to your questions. Based on several documents and ReservoirPy documentation, I can answer general questions on Reservoir Computing and generate code.",
                         user="ReservoirChat",
                         avatar="png/logo.png",
                         respond=False
                         )
+
+                '''chat.send("Hi and welcome! My name is ReservoirChat. I'm a RAG (Retrieval-Augmented Generation) interface specialized in reservoir computing using a Large Language Model (LLM) to help respond to your questions. I will based my responses on a large database consisting of several documents ([See the documents here](https://github.com/VirgileBoraud/ReservoirChat/tree/main/doc/md))",
+                        user="ReservoirChat",
+                        avatar="png/logo.png",
+                        respond=False
+                        )'''
             
             # The Function that is executed when clicking on the New_Conversation Button
             def new_conversation(event):
