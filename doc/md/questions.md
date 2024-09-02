@@ -1,72 +1,71 @@
-**Débutant**
+**Beginner**
 
-- Qu'est-ce qu'un réservoir ?
+- What is a reservoir?
 
-- Qu'est-ce que le reservoir computing ?
+- What is reservoir computing?
 
-- Qu'est-ce que le readout ?
+- What is readout?
 
-- Pourquoi le nom de "réservoir" ?
+- Why the name ‘reservoir’?
 
-- Pourquoi le nom de "readout" ?
+- Why the name ‘readout’?
 
-- Sur quelles tâches le reservoir computing est bon ? 
+- On which tasks is reservoir computing good? 
 
-- Sur quelles tâches le reservoir computing est mauvais ?
+- On which tasks is reservoir computing bad?
 
-- Combien de neurones utiliser environ ? (10, 100, 1000, 1 million ?)
+- Approximately how many neurons should be used (10, 100, 1000, 1 million)?
 
-- À quoi sert le ridge dans le readout ?
+- What is the purpose of the ridge in readout?
 
-- Comment sont fixés les poids dans le réservoir ?
+- How are the weights set in the reservoir?
 
-- Est-ce qu'il y a un apprentissage des poids de l'entrée vers les neurones du réservoir ?
+- Do the weights in the input learn from the neurons in the reservoir?
 
-- Crée un dataset sur la série temporelle Mackey-Glass normalisée, avec une prédiction à 20 pas de temps (import de Mackey-Glass, normalisation, séparation X/Y, train/test, etc)
+- Create a dataset on the normalised Mackey-Glass time series, with a prediction at 20 time steps (import of Mackey-Glass, normalisation, X/Y separation, train/test, etc).
 
-- Crée un réservoir/ESN simple, et entraîne-le sur un jeu de données qui contient plusieurs séries temporelles (avec le noeud ESN ou Reservoir+Ridge)
+- Create a simple reservoir/ESN, and train it on a dataset containing several time series (with the ESN or Reservoir+Ridge node)
 
-- Crée un echo state network avec parallélisation
+- Creates an echo state network with parallelization
 
-**Intermédiaire**
+**Intermediate**
 
-- Quelle est la différence entre "echo state network" et "reservoir computing" ?
+- What is the difference between ‘echo state network’ and ‘reservoir computing’?
 
-- Est-ce qu'il existe d'autres formes de reservoir computing ?
+- Are there other forms of reservoir computing?
 
-- Pourquoi on parle de "computing at the edge of chaos" ?
+- Why is it called ‘computing at the edge of chaos’?
 
-- Qu'est-ce que c'est l' "echo state property" ?
+- What is the ‘echo state property’?
 
-- Quel est le papier qui introduit le reservoir computing / echo state network ?
+- Which paper introduces reservoir computing?
 
-- Quel est le papier qui introduit l'echo state network ?
+- Which paper introduces echo state network?
 
-- Quels sont tous les hyper-paramètres ?
+- What are all the hyper-parameters?
 
-- Comment choisir les hyper-paramètres ?
+- How do you choose the hyper-parameters?
 
-- Écris un code pour afficher l'évolution des neurones du réservoir sur la série Lorenz
+- Write a code to display the evolution of the reservoir neurons on the Lorenz series.
 
-- Crée un modèle de NVAR avec un apprentissage online
+- Create an NVAR model with online learning
 
-- Crée un réservoir dans lequel tous les neurones sont connectés en ligne, et l'entrée est connectée au premier neurone
+- Create a reservoir in which all the neurons are connected online, and the input is connected to the first neuron
 
-- Crée un modèle DeepESN
+- Creates a DeepESN model
 
-- Crée un modèle avec 10 réservoirs en parallèle connectés au même readout
+- Creates a model with 10 parallel reservoirs connected to the same readout
 
-**Avancé**
+**Advanced
 
+- What is a liquid state machine?
 
-- Qu'est-ce qu'un liquid state machine ?
+- How explainable are reservoir computing models?
 
-- Quelle est l'explicabilité des modèles de reservoir computing ?
+- To what extent do the results vary between two differently initialised reservoirs?
 
-- À quel point les résultats varient entre deux réservoirs initialisés différemment ?
+- What influence does the sparsity of the weight matrix have on performance?
 
-- Quelle est l'influence de la sparsité de la matrice des poids sur les performances ?
+- Create a ReservoirPy node that adds Gaussian noise to the input it receives.
 
-- Crée un node ReservoirPy qui rajoute un bruit gaussien à l'entrée qu'il reçoit
-
-- Écris une recherche d'hyper-paramètres avec recherche avec du TPE sampler, sur 300 instances, et en évaluant la NRMSE, le R² et l'erreur maximale
+- Write a hyper-parameter search using the TPE sampler, on 300 instances, and evaluating the NRMSE, the R² and the maximum error.

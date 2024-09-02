@@ -1,0 +1,225 @@
+Deep Echo State Networks for Diagnosis of Parkinson’s Disease Claudio
+Gallicchio, Alessio Micheli and Luca Pedrelli Department of Computer
+Science, University of Pisa Largo Bruno Pontecorvo 3 - 56127 Pisa, Italy
+Abstract. In this paper, we introduce a novel approach for diagnosis of
+Parkinson’s Disease (PD) based on deep Echo State Networks (ESNs). The
+identiﬁcation of PD is performed by analyzing the whole time-series
+collected from a tablet device during the sketching of spiral tests,
+without the need for feature extraction and data preprocessing. We
+evaluated the proposed approach on a public dataset of spiral tests. The
+results of experimental analysis show that DeepESNs perform signiﬁcantly
+better than shallow ESN model. Overall, the proposed approach obtains
+state- of-the-art results in the identiﬁcation of PD on this kind of
+temporal data. 1 Introduction Parkinson’s disease (PD) is a
+neurodegenerative disease that mainly aﬀects the extrapiramidal motor
+system causing tremor, bradykinesia, rigidity and loss of postural
+reﬂexes [1]. The analysis of motor capacities such as handwriting and
+sketching abilities of patients is performed to assess and diagnose PD
+[2]. While handwriting abilities are inﬂuenced by language capacities,
+sketching abilities involved in the execution of a spiral test (i.e.,
+drawing a spiral with a pen) are considered as measures independent of
+education [2]. An example of application of deep learning models for PD
+classiﬁcation, applied directly to images of spiral tests, is introduced
+in [3]. In [4] it is introduced a study on PD diagnosis through
+statistical methods based on the analysis of velocity and the pen
+pressure data collected from a tablet device during the execution of the
+spiral test. In this paper, we propose a novel approach for diagnosis of
+PD based on Recurrent Neural Networks (RNNs) that are able to robustly
+exploit the whole time course of noisy and heterogeneous time-series
+data collected from a tablet device during the execution of spiral
+tests. In particular, we consider the Reser- voir Computing (RC) [5, 6]
+framework that obtained state-of-the-art results in clinical assessment
+[7] related to the study of neurological diseases. In the application
+presented in [7], signals characterized by noisy and heterogeneous
+time-series are analyzed for postural stability assessment by using Echo
+State Networks (ESNs). Recently, the introduction of DeepESN model as
+the ex- tension of the Reservoir Computing (RC) [5, 6] paradigm to the
+deep learning framework allowed to study the intrinsic properties of
+stacked RNNs [8] and to build eﬃciently trained models able to develop a
+hierarchical temporal repre- sentation of the input signals, resulting
+in a suitable method to deal with tasks featured by multiple time-scales
+dynamics [9, 10]. Based on such considerations, arXiv:1802.06708v1
+[cs.LG] 19 Feb 2018 we think that the DeepESN model can be particularly
+suitable for the study of PD through the analysis of tablet signals. We
+assess our approach for diagnosis of PD on a publicly available dataset
+of spiral tests introduced in [11]. Moreover, in order to investigate
+the practical rel- evance of using layered recurrent architectures in
+this domain, the experimental analysis is also conducted in comparison
+to the standard ESN. Finally, we eval- uate the results achieved by
+ensembling the realizations of the selected model, in order to improve
+the classiﬁcation performance of the proposed approach. 2 Deep Echo
+State Networks DeepESNs [9] extend Leaky Integrator ESNs (LI-ESNs) [5]
+to the deep learning framework. A DeepESN architecture (see Fig. 1 for
+an example) is composed by a hierarchy of NL reservoirs. Here we denote
+by u(t) ∈RNU and x(l)(t) ∈RNR, respectively, the input and state of the
+l-th reservoir layer at step t. Avoiding the bias term for the ease of
+notation, the state transition function of the ﬁrst layer is computed by
+the following equation: x(1)(t) = (1 −a(1))x(1)(t −1) + a(1)tanh(Winu(t)
++ ˆ W (1)x(1)(t −1)), (1) while for higher layers l > 1, the state
+transition function is described as follows: x(l)(t) = (1 −a(l))x(l)(t
+−1) + a(l)tanh(W(l)x(l−1)(t) + ˆ W (l)x(l)(t −1)). (2) In the above eq.
+1 and 2, Win ∈RNR×NU is the matrix of input weights, ˆ W (l) ∈ RNR×NR is
+the matrix of the recurrent weights of the layer l, W(l) ∈RNR×NR is the
+matrix of weights relative to the inter-layer connections from layer l
+−1 to layer l, a(l) is the leaky parameter at layer l and tanh is the
+activation function of recurrent units implemented by a hyperbolic
+tangent. Finally, the state of the DeepESN is given by the concatenation
+of all the states encoded in the recurrent layers of the architecture
+x(t) = (x(1)(t), . . . , x(NL)(t)) ∈RNLNR. Let σ and ˆ σ be the scaling
+of the external input and the inter-layer scaling, then the weights in
+matrices Win and {W(l)}NL l=2 are randomly initialized from a uniform
+distribution and re-scaled such that ∥Win∥2 = σ and ∥W(l)∥2 = ˆ σ
+respectively. According to the necessary condition of Echo State
+Property for DeepESNs [8], values of matrices { ˆ W (l)}NL l=1 are
+randomly initialized from Fig. 1: The hierarchy of reservoirs in the
+architecture of a DeepESN. uniform distribution and rescaled such that
+max 1≤l≤NL ρ  (1 −a(l))I + a(l) ˆ W (l) < 1, where ρ denote the
+spectral radius of the matrix (i.e., the largest absolute value of its
+eigenvalues). Note that considering a number of layers NL = 1 the
+recurrent architecture described above is equivalent to a LI-ESN, that
+is referred to as shallowESN in the following. For the classiﬁcation
+task considered in this work, the DeepESN computes an output in
+correspondence of an entire input sequence. Accordingly, we compute a
+mean state mapping as follows: χ(s) = 1 n Pn t=1 x(t), where s = [u(1),
+…, u(n)] is an input sequence of length n. Then, the output of the
+network is computed as y(s) = Woutχ(s), where Wout ∈RNY ×NLNR is the
+weights matrix relative to the readout layer. The linear combination
+between the states encoded in the recurrent layers and the weights of
+the readout allows to diﬀerently weight the contribution of the multiple
+dynamics developed in the network state. As in the standard RC
+framework, only the readout layer is trained, typically by means of
+direct method such as pseudo-inversion or ridge regression [5, 6]. 3
+DeepESNs for Diagnosis of PD through Spiral Tests We evaluated the
+proposed DeepESN model on the spiral dataset described in [11]. This
+dataset is publicly available on the UC Irvine Machine Learning
+Repository1. The dataset is composed by spiral tests executed on a
+tablet device by 61 PD patients and 15 control patients without PD. For
+each time-step, the time-series gathered from the tablet contain pen
+position (x and y components), pen pressure and grip angle. In our
+method, the models were fed directly with such signals without feature
+extraction or data preprocessing. Note that, the whole temporal signal
+generated by the tablet potentially contains a richer in- formation than
+static preprocessed features, thereby a RNN model can be more eﬀective
+on the analysis of this kind of data. Fig. 2 a), 2 b), 2 c) and 2 d)
+show (x,y) pen position, pen pressure and grip angle gathered at each
+time-step from tablet during the execution of the test by a control
+(Fig. 2 a), 2 c)) and a PD (Fig. 2 b), 2 d)) patient. As we can note, by
+visual inspection the sketches showed in Fig. 2 a) and 2 b) are quite
+similar and consequently the classiﬁca- tion task is not trivial in such
+cases. Moreover, from Fig. 2 c) and 2 d) it is possible to see that the
+signals relative to pen pressure and grip angle are rather noisy,
+therefore, the analysis of such kind of data without feature extraction
+can be challenging since we need a noise-robust approach to perform a
+correct classiﬁcation. We evaluated the generalized performance of the
+proposed approach through a 3-fold cross validation, inserting in each
+fold 20 (or 21) PD and 5 control patients. We considered a 10-layered
+DeepESN (i.e. NL = 10) with the same number of NR units per layer and a
+leaky integrator of a(l) = 0.1 for each layer l. The rest of the DeepESN
+hyper-parametrization were selected from the ranges
+1<https://archive.ics.uci.edu/ml/datasets/Parkinson+Disease+Spiral+Drawings+
+Using+Digitized+Graphics+Tablet> Fig. 2: Pen positions (1st row),
+pressure and grip angle (2nd row) gathered for a control (ﬁg. a), c))
+and a PD (ﬁg. b), d)) patient. reported in Tab. 1, on a validation set
+by an extra level of 5-fold validation on each fold. For each
+hyper-parametrization, we generated 10 reservoir guesses, averaging the
+results on such guesses. Hyper-parameter recurrent units per layer NR
+10, 20, 30, 40, 50 input scaling σ 0.1, 0.5, 1, 2 inter-layer scaling ˆ
+σ 0.1, 0.5, 1, 2 spectral radius ρ 0.7, 0.8, 0.9, 1.0 readout
+regularization λr 0, 10−10, 10−9, …, 100 Table 1: Range of DeepESN
+hyper-parameters values for model selection. Tab. 2 shows the accuracies
+and the standard deviations on reservoir guesses (in parenthesis)
+obtained by DeepESN and shallowESN in PD classiﬁcation task. In order to
+perform a fair comparison, we selected the shallowESN (i.e., 1-layered
+DeepESN) considering the same hyper-parameters ranges as for DeepESN and
+the same range of total number of recurrent units (i.e. 100-500), where
+the speciﬁc choice depends on the fold of the 3-fold cross validation.
+Interestingly, Model TR VL TS DeepESN 94.27% (1.18%) 86.57% (2.62%)
+87.20% (2.78%) shallowESN 91.60% (0.56%) 83.62% (3.39%) 84.13% (2.63%)
+Table 2: Accuracies and standard deviations on reservoir guesses (in
+parenthesis) obtained by DeepESN and shallowESN in validation, training
+and test. DeepESN model outperformed shallowESN in training, validation
+and test set of 2.67%, 2.95% and 3.07% of accuracy respectively. This
+comparison result suggests that the ability of DeepESN in providing a
+hierarchical temporal rep- resentation of input signals with complex
+dynamics allows us to improve the performance on this kind of tasks. For
+the sake of completeness, we statistically compared the accuracies
+obtained on test set by DeepESN and shallowESN mod- els through
+McNemar’s test. The classiﬁcation accuracies obtained by DeepESN and
+shallowESN resulted signiﬁcantly diﬀerent with a p-value of 0.0032. To
+exploit the variability provided by diﬀerent reservoir guesses, we eval-
+uated the selected model considering an ensemble approach. Accordingly,
+the classiﬁcation was performed averaging the output of the diﬀerent
+guesses of the selected model. Results are reported in Tab. 3, and show
+that the ensemble approach allowed DeepESN to achieve improved
+performance in training, vali- dation and test set of 0.40%, 2.95% and
+2.13% of accuracy respectively. Overall, our proposed automatic system
+obtained a test accuracy of 89.33% with a sen- sitivity (percentage of
+PDs correctly classiﬁed) and a speciﬁcity (percentage of controls
+correctly classiﬁed) in test set of 90.00% and 80.00% respectively.
+Model TR ACC VL ACC TS ACC TS SEN TS SPEC DeepESN 94.67% 89.52% 89.33%
+90.00% 80.00% Table 3: Accuracy (ACC), sensitivity (SEN) and speciﬁcity
+(SPEC) obtained by ensemble of DeepESN in training (TR), validation (VL)
+and test (TS) set. For what concerns the comparison with the
+state-of-the-art, results of Deep- ESN in this paper compare well with
+literature approaches recently devised on the same type of input data.
+In particular, in [4] it is introduced a method for diagnosis of PD
+based on the analysis of spiral tests gathered from a similar tablet
+device, achieving a classiﬁcation accuracy in PD identiﬁcation of 79.1%.
+Interestingly, our approaches outperform such method obtaining a test
+accuracy of 84.13%, 87.20% and 89.33% achieved by shallowESN, DeepESN
+and ensemble of DeepESNs respectively. This comparison further indicates
+that, contrary to what might appear at ﬁrst glance from the example in
+Fig. 2, simple statistics on the input signals, e.g. pressure data, are
+not rich enough to accurately dis- criminate PD2, while our approach can
+capture relevant information from the whole temporal signal, allowing to
+eﬀectively improve such results. 2 Correlation between averaged pressure
+and PD in the dataset used in our paper is weak (−0.31). 4 Conclusions
+In this paper, we proposed a novel approach for diagnosis of PD based on
+DeepESN model. The deep recurrent model is fed by the whole time-series
+gathered from a tablet during the sketching of spiral tests. We
+performed a comparative assessment of our approach on a public dataset
+containing spiral tests executed by PD and control patients. Results
+showed that the predictive accuracy obtained by DeepESN signiﬁcantly
+outperforms the result of shallow ESNs, highlighting the potential
+beneﬁts of deep recurrent architectures in the treatment of temporal
+signals for PD diagnosis. Moreover, the use of ensem- ble method on the
+selected DeepESN model led to a further performance en- hancement.
+Overall, the proposed approach compared well also with respect to
+state-of-the-art results, further stressing the potentiality of
+exploiting the whole richness of temporal signals for PD diagnosis. At
+the best of our knowledge, this work represents the ﬁrst attempt to
+develop an approach for diagnosis of PD by using recurrent models, such
+as DeepESN, able to develop hierarchical temporal representations from
+tablet signals without the need of feature extraction and data
+preprocessing. References [1] J. Jankovic. Parkinson’s disease: clinical
+features and diagnosis. Journal of Neurology, Neurosurgery & Psychiatry,
+79(4):368–376, 2008. [2] R. Saunders-Pullman, C. Derby, K. Stanley, A.
+Floyd, S. Bressman, R. B. Lipton, A. Deligtisch, L. Severt, Q. Yu, M.
+Kurtis, and S. L. Pullman. Validity of spiral analysis in early
+parkinson’s disease. Movement disorders, 23(4):531–537, 2008. [3] C. R.
+Pereira, D. R. Pereira, J. P. Papa, G. H. Rosa, and X. Yang.
+Convolutional neural networks applied for parkinson’s disease
+identiﬁcation. In Machine Learning for Health Informatics, pages
+377–390. Springer, 2016. [4] P. Zham, D. K. Kumar, P. Dabnichki, S.
+Poosapadi Arjunan, and S. Raghav. Distinguish- ing diﬀerent stages of
+parkinson’s disease using composite index of speed and pen-pressure of
+sketching a spiral. Frontiers in Neurology, 8:435, 2017. [5] H. Jaeger,
+M. Lukoˇ seviˇ cius, D. Popovici, and U. Siewert. Optimization and
+applications of echo state networks with leaky-integrator neurons.
+Neural Networks, 20(3):335–352, 2007. [6] D. Verstraeten, B. Schrauwen,
+M. d’Haene, and D. Stroobandt. An experimental uniﬁca- tion of reservoir
+computing methods. Neural networks, 20(3):391–403, 2007. [7] D. Bacciu,
+S. Chessa, C. Gallicchio, A. Micheli, L. Pedrelli, E. Ferro, L.
+Fortunati, D. La Rosa, F. Palumbo, F. Vozzi, and O. Parodi. A learning
+system for automatic berg balance scale score estimation. Engineering
+Applications of Artiﬁcial Intelligence, 66:60–74, 2017. [8] C.
+Gallicchio and A. Micheli. Echo state property of deep reservoir
+computing networks. Cognitive Computation, 9(3):337–350, 2017. [9] C.
+Gallicchio, A. Micheli, and L. Pedrelli. Deep reservoir computing: a
+critical experi- mental analysis. Neurocomputing, 268:87–99, 2017. [10]
+C. Gallicchio, A. Micheli, and L. Pedrelli. Hierarchical temporal
+representation in linear reservoir computing. In 27th Italian Workshop
+on Neural Networks (WIRN), 2017. arXiv preprint arXiv:1705.05782. [11]
+M. Isenkul, B. Sakar, and O. Kursun. Improved spiral test using
+digitized graphics tablet for monitoring parkinson’s disease. In ICEHTM,
+pages 171–175, 2014.

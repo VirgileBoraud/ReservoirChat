@@ -97,6 +97,7 @@ if __name__ == "__main__":
                 args.response_type,
                 args.streaming,
                 args.query[0],
+                history=[],
             )
         case SearchType.GLOBAL:
             run_global_search(
@@ -107,6 +108,7 @@ if __name__ == "__main__":
                 args.response_type,
                 args.streaming,
                 args.query[0],
+                history=[],
             )
         case _:
             raise ValueError(INVALID_METHOD_ERROR)

@@ -1,0 +1,1622 @@
+Journal of Machine Learning Research V (Y) pp Submitted X/04; Published
+X/04 Using Conceptors to Manage Neural Long-Term Memories for Temporal
+Patterns (DRAFT, accepted by JMRL) Herbert Jaeger
+h.jaeger@jacobs-university.de Dpt. of Computer Science and Electrical
+Engineering Jacobs University Bremen 28759 Bremen, Germany Editor:
+editor Abstract Biological brains can learn, recognize, organize, and
+re-generate large repertoires of tempo- ral patterns. Here I propose a
+mechanism of neurodynamical pattern learning and represen- tation,
+called conceptors, which oﬀers an integrated account of a number of such
+phenomena and functionalities. It becomes possible to store a large
+number of temporal patterns in a single recurrent neural network. In the
+recall process, stored patterns can be morphed and ”focussed”.
+Parametric families of patterns can be learnt from a very small number
+of examples. Stored temporal patterns can be content-addressed in ways
+that are analog to recalling static patterns in Hopﬁeld networks.
+Keywords: Recurrent neural network, temporal pattern learning, neural
+long-term mem- ory, neural dynamics 1. Introduction In the cognitive and
+neurosciences as well as in neural computation it is customary to
+distinguish between various sorts of short-term memory and long-term
+memory (Fusi and Wang, in press). This article is concerned with neural
+long-term memory (LTM) in the sense that some information becomes
+permanently coded in synaptic weights at learning time, to be somehow
+recalled at exploitation time without changing those weights. The
+paradigmatic model of a neural LTM is the associative memory pioneered,
+among others, by Willshaw et al. (1969), Cooper (1973), Kohonen (1974),
+Palm (1980) and Hopﬁeld (1982). This classical family of models explains
+how a number of diﬀerent patterns can be stored in a neural network by
+an explicit calculation of the network weight matrix or by iterative
+learning processes. A rich mathematical theory aﬀords insights into
+capacity bounds and noise robustness. But, these classical associative
+memories are mainly devised for storing static patterns, for instance
+bit vectors or images. Biological neural systems obviously can learn and
+recall rich repertoires of temporal patterns, for instance gestures,
+melodies, words. It would be desirable to have a neural network model
+which extends the capabilities of associative networks to the domain of
+temporal patterns. This challenge is still largely open. I am aware of
+only a few proposals for neural memories of temporal patterns: c ⃝Y
+Herbert Jaeger. Jaeger 1. The classical associative memory model for
+static patterns has been extended on sev- eral occasions to learn
+sequences of patterns. The key mechanism is to replace the learning of
+auto-associations of stored patterns (which results in ﬁxed-point
+attrac- tors representing these) by a learning of hetero-associations of
+a temporal pattern frame with its successor frame. This leads to recall
+episodes which step through a discrete sequence of patterns (Amari,
+1972). The basic discrete hetero-associative memory mechanism has been
+elaborated in various ways to accomodate analog values, smoother
+temporal development, or identical patterns at diﬀerent time slices
+(exam- ples: Sompolinsky and Kanter (1986); Rinkus (1996); Billard and
+Hayes (1999); Huang and Hagiwara (2002)). A recent extension of
+hetero-associative symbol sequence cod- ing networks (Jiang et al.,
+2016) integrates methods from graph-based coding theory, which leads to
+improved memory capacities and temporal pattern completion robust- ness,
+and enables an incremental storing of patterns. 2. In the ﬁeld of
+reservoir computing, a temporal pattern is trained into a recurrent
+neural network (RNN) by adapting only the weights from the (“reservoir”)
+network to the output neuron. Thus an arbitrary number of temporal
+patterns can be learnt on the basis of a single reservoir network if
+individual patterns are represented by separate output neurons, as for
+example in Hinaut and Dominey (2011). 3. Since the advent of RNN models
+in cognitive modeling it has been recognized that RNNs can be trained to
+generate several temporal patterns when they are paired in training with
+individual pattern-addressing input signals (Kolen and Pollack, 1991;
+Jordan, 1997; Krause et al., 2010). 4. Another possibility to train and
+select several temporal patterns in a single RNN is to associate
+diﬀerent patterns with diﬀerent initial network states. An example is
+Paine and Tani (2005) where an RNN-based mobile robot controller was
+trained to steer the robot into diﬀerent action sequences depending on
+the state initialization. 5. In machine learning, RNNs trained on
+sequence prediction/generation tasks are typi- cally considered as
+models of a stochastic process (e.g. the process whose realizations are
+Wikepedia texts, as in Sutskever et al. (2011)), rather than as cases of
+neural mem- ory. But it also makes good sense to view them as neural
+memories. One may say that such a network after training has memorized
+typical continuations of initial cue se- quences. Even more generally,
+any neural system trained on some training dataset D for whatever
+purpose (classiﬁcation, control, …) could be regarded as having “stored”
+the probabilistic structure of D. In this general sense, any
+network-internal, trained representation can be interpreted as a LTM.
+The diversity of these examples shows that there is no unique deﬁnition
+of what makes a neural LTM. Here is a list of system properties that are
+variously attributed (or not) to a neural memory system: Multiplicity.
+An neural memory system typically can store more than only one memory
+pattern. The number of storable pattern is a standard performance
+criterion for memory systems. 2 Managing neural long-term memory
+Addressability. When several patterns have been stored, they should be
+eﬃciently ad- dressable at use-time, whether by content-addressing or
+pointer-addressing. Generativity. Stored patterns can be re-generated at
+retrieval time with some degree of accuracy. Organization and
+searchability. Stored items are organized in a way that brings rela-
+tionships between them to the fore, e.g. abstraction or part-of
+relationships (as in semantic network models in AI). This organization
+enables a navigation through and systematic search in memory space. None
+of the above examples of dynamical pat- tern memories has this
+characteristic, but a diversity of neural learning systems for static
+patterns have been proposed that have an exploitable internal
+organization of some sort (for instance self-organizing semantic maps
+(Ritter and Kohonen, 1989), connectionist-localist networks for semantic
+concept modeling (Shastri, 1999), recur- sive auto-associative memories
+(Pollack, 1990)). Incremental extensibility. New memory items can be
+stored incrementally on top of already stored ones. Such an incremental
+extensibility is diﬃcult or impossible for networks trained with
+backpropagation due to the “catastrophic forgetting” problem
+(appreciation in Douglas and Sejnowski (2008), partial solutions and
+further refer- ences in French (2003); Grossberg (2005); Goodrich and
+Arel (2014)) and for most associative memories (exception: Jiang et
+al. (2016)). Diﬀerential extension. When adding a new item, store only
+that information about the new item that is not already present in the
+memory system. None of the examples has this property but arguably human
+LTM has it. Forgetting. Allow the memory system to fade out memory items
+that are not retrieved for a long time. This characteristic is typical
+for biological neural networks but is absent in all examples above.
+Erasibility. Selectively delete arbitrary items from the memory, freeing
+storage space. This is typical for digital computer memories but is not
+usually considered in neural network models. In this article I describe
+a neuro-computational mechanism, conceptors, by which the dynamics of an
+RNN can be governed in a variety of ways. Conceptors are a
+general-purpose mechanism that can be used in a variety of neural
+information processing tasks. In a very long techreport (Jaeger, 2014) I
+present elementary demonstrations of conceptors used for temporal
+pattern classiﬁcation, one-shot learning, human motion pattern
+generation, de- noising and signal separation. The present article
+focusses on exploits of conceptors for neural LTM management. From the
+above list of typical LTM properties, conceptors enable or facilitate
+all except the last two, forgetting and erasability. To keep the length
+of this article within reasonable bounds, I have omitted a sizable
+portion of LTM-relevant material from Jaeger (2014), namely the topic of
+Boolean operations on conceptors and the options that such Boolean
+operations grant for incremental and diﬀerential memory extensibility
+without catastrophic forgetting. 3 Jaeger Most of the technical content
+is adopted from Jaeger (2014), but assembled in a more compact and
+intuitive exposition, and backed up by improved simulations. For space
+econ- omy I omit proofs and some mathematical detail and refer the
+reader to the full treatment given in Jaeger (2014). The Matlab code for
+all simulations is available at the JMLR online paper repository 1. The
+article is organized in three main sections. Section 2 introduces the
+basic model in a detailed step-by-step fashion. Basic pattern morphing
+and pattern generalization demos, a “focussing” mechanism and a
+real-world data demo (learn from human motion capture data to animate a
+body model with 61 degrees of freedom) illustrate the basic
+functionalities of conceptors for storing, re-generating and modulating
+temporal patterns in an RNN. Section 3 introduces a conceptor-based
+model of content-addressable RNN memories for dynamical patterns. The
+stored patterns can be recovered from short and possibly distorted cues
+by a process of conceptor auto-adaptation. In several respects this
+provides a temporal analog of Hopﬁeld networks. 2. Storing a Multitude
+of Temporal Patterns in an RNN 2.1 Basic Idea and Formalism In this
+subsection I explain the basic ideas of conceptors by stepping through
+an elementary demonstration. The task is to store two dissimilar
+periodic temporal patterns in a tiny RNN and subsequently retrieve them.
+2.1.1 Preparations Before patterns can be stored and recalled, an
+experimental set-up is installed as follows. Procuring patterns. In this
+article a “pattern” means a discrete-time signal p(n), where p(n) ∈RM
+and n ≥0. For this elementary demo I use two discrete-time scalar
+patterns p1(n) and p2(n). The ﬁrst is a sinewave signal with an
+irrational period length sampled at integer time points. The irrational
+period length makes the sampled version quasi-periodic. The second is a
+periodic signal with integer period 2. Figure 1 (left) depicts the two
+patterns. I remark that later I will also be considering non-periodic
+and non- stationary patterns. Network creation. An RNN with N neurons is
+installed by randomly creating a N × N matrix W ∗of internal connection
+weights, a N × M input weight vector W in, and a random N × 1 bias
+vector b. Here I use an unrealistically small network with only N = 3
+neurons, which allows me to display relevant eﬀects in 3-D graphics.
+This network can be driven by a scalar pattern p(n) by the following
+state update equation: x(n + 1) = tanh(W ∗x(n) + W in p(n) + b). (1) All
+parameters of W ∗, W and b are sampled from a normal distribution and
+scaled such that an overall system dynamics is obtained that works well
+for this didactic demonstration. Details of the scaling procedure are
+not important here, but I remark that the internal weights W ∗must be
+scaled small enough to ensure that the RNN has the echo state property
+1. For JMLR reviewers: code is online at
+http://minds.jacobs-university.de/sites/default/files/
+uploads/temp/conceptorsMatlab4JMRL R1.zip 4 Managing neural long-term
+memory with respect to the input signals that are fed to it. In
+intuitive terms, an RNN has the echo state property with respect to an
+input signal p(n) if any initial network state is “forgotten” (washed
+out) when the network is driven by p(n) for a long enough time. The echo
+state property is a core concept in the ﬁeld of reservoir computing
+(Jaeger, 2001; Lukosevicius, 2012; Manjunath and Jaeger, 2013). Because
+the conceptor approach borrows some ideas from reservoir computing, I
+refer to the RNN as the reservoir. Training a readout. The
+conceptor-based procedures explained below lead to a mem- ory
+functionality in the following sense: • At storing time, the reservoir
+is driven by a to-be-stored pattern pj(n) through (1). This results in a
+pattern-driven network dynamics xj(n) (I use upper indices to refer to
+patterns). • At recall time, the reservoir is run without input (under
+the control of a conceptor Cj, to be explained below), resulting in a
+free-running network dynamics ˜ xj(n). • The network has successfully
+“memorized” pj(n) to the degree that the free-running dynamics ˜ xj(n)
+is the same as the original pattern-driven dynamics xj(n). Thus, the
+network does not in fact memorize the original pattern pj(n), but
+instead its own, high-dimensional dynamical response to the pattern
+input. I will refer to such input-driven reservoir state dynamics as
+state patterns. But for practical exploits one wishes to recall the
+original input pattern, not the induced state pattern. In order to
+transform state patterns ˜ xj(n) back to the original input patterns
+pj(n), a network state observer y(n) is trained. This is a linear output
+neuron which reads from the network state through output weights W out.
+It should display the following behavior if x(n + 1) = tanh(W ∗x(n) + W
+in p(n) + b) then y(n) := W out x(n) ≈p(n) (2) for any driving pattern
+p(n). That is, the output signal read through W out should simply
+re-generate any driving input from the excited reservoir state. The
+output weights W out for such a generic input-redisplayer neuron can be
+trained by ﬁrst driving the reservoir with an M-dimensional white-noise
+input signal ν(n) via xν(n + 1) = tanh(W ∗xν(n) + W in ν(n) + b), then
+compute W out by linear regression to minimize the quadratic loss P n(W
+out xν(n) −ν(n))2, following the rationale of reservoir computing. Since
+this readout neuron is trained on white-noise input ν(n), it will also
+be able to re- generate other input signals p(n) in agreement with (2).
+I point out that this pattern-generic output neuron is trained prior to,
+and independent of, the subsequent memory learning. It is also possible
+to train the output weights W out on network states induced by the
+to-be-stored input patterns, not by a generic white-noise input. That
+procedure gives more accurate results at recall time and therefore will
+usually be the preferred method. However, it obscures the essential
+independence of the storing procedure from the observer training.
+Therefore in this didactic demo I used white noise input to train W out.
+5 Jaeger ï1 0 1 p and y ï1 0 1 state pattern 0 1 singular values 0 5 10
+15 ï1 0 1 0 5 10 15 ï1 0 1 1 2 3 0 1 Figure 1: Left: the original
+patterns p1(n), p2(n) (red/blue thin lines) and their recalled versions
+(gray thick lines; original and recalled patterns were phase-aligned for
+plotting). The patterns are discrete-time signals; connecting lines are
+drawn for better visual appearance. Center: traces of the three neurons’
+activations when the reservoir is driven with the respective pattern
+input. Right: singular value spectra of C1 and C2. 2.1.2 Storing
+Patterns Loading the reservoir with the patterns. I proceed to describe
+how the two patterns p1(n), p2(n) of our demo are stored in the
+reservoir. In intuitive terms, storing patterns pj amounts to re-compute
+the initial random reservoir weights W ∗, giving a new set of network
+weights W, such that the new reservoir can mimic the impact of drivers
+pj in the absence of them. I refer to the new weights W as “input
+internalization weights” on the grounds that they incorporate the impact
+of an external input into the autonomous network update dynamics. W is
+computed as follows. In two separate runs, the two patterns are fed into
+the initial reservoir via xj(n + 1) = tanh(W ∗xj(n) + W in pj(n) + b), j
+= 1, 2; n = 0, . . . , L. (3) Figure 1 (middle panels) shows the
+activation traces of the three neurons when the reservoir is driven with
+either pattern. Then W is computed to minimize the quadratic loss X
+j=1,2 X n=n0+1,…,L ∥W ∗xj(n) + W in pj(n) −W xj(n)∥2, (4) where only
+network states for times after n0 are used (in order to allow for
+washing out the arbitrary intial state x(0) according to the echo state
+property). This again amounts 6 Managing neural long-term memory to a
+linear regression. If this is achieved with a small training error, one
+will obtain similar network updates from states x1(n) or x2(n) with
+either the original input-driven update rule, or with an input-free
+update rule that employs W instead of W ∗: tanh(W ∗xj(n) + W in pj(n) +
+b) ≈tanh(W xj(n) + b). (5) I call this procedure to transform the
+initial random weights W ∗to W loading the patterns into the reservoir.
+Linear regressions can be computed in various ways. In all simulations
+reported below I use ridge regression. Given a collection of L
+argument–target vector pairs (ai, ti) ∈ Rν × Rµ, ridge regression
+computes a transformation matrix M ∈Rµ×ν which minimizes the regularized
+mean square error 1/L P i ∥ti −M ai∥2 + ∥ϱ M∥2 fro, where ∥· ∥2 fro is
+the squared Frobenius matrix norm and ϱ the Tychonov regularization
+coeﬃcient. In the case of (4), ν = µ = N and the arguments are all xj(n)
+and the targets are the corresponding W ∗xj(n) + W in pj(n). The
+re-computation of initial weights of a RNN to obtain what I called here
+input in- ternalization weights is a procedure that has been
+independently proposed several times in recent years under diﬀerent
+names and for diﬀerent purposes: as self-predicting networks for
+augmenting the performance of reservoir computing techniques (Mayer and
+Browne, 2004), as equilibration for enabling external controllability of
+RNN dynamics (Jaeger, 2010), as reservoir regularization for improved
+stability of neural motor controllers (Reinhart and Steil, 2011), as
+self-sensing networks for making RNN training methods more ﬂexible (Sus-
+sillo and Abbott, 2012), and as innate training for reliable,
+noise-resistant reproducible chaotic patterns in short-term memory RNNs
+(Laje and Buonomano, 2013). Lower cost variants of the loading
+procedure. In a variant of the loading pro- cedure, only the input term
+W in pj(n) is replaced, leaving W ∗unchanged. That is, the input-driven
+network state tanh(W ∗xj(n) + W in pj(n) + b) becomes emulated by the
+au- tonomous states tanh(W ∗xj(n) + D xj(n) + b), where D is computed by
+linear regression to minimize the following variant of the quadratic
+loss (4): X j=1,…,K X n=n0+1,…,L ∥W in pj(n) −D xj(n)∥2 (6) I call the N
+× N matrix D input simulation weights. Another variant of the loading
+procedure is even more minimalistic and aims at replacing only the very
+input pj(n), by ﬁnding input replacing weights R (size N × M) that
+minimize X j=1,…,K X n=n0,…,L ∥pj(n) −R xj(n)∥2, (7) leading to
+autonomous states tanh(W ∗xj(n) + W in R xj(n) + b). Computing
+conceptors. Considering (5), the loaded reservoir should be able to
+generate approximate versions of the two original state patterns.
+However, if the network were run just by iterating x(n + 1) = tanh(W
+x(n) + b), the resulting input-free reservoir dynamics is entirely
+unpredictable because the reservoir can’t “decide” which of the loaded
+pattern dynamics it should engage in. 7 Jaeger Here conceptors enter the
+stage. Each loaded pattern pj is associated with an N × N sized
+conceptor matrix Cj which at recall time is inserted into the state
+update loop via x(n + 1) = Cj tanh(W x(n) + b). (8) The matrix Cj acts
+as a ﬁlter that leaves states xj(n) from the state pattern associated
+with pattern pj essentially unchanged, but suppresses state components
+of states xj′(n) associated with other patterns pj′. Stated diﬀerently,
+Cj should act like the identity matrix for states xj(n), but like the
+null matrix for state components that are not typical for states xj(n).
+This consideration leads to a quadratic loss function L(Cj) = E[∥Cj
+xj(n) −xj(n)∥2] + (αj)−2 ∥Cj∥2 fro, (9) where the expectation E is taken
+over all states xj(n) that arise in pj-driven runs according to (3).
+Explanations: • The ﬁrst component E[∥Cj xj(n)−xj(n)∥2] of this loss
+function is minimal when Cj is the identity. This component reﬂects the
+objective that Cj should leave states xj(n) unchanged. • The second
+component ∥Cj∥2 fro becomes minimial for Cj = 0. This takes care of the
+objective that Cj should suppress state components which are untypical
+of states xj(n), i.e. such state components which do not enter the
+expectation of the ﬁrst component. • The machine learning view on the
+loss (9) is to consider it as the loss for a regular- ized identity
+function. It is mathematically closely related to computing a denoising
+autoencoder for state patterns corrupted by Gaussian noise with variance
+(αj)−2. • The parameter αj ≥0, called aperture for reasons that will
+soon become clear, ne- gotiates between the two objectives. When the
+aperture is large, Cj will be close to the identity matrix I.
+Conversely, for small apertures Cj will shrink toward the null matrix 0.
+In our example I use α1 = 12 and α2 = 20. Minimizing the loss L(Cj)
+leads to the solution Cj = Rj (Rj + (αj)−2 I)−1, (10) where Rj =
+E[xj(n)xj(n)′] is the N × N correlation matrix of states xj(n) obtained
+in the state dynamics driven by pattern pj. Cj has the following
+properties: • Cj is positive semi-deﬁnite, with eigenvalues (= singular
+values) 0 ≤σj i ≤1 (i = 1, . . . , N). • The N eigenvectors uj i of Cj
+are the same as the eigenvectors of Rj, and can be arranged column-wise
+in an orthonormal matrix Uj = (uj 1 · · · uj N). These eigenvectors are
+the same as the principal component vectors obtained from a principal
+component analysis of state sets xj(n). 8 Managing neural long-term
+memory Figure 2: Conceptor geometry. Left: 3-dimensional state pattern
+x1(n) (red dots) and x2(n) (blue dots). Ellipsoids corresponding to
+conceptors C1 and C2 are rendered in red and blue respectively, with
+principal axes shown. They lie inside the unit sphere, shown in light
+gray. Right: eﬀects of halving (top) and doubling (bottom) apertures. I
+will often use the singular value decomposition (SVD) of Cj = Uj Sj Uj′,
+where Sj is the diagonal matrix containing the singular values σj i on
+its diagonal, by convention arranged in descending order. The derivation
+of (10) and the properties of Cj is elementary and can be found in
+Jaeger (2014). In practice, the correlation matrices Rj are estimated
+from states collected in training runs. It is easily veriﬁed that R
+(R+α−2I)−1 = α2R (α2R+I)−1. Because α2R = E[αx (αx)′], the aperture α
+can also be understood as a virtual scaling factor of reservoir states.
+2.1.3 Geometry of Conceptors It is instructive to contemplate the
+geometry of conceptors Cj and how it relates to the state dynamics
+xj(n). The main panel in Figure 2 shows 100 instances of x1(n) (red
+dots), which densely ﬁll a cyclic path because of the irrational ratio
+between the driving sinewave period and the sampling interval. The
+resulting conceptor C1 can be visualized by an ellipsoid centered at the
+origin. Its principal axes are the eigenvectors of C1 scaled by their
+singular values (they are indicated in Figure 1, right panels). Since
+the singular values of conceptor matrices range in [0, 1], such
+ellipsoids lie inside the unit sphere. The singular values of C1 are all
+nonzero, hence the ellipsoid is non-degenerate and extends in three
+directions. The state pattern x2(n) induced by the 2-periodic driver p2
+alternates between two states 9 Jaeger (blue dots). These two states
+span a 2-dimensional subspace of R3: only two of the singular values of
+C2 are nonzero, and the resulting ellipsoid is a degenerate
+(2-dimensional only). The two small panels illustrate the geometrical
+eﬀects of adjusting aperture. Increasing the aperture “widens”
+conceptors, while decreasing aperture lets conceptors contract. 2.1.4
+Pattern Re-generation The loaded reservoir will behave unpredictably
+when run via x(n + 1) = tanh(W x(n) + b), but it will engage in the j-th
+state pattern xj(n) when run with the corresponding conceptor in the
+loop via x(n + 1) = Cj tanh(W x(n) + b). The conceptor Cj acts as a
+state ﬁlter which leaves states belonging to pattern j mostly unaﬀected,
+while other states that would belong to other patterns are projected
+into the ellipsoidal state volume typical for pattern j. The original
+input pattern can be read from this dynamics by W out x(n) ≈pj(n).
+Figure 1 (left panels) shows the re-generated patterns under conceptor
+control overlaid with the original drivers. 2.1.5 Intuitive Summary, and
+Relationship to Reservoir Computing Three kinds of matrices are trained
+in the conceptor-based pattern learning setup: the readout weights, the
+recurrent reservoir weights, and the conceptor matrices. How can the
+respective functional roles of these three components be intuitively
+understood? In the loading process, when the random initial reservoir
+weights W ∗are recomputed into W, information about the detailed
+dynamics of each training pattern is imprinted on the reservoir. A
+helpful metaphor is to liken the loading process to driving a vehicle
+over Sahara sands. Each pattern digs its individual track into the
+surface of the native sandscape. The original reservoir with weights W
+∗is like a virgin sandscape. After loading K patterns, K tracks have
+been engraved into the surface. These tracks are coded in the weight
+matrix W. Still following that metaphor, the pattern tracks imprinted on
+the sand will have cross- ings. Sending a vehicle on a track-following
+mission, it wouldn’t know where to turn at those crossings. – If one
+would just run a network simulation with loaded weights W with- out
+further ado, the resulting network dynamics are unpredictable: the
+network doesn’t know where to turn at the crossings; typically one
+observes a trajectory that appears like high-dimensional chaos. This is
+where conceptors come into play. If conceptor Cj is inserted into the
+network update loop, ﬁguratively speaking it informs the network how to
+follow track number j. Figuratively speaking, the conceptor ﬂattens out
+competing tracks but leaves track j mostly as it is. More technically
+speaking, this “ﬂattening out” is eﬀected by the large number of zero or
+close-to-zero singular values of Cj. In memory terminology, the
+conceptor acts as a selector for one of the loaded patterns. As we will
+see later on, as a side eﬀect this “ﬂattening out” endows the network
+dynamics with strong noise-suppression and dynamical stabilization
+characteristics. Finally, the readout weights are not a crucial
+component in the conceptor approach to RNNs. This is diﬀerent from the
+usual perspective of reservoir computing where the training of readout
+weights is the deﬁning part of the entire paradigm. The focus of
+conceptor theory 10 Managing neural long-term memory 25 50 75 100 ï1 0 1
+4 6 8 10 p1 p2 Figure 3: Morphing from an integer-5-periodic pattern p1
+to an irrational-period sine p2 from time n = 25 to n = 75. Top:
+delay-embedding plots of signals y(n) obtained with ﬁxed conceptor mixes
+(indicated by triangle markers in center panel). Bot- tom: Output signal
+y(n). is representation learning, not output generation. It is all about
+creating representations of dynamical patterns inside an RNN, where
+these representations (the tracks in the sand) become serviceable
+through conceptors. The readout weights merely provide an externally
+interpretable observer for the learnt representations, and a means to
+quantify the quality of the internal representations by measuring the
+mismatch between original patterns and re-generated output patterns. 2.2
+Morphing and Generalization When K “prototype” patterns p1, . . . , pK
+have been loaded, they can be morphed in recall by using linear blends
+of their conceptors via x(n + 1) = ( X j=1,…,K aj Cj) tanh(W x(n) + b),
+y(n) = W out x(n), (11) where P j=1,…,K aj = 1. For an elementary
+demonstration, an integer-5-periodic pattern p1 and a sine pattern p2
+with an irrational period length of about 8.8 (sampled at integer time
+points) were loaded into a 100-neuron reservoir. Figure 3 (center)
+displays the output y(n) of a recall run where for the ﬁrst 25 steps,
+the pure conceptor C1 was used, then for a morphing time of 50 steps C1
+was linearly blended into C2, concluding the run with another 25 steps
+under the control of the pure C2. The output signal exhibits a smooth
+change from p1 to p2 during the morphing period from step 25 to step 75.
+In order to get more insight into the morphing dynamics, for eight
+mixing ratios (marked by triangle markers in the bottom panel), the
+system (11) was run separately with mixing coeﬃcients frozen at these
+ratios. The panels in the top row show “ﬁngerprints” of the resulting
+output signals yi(n), by plotting delay embedding state points (yi(n +
+1), yi(n)). Each panel shows 20 successive points as thick dots, and
+further 100 successive points as thin dots. The ﬁrst panel, which
+corresponds to the pure 5-periodic pattern p1, shows 5 cyclically
+repeated points, and the last panel a quasi-periodic oscillation, as
+expected. Intermediate dynamics 11 Jaeger are mostly quasi-periodic, but
+there are also mixture settings where there is a 6-, 7-, and 8-periodic
+behavior (of which only the 7-periodic instance happens to be captured
+by one of the displayed plots). In a slightly more involved
+demonstration three representative patterns p1, p2, p3 are loaded, which
+are taken from a two-parametric family of modulated sinewave patterns.
+One parameter changes the frequency, the other modulates the shape from
+“pointed upwards” to “pointed downwards” (details in the Appendix).
+Figure 4 shows a close-up of the three loaded patterns in the separate
+top panels (red: slightly pointed downwards, high frequency; green:
+slightly pointed downwards, low frequency; blue: slightly pointed
+upwards, interme- diate frequency). Note that three is the minimal
+number of patterns required to span a 2-parametric pattern space. To
+visualize the morphs, pattern samples generated with mor- phed
+conceptors a1 C1 + a2 C2 + a3 C3 are arranged in a tesselated drawing
+plane. The “pure” recalled patterns (corresponding to mixtures (a1, a2,
+a3) = (1, 0, 0); (0, 1, 0); (0, 0, 1) respectively) are placed at the
+corners of an equilateral triangle (saturated red/green/blue tiles in
+the main ﬁgure panel). Tiles within the triangle spanned by the three
+loaded pat- terns correspond to interpolated conceptors, whereas
+patterns outside the triangle were obtained by extrapolating conceptor
+mixtures with coeﬃcents outside [0 1]. By visual inspection of the
+signals shown in Figure 4 one ﬁnds that the system has acquired command
+over a sizeable portion of the parametrized pattern space by
+generalizing from three training instances. This generalization is
+eﬀective not only in the “convex hull” of the three training examples
+(interpolation area within the central pattern triangle in the ﬁgure),
+but extends far into the extrapolation range. Going right/left from the
+three training patterns one sees that the mild frequency modulation
+indicated by the three training patterns reaches out into a wider
+frequency span; and going up/down one ﬁnds the “pointed up/down”
+characteristics, which is only feebly present in the training patterns,
+becomes fully expressed. But one should not expect miracles. Upon closer
+inspection one will ﬁnd that many re- generated patterns are not precise
+members of the family. Deviations grow as the mixture coeﬃcients extend
+further away from the interpolation region. Also, there is no linear
+relationship between variations in mixing coeﬃcients and geometric
+pattern characteristics. Far outside the interpolation region
+similiarities with correct patterns from the target family dissolve. If
+one wishes to obtain a wider-range faithful re-generation of patterns
+from the family, a larger number of reference patterns must be loaded.
+In Section 3.2 we will meet an altogether diﬀerent way to employ
+conceptors to learn a pattern family from a small number of training
+examples. 2.3 A Real-World Data Example In order to illustrate that the
+approach scales to more complex patterns, ﬁfteen diverse human motion
+patterns were loaded: slow walk; fast walk; walk with exaggerated
+stride; jog; sit; get up from stool; sit down on stool; kneel down;
+crawl; get up from crawl; waltz; cartwheeling; and three boxing punches.
+These patterns are 61-dimensional signals (body pose and joint angles).
+Some are periodic (like jog), others are transient (like get up from
+crawl), yet others are irregular-stochastic (the boxing patterns); some
+patterns have multiple timescales. Training data consisted of short
+sequences clipped from publicly available human 12 Managing neural
+long-term memory 5 10 15 20 ï1 0 1 5 10 15 20 ï1 0 1 5 10 15 20 ï1 0 1
+Figure 4: Morphing between and beyond three patterns from a 2-parametric
+family. For explanation see text. motion capture traces (CMU Graphics
+Lab)), one such clip per motion type. The length of training patterns
+varied from 150 to 900 sampling points (sampling rate 120 / second).
+Data preprocessing and visualizatin was done with the help of a public
+Matlab motion capture toolbox (Burger and Toiviainen, 2013). Figure 5
+gives an impression of the training data after preprocessing. A 600-unit
+reservoir made from leaky-integrator neurons was loaded with the 15
+training samples (details in the Appendix). In a recall run, the 15
+patterns were re-generated in a shuﬄed sequence according to a
+hand-designed choreography. In this sequence, a pattern pj is reproduced
+by inserting the corresponding conceptor Cj into the reservoir update
+loop for some period of time. In order to achieve a smooth transition
+into the next motion pj′, 13 Jaeger ï1 0 1 jog ï1 0 1 cartwheel ï1 0 1
+waltz ï1 0 1 kneel down 0 500 1000 ï1 0 1 boxing: jab 0 500 1000 0 500
+1000 Figure 5: Exemplary training data. Plots show the range-normalized
+versions used as input for the reservoir. The four rows show four out of
+the 15 loaded patterns. The three columns show three out of the 61 data
+dimensions. Thick red lines: training data; black lines: 1000-step
+free-running pattern recall under conceptor control. For explanation see
+text. Cj was morphed into the following conceptor Cj′ for one simulated
+second before Cj′ takes over full control. The resulting choreographed
+recall sequence of one minute duration was rendered into a video. The
+video is on YouTube (www.youtube.com/watch?v=DkS Yw1ldD4) and an mp4
+version is contained in the Matlab code package in the supplementary
+materials to this article. Figure 6 shows a few snapshots. Morphing and
+generalizing dynamical patterns is a common but nontrivial task for
+training motor patterns in robots. It typically requires training
+demonstrations of numerous interpolating patterns (Reinhart and Steil,
+2008; Coates et al., 2008; Lukic et al., 2012). Conceptor-based pattern
+learning and morphing appears promising for ﬂexible robot motor pattern
+learning from a very small number of training patterns. I want to
+emphasize that this is only a method for “playback” of learnt
+trajectories with ﬂexible sequence scheduling and motion blending with
+potential applications in computer game character animation; it is not a
+method for motor control. The procedure demonstrated here is visually
+superior to some existing neural-network based approaches wyﬀels and
+Schrauwen (2009); Sutskever et al. (2009); Bostr¨ om et al. (2013);
+Wright and Jordanov (2012) with respect to number of patterns, body
+model complexity, and smoothness of transitions. The mocap-trained human
+motion generation system presented by Taylor et al. (2011), which is
+based on restricted Boltzmann machines, comes close to the
+conceptor-based demo with respect to number of 14 Managing neural
+long-term memory Figure 6: Snapshots from a human motion re-generation
+video created from a conceptor- controlled RNN. First row: standing up
+from a stool and starting a slow walk, second row: kneeling down and
+starting to crawl, third row: cartwheel. patterns and body model
+complexity, and has visually more appealing transitions between gaits. I
+emphasize that this case study is solely meant as a visually appealing
+demo that conceptor-controlled pattern generation can scale to sizable
+numbers of high-dimensional, non-stationary patterns. In this it serves
+the same purpose as the other motion capture learning neural networks
+that I referenced above. It is neither a method for motor con- trol in
+physical robots, nor does it aspire to compete with state-of-the-art
+game character animation engines, which each combine a diversity of
+sophisticated animation techniques, often including physics simulations
+(Gillies and Spanlang, 2010). 2.4 Aperture Adaptation For good
+performance in recall, the aperture must be chosen appropriately. To
+illustrate this, I loaded four patterns into a N = 500 reservoir. The
+patterns were obtained from four classical chaotic attractors, p1:
+Lorenz attractor; p2: R¨ ossler attractor; p3: Mackey- Glass attractor;
+p4: H´ enon attractor (details in the Appendix). Green plots in Fig.
+7A,B visualize the clean training signals. In the reproduction stage,
+for each pattern pj a number of diﬀerent conceptors Cj with varied
+apertures were tried. Fig. 7A shows the eﬀects for the Lorenz attractor.
+When α is too small, the reservoir-conceptor feedback loop becomes too
+constrained and the generated patterns de-diﬀerentiate. With α too large
+the feedback loop becomes over-excited. In this demonstration, a good
+aperture could be automatically found by minimizing a measurable that I
+call attenuation. This is the fraction of the reservoir signal energy
+which is suppressed by applying the conceptor. Formally, the attenuation
+15 Jaeger 11 66 4e+02 2.4e+03 1.4e+04 1e+03 1e+03 6.3e+02 A B C 1 2 3 4
+5 ï6 ï4 ï2 1 2 3 4 5 1 2 3 4 5 1 2 3 4 5 100 200 300 400 500 0 0.5 1
+singular value
+
+_ = 11 _ = 66 _ ~ 400 _ ~ 2400 _ ~ 14400 D Figure 7: Reproducing four
+chaotic attractor patterns in a single network. Green: original training
+signals, blue: network-generated reproductions. The 2-dimensional plots
+are obtained from 1-dimensional timeseries by delay embedding, plotting
+y(n) against y(n−d) for a delay d chosen to yield instructive graphics.
+(A) The Lorenz attractor re-generated with ﬁve diﬀerent aperture
+settings (α values inserted in panels). (B) From left to right:
+re-generations of the the R¨ ossler, Mackey-Glass, and H´ enon
+attractors. (C) Log10 of attenuation plotted against log10 of aperture.
+Dots mark the apertures used in the reproductions in (A,B). (D) Singular
+value spectra of conceptors used for the Lorenz attractor (compare panel
+A). aC,α induced by a conceptor C at aperture α is aC,α = E[∥r(n)
+−z(n)∥2]/E[∥r(n)∥2], (12) where r(n) = tanh(Wz(n−1)+b), z(n) = C r(n).
+This quantity can be cheaply estimated online and can be used to
+automatically adapt the aperture at recall time. Fig. 7C plots at-
+tenuation against aperture. The minimum of this curve marks a good
+aperture value, where “good” means “good visual agreement of recalled
+attractor with original attractor” (I did not implement an attractor
+comparison metric). The apertures used for the reproductions shown in
+Fig. 7B were obtained via this minimum-attenuation criterion. While
+placing the aperture roughly in the right range is important, ﬁne-tuning
+is un- necessary. The Lorenz attractor shown in Fig. 7A is quite well
+reproduced with apertures ranging over two orders of magnitude. This is
+also true for the other chaotic attractor signals, as well as for all
+other simulation studies that I undertook so far. — While this 4-pattern
+demo is an academic exercise, it underlines the functionality of
+conceptors to stabilize neural pattern generation. 16 Managing neural
+long-term memory 3. Autoconceptors The deﬁnition and usage of
+conceptors, as described so far, invites an obvious critique: conceptor
+matrices have the same size as the reservoir weight matrix. Thus, for
+represent- ing a pattern pj by a conceptor matrix Cj one has to create
+and store an object that is as heavyweight as the hosting reservoir—one
+might say that each new pattern adds an- other brain. This is clearly
+inappropriate for computational neuroscience modeling, and it may become
+too expensive in machine learning applications. The storing cost of
+adding a conceptor matrix can be reduced by storing only economical SVDs
+of conceptor matrices, which often have low numerical rank. This however
+only mitigates but does not solve the principal problem. I can oﬀer two
+answers to this important critique: Conceptor auto-adaptation and
+content-addressable memories. At loading time, when pattern
+internalization or pattern simulation weights are computed, no concep-
+tors are created. Pattern recall functions by content-addressing: a
+short / incomplete cue of the target pattern is presented and an
+appropriate conceptor is generated on the ﬂy by an auto-adaptation
+process. This leads to a memory model which is rem- iniscent of Hopﬁeld
+networks. The present section is devoted to such auto-adapting
+conceptors. Diagonal conceptors with single-neuron representations. When
+conceptor matrices are constrained to diagonal form, ﬁltering a
+reservoir state by a conceptor reduces to unit-wise scalar
+multiplications, and a conceptor can be mathematically represented by a
+vector, which in turn could possibly be biologically implemented by a
+single neuron. This venue is explored in some detail in Jaeger (2014),
+where also proof- of-principle demos are presented of multi-reservoir
+hierarchical memory systems that are based on such diagonal conceptors.
+I am however not satisﬁed with the robust- ness properties of diagonal
+conceptors (they are too parameter-sensitive), and I am currently
+working on improved versions. Therefore I will not report on the
+available material (from Jaeger (2014)) in this article. 3.1 Conceptor
+Auto-Adaptation In the preceding sections I have deﬁned conceptors as
+transforms Cj = Rj (Rj + α−2I)−1 of reservoir state correlation matrices
+Rj (Equation 10) obtained from driving the reservoir with pattern pj.
+The conceptor Cj could then be exploited for pattern re-generation via
+x(n+1) = Cj tanh(Wx(n)+b) (using input internalization weights) or its
+variant x(n+1) = Cj tanh(W ∗x(n) + D x(n) + b) (using input simulation
+weights). This way of using conceptors, however, requires that the
+conceptor matrices Cj are computed at loading time, and they have to be
+stored in some way for usage at exploitation time. Such a procedure may
+be useful in some practical engineering respects (e.g. for dynamical
+pattern morphing and pattern stabilization), but otherwise invites the
+critique pointed out at the beginning of this section. This motivates to
+look for ways of how conceptors can be used for constraining reservoir
+dynamics without the necessity to create and store conceptor matrices
+beforehand. The network would have to create the requisite conceptors on
+the ﬂy by some auto-adaptation 17 Jaeger process while it is performing
+some relevant task. In this section I investigate auto-adapted
+conceptors for the task of realizing a content-addressable memory. They
+are also useful for other tasks—in Jaeger (2014) (Section 3.15) I
+demonstrate the use of such auto-adapted conceptors for the task of
+simultaneous signal denoising and classiﬁcation. For ease of discussion,
+I call conceptors created by auto-adaptation at use-time autocon-
+ceptors, as opposed to the conceptors which are created at pattern
+loading time and which are externally inserted into the reservoir update
+loop at use-time—I will refer to those as alloconceptors.
+Autoconceptors, like alloconceptors, are positive semideﬁnite matrices
+with singular values in the unit interval. Aperture operations are
+identical for allo- and autocon- ceptors. However, the way how
+autoconceptors are generated by auto-adaptation leads to additional
+constraints on their algebraic characteristics. The set of autoconceptor
+matrices is a proper subset of the set of alloconceptor matrices. 3.1.1
+Basic Equations The basic system equation for autoconceptor systems is
+x(n + 1) = C(n) tanh(W ∗x(n) + W inp(n + 1) + b) (13) or variants
+thereof, like x(n + 1) = C(n) tanh(W x(n) + b) (14) or x(n + 1) = C(n)
+tanh(W ∗x(n) + Dx(n) + b), (15) the latter two capturing the situation
+after having patterns loaded by input internalization or input
+simulation weights. The novel element in these equations is that C(n) is
+time- dependent. Its evolution is governed by an adaptation rule that I
+will describe presently. C(n) need not be positive semideﬁnite at all
+times; only after convergence the C(n) matrices will have the algebraic
+properties of conceptors. It is convenient to formally split the network
+state x in (13) into a “reservoir state” r measured directly after the
+neuron nonlinearity, and a “ﬁltered” state z obtained after passing the
+reservoir state through the conceptor. This turns (13) into r(n + 1) =
+tanh(W ∗z(n) + W inp(n + 1) + b) (16) z(n + 1) = C(n) r(n + 1). (17) The
+auto-adaptation of C(n) aims at minimizing a loss that at ﬁrst sight
+looks the same as the loss (9): L(C) = E[∥C z(n) −z(n)∥2] + α−2 ∥C∥2
+fro, (18) which for alloconceptors was solved by C = R (R + α−2 I)−1
+with R = E[x x′] being the autocorrelation matrix of reservoir states.
+Similarly, (18) is minimized by C = R (R + α−2 I)−1, with R = E[z z′].
+(19) The crucial diﬀerence is that now the state correlation matrix R
+depends on C: R = E[z z′] = E[Cr (Cr)′] = C E[r r′] C =: CQC, (20) 18
+Managing neural long-term memory ! r ! z W* C ! W in ! p Figure 8:
+Network representation of a basic autoconceptor system. Bias b and
+readout mechanisms are omitted. The red arrow indicates that C is
+adapted online. For explanation see text. where we introduce Q = E[r
+r′]. This transforms the explicit solution formula (10) into a
+ﬁxed-point equation: C = CQC (CQC + α−2 I)−1. (21) Since Q depends on r
+states, which in turn depend on z states, which in turn depend on C
+again, Q depends on C and should be more appropriately be written as QC.
+A formal analysis of solutions to the ﬁxed-point equation C = CQCC (CQCC
++ α−2 I)−1 is involved (carried out in some detail in Jaeger (2014)).
+Explicit solution formulas are unlikely to exist because the nonlinear
+reservoir is involved in QC. When one uses autoconceptors, however, one
+does not need to solve (21) explicitly. Instead, one can invoke
+stochastic gradient descent to minimize the loss (18). It is easily
+derived (Jaeger, 2014) that C(n + 1) = C(n) + λ  (z(n) −C(n) z(n)) z′(n)
+−α−2 C(n)  (22) implements stochastic gradient descent with respect to
+the loss (18). Here λ is an adaptation rate. Equations (16), (17) and
+(22) taken together—or versions where (16) is replaced by (14) or
+(15)—deﬁne the joint state update and conceptor adaptation working
+cycle. In Jaeger (2014) I show that, if the driver p(n) is a stationary
+process and if C(n) con- verges under this auto-adaptation rule, the
+limit C is positive semideﬁnite with singular values in the set (1/2, 1)
+∪{0}. Singular values of C asymptotically obtained under the evolution
+(22) are either greater than 1/2 or they are zero. If the aperture α is
+ﬁxed at in- creasingly smaller values, increasingly many singular values
+converge to zero. Furthermore, the analysis in Jaeger (2014) reveals
+that among the nonzero singular values, the majority will be close to 1.
+Both eﬀects together endow autoconceptors with singular value spectra
+that are typically approximately rectangular. 3.1.2 Basic Demonstrations
+In order to display how autoconcepters can be used to realize a
+content-addressable memory, I ran simulations according to the following
+scheme: 19 Jaeger 1. Loading. A collection of 10 scalar patterns pj was
+loaded in an N-dimensional reservoir, yielding an input simulation
+matrix D and readout weights W out. More speciﬁcally, D was computed to
+minimize the loss (6), using states xj(n) obtained from driven runs xj(n
++ 1) = tanh(W ∗xj(n) + W in pj(n) + b). No conceptors were involved or
+computed in the loading procedure. 2. Recall. For each pattern pj, a
+recall run was executed which consisted of three stages: (a) Initial
+washout. Starting from a zero network state, the reservoir was driven
+with pj for nwashout steps, in order to obtain a task-related reservoir
+state. (b) Cueing. The reservoir was continued to be driven with pj for
+another ncue steps. During this cueing period, Cj was adapted through
+z(n + 1) = tanh(W ∗z(n) + W inp(n) + b), Cj(n + 1) = Cj(n) + λcue ((z(n)
+−Cj(n) z(n)) z′(n) −α−2 Cj(n)). At the beginning of this cueing period,
+Cj(0) was initialized to the zero matrix. Notice that during cueing, the
+nascent conceptor Cj(n) was not inserted in the reservoir state update
+loop. At the end of this period, a conceptor Cj cue was obtained. (c)
+Autonomous auto-adaptation and pattern recall. The network run was
+continued with the external input switched oﬀ, using z(n+1) = Cj(n)
+tanh(W ∗z(n)+ Dz(n) + b), while continuing to auto-adapt the conceptor
+through Cj(n + 1) = Cj(n) + λrecall ((z(n) −Cj(n) z(n)) z′(n) −α−2
+Cj(n)). At three test time points t1, t2, t3 the conceptor Cj(ti) in its
+current adaptation stage was recorded for an oﬄine quality assessment.
+3. Measuring the quality of conceptors. The quality of the conceptors Cj
+cue and Cj(ti) (where i = 1, 2, 3) was measured in separate oﬄine runs
+without conceptor adaptation using z(n + 1) = C tanh(W ∗z(n) + Dz(n) +
+b), where C was one of Cj cue, Cj(t1), Cj(t2), Cj(t3). A reconstructed
+pattern y(n) = W out z(n) was obtained and its similarity with the
+original pattern pj was quantiﬁed in terms of a NRMSE. I carried out two
+instances of this experiment, using two kinds of patterns: 5-periodic
+pattern. The patterns were random integer-periodic patterns of period 5.
+Ex- periment parameters: Reservoir size N = 100, spectral radius of W
+∗set to 1.5, input weight scaling 1.5, bias weight scaling 0.5, ridge
+regularization coeﬃcients ϱ2 D, ϱ2 Wout both set to 0.0001, aperture α =
+1000, nwashout = 20, ncue = 10, t1, t2, t3 = 10, 50, 500,
+auto-adaptation rates γcue = 0.02, γrecall = 0.01. To make the task more
+challeng- ing, during the 10-step cueing phase the cue input pattern was
+corrupted by additive uniform noise sampled from [−0.05, 0.05], and
+during the autonomous recall time the reservoir states were very
+strongly perturbed by additive Gaussian noise (fed inside the tanh)
+whose variance equalled the average reservoir state component variance
+(a signal-to-noise ratio of 1). 2-parametric mix of 2 irrational-period
+sines. The 10 patterns were were taken from the 2-parametric family of
+patterns governed by p(n) = a sin(2 π n/P) + (1 −a) sin(4 π (b + n/P)).
+(23) 20 Managing neural long-term memory These signals are weighted sums
+of two sines, the ﬁrst with period length P and the second with period
+length P/2. The weights of these two components are a and (1 −a), and
+the second component is phase-shifted relative to the ﬁrst by a fraction
+b of its period length P/2. The reference period length P was ﬁxed to P
+= √ 30. The parameters a, b were freshly sampled from the uniform
+distribution on [0, 1] for each pj. Network parameters: N = 100,
+reservoir spectral radius 1.5, input weight scaling 1.5, bias scaling
+0.5, ϱ2 D = ϱ2 Wout = 0.0001, α = 200, nwashout = 100, ncue = 12, t1,
+t2, t3 = 20, 1000, 10000, γcue = γrecall = 0.01. Cue patterns were
+corrupted by the same amount of additive noise as the 5-periodic
+patterns, and reservoir states were again perturbed with a
+signal-to-noise ratio of 1 during the autonomous recall. Figure 9
+illustrates the outcomes of these two experiments. For brevity I refer
+to the two experiments as the “IP5” and “PF” conditions. Observations
+and interpretations: • The quality of the preliminary conceptor Cj cue
+was always much improved by the subsequent auto-adaptation (panels B,
+D). • The eﬀects of autoconceptive adaptation are reﬂected in the
+singular value proﬁles of Cj cue versus Cj(t3) (A, C). During the short
+cueing time, the online adaptation of the conceptor from a zero matrix
+to Cj cue only manages to build a preliminary “nascent” proﬁle, which
+then “matures” by auto-adaptation. • The conceptors Cj(t3) have an
+almost rectangular singular value proﬁle, in agreement with mathematical
+analyses (Jaeger, 2014). • In PF the averge re-generation NRMSE with the
+ﬁnal conceptor C(t3) was 0.11. For comparison I loaded and recalled the
+10 patterns following the basic alloconceptor procedure with a manually
+optimized aperture. This gave an NRMSE of 0.087, that is,
+content-addressed autoconceptor recall from short and noisy cues here
+worked almost as well as re-generation with previously stored
+conceptors. • For the 5-periodic patterns, a comparison simulation with
+the basic alloconceptor procedure yielded a mean NRMSE of .0033, much
+better than the mean NRMSE of 0.070 obtained after t3 = 500 steps in the
+IP5 experiment. When perturbations to the cue signal and the reservoir
+states were switched oﬀ(not shown), the ﬁnal NRMSE improved to 0.0037,
+almost as good as in the alloconceptor comparison. In summary, with cue
+and state noise the IP5 experiment worked out satisfactorily, and in a
+noise-free version essentially as well as with alloconceptors. • In the
+FP experiment, unlike in IP5, state noise not only did not harm, but was
+con- ducive for fast adaptation. As a comparison I repeated the
+simulation with noiseless cues and without state noise insertion during
+autoconception (not shown). The out- come: in some cases the
+auto-adaptation failed altogether, and when it did function, it needed
+much longer runtimes (1,000,000 steps) to reach reconstruction qualities
+similar to what is reported in Figure 9 C D. State noise in
+auto-adaptation helps to drive the singular values of relevant state
+components toward 1 and considerably speeds up the adaptation. 21 Jaeger
+A 0 1 singular values ï1 0 1 p and y 0 1 ï1 0 1 0 5 10 0 1 0 5 10 ï1 0 1
+B 1 2 3 4 5 6 7 8 9 10 ï2 ï1.5 ï1 ï0.5 0 0.5 Pattern index log10 NRMSE C
+0 1 singular values ï1 0 1 p and y 0 1 ï1 0 1 0 10 20 0 1 5 10 15 ï1 0 1
+D 1 2 3 4 5 6 7 8 9 10 ï2 ï1.5 ï1 ï0.5 0 0.5 Pattern index log10 NRMSE
+Figure 9: Basic content-addressable memory demos. A, B: 5-periodic
+pattern, C, D: mix of sines pattern. Panels A, C show the ﬁrst three
+patterns, giving the ﬁrst few singular values of the conceptors Ccue,
+C(t1), C(t2), C(t3). The “p and y” panels show the original patterns
+(white), the pattern re-generated with Ccue (thick red) and with the
+ﬁnal C(t3) (thick blue) after optimal phase alignment with the original.
+B, D: recall log10 NRMSEs obtained from Ccue, C(t1), C(t2), C(t3). • The
+robustness of auto-adaptation against very strong state noise may seem
+surprising at ﬁrst, but is easily explained. Autoconceptor adaptation
+leads to singular value spectra with many zero values (Jaeger, 2014).
+Reservoir state noise components in directions of the nulled
+eigenvectors are entirely suppressed in the conceptor-reservoir loop,
+and state noise components within the nonzero conceptor eigenspace do
+not impede the development of a “clean” rectangular proﬁle but in fact,
+as seen in FP, may even speed up the auto-adaptation process. 22
+Managing neural long-term memory • In the simulations reported above,
+zero singular values were present from the start because the conceptor
+was initialized as the zero matrix. If it had been initialized dif-
+ferently (for instance, as the identity matrix), the auto-adaptation
+would only asymp- totically pull (the majority of) singular values to
+zero, with noise robustness only gradually emerging to the degree that
+many singular values decrease toward zero. If noise robustness is
+desired, it can be reached by additional adaptation mechanisms for C. In
+particular, it is helpful to include thresholding: all singular values
+of C(n) exceeding a suitable threshold are set to 1, all singular values
+dropping below a certain cutoﬀare zeroed (not shown). • The simulations
+reported here were done with unfavorable settings on purpose, using
+short cueing times and strong noise. With larger reservoir networks,
+longer cueing times, less noise etc. much higher recall accuracies can
+be obtained (not shown). An inquisitive reader may ask why I don’t
+install auto-adaptation with respect to the reservoir output r instead
+of z, that is, why not use the loss L(C) = E[∥C r(n) −r(n)∥2] + α−2 ∥C∥2
+fro, (24) instead of the loss (18). This alternative loss (24) appears
+as natural as the loss (18) (and its solutions would be much easier to
+analyze mathematically). But in simulation experiments (not reported) I
+found that the performance of auto-adaptation based on (24) was far
+inferior to the version used above. Speciﬁcally, (i) all noise
+robustness was lost, (ii) during auto-adaptation the conceptors grew
+very heavy tails in their singular value spectra even for 5-periodic
+patterns where one would desire a spectrum with exactly 5 nonzero
+singular values, and (iii) singular values greater than 1 emerged under
+auto-adaptation, likewise undesirable within the conceptor philosophy.
+The conceptor auto-adaptation dynamics in content-addressable memories
+is quite in- volved, with intriguing analogies and diﬀerences to Hopﬁeld
+network adaptation dynamics. I discuss this in Section 3.3. 3.2 From
+Rote Learning to “Understanding” When the cue represents a pattern that
+was not loaded, autoconceptors can be invoked to re-generate even such
+patterns. Speciﬁcally, if the reservoir was loaded with a few patterns
+p1, . . . , pk from a parametric family and then is cued with another
+pattern p∗from that family, an attempt can be made to re-generate this
+new pattern, too. This will work out provided that (i) enough patterns
+p1, . . . , pk had been loaded to instruct the reservoir about the
+characteristics of the pattern family, and (ii) the reservoir size is
+large enough to code the characteristics of the pattern family. For a
+demonstration I chose a 100-neuron reservoir and the mix-of-sines
+patterns from the 2-parametric family used before. A cue time of 12
+steps and an auto-adaption time of 10,000 was used. The simulation was
+carried out as follows (detail in the Appendix): 1. Create a random
+reservoir. 2. In separate trials, load this reservoir with an increasing
+number k of patterns (ranging from k = 1 to k = 1000), randomly taken
+from the parametric family. 23 Jaeger 1 2 3 5 10 30 100 300 1000 ï1.2 ï1
+ï0.8 ï0.6 ï0.4 ï0.2 Nr of loaded patterns log10 NRMSE Figure 10: Class
+learning eﬀect. Error bars indicate 95 % conﬁdence intervals for mean
+NRMSEs. The curves are means over the 10 recall targets and the 10
+experiment repetitions (blue: recall of patterns that were loaded;
+green: recall of patterns that were not loaded). Both axes are in
+logarithmic scale. For explanation see text. 3. After loading, cue (with
+noiseless cues) and re-generate the loaded patterns by auto- conceptors.
+Measure the ﬁnal recall accuracy for the ﬁrst 10 of the loaded patterns
+(when fewer than 10 were loaded, do it only for these). 4. In addition,
+per trial, also try to cue and “recall” 10 novel patterns that were
+drawn randomly from the family. Monitor the “recall” accuracy of these
+novel patterns as well. 5. Repeat this entire scheme 10 times, with
+freshly sampled reservoirs and patterns. Report averaged diagnostics.
+Figure 10 shows the results. Observations: • The recall NRMSE for
+patterns that have been expressedly loaded is lowest when only few
+patterns have been loaded. As the number of loaded patterns grows, the
+NRMSE ﬁrst rises, then levels out for very large numbers of loaded
+patterns. • The recall NRMSE for non-loaded patterns is high in
+conditions when only few pat- terns have been loaded. As the number of
+loaded patterns grows, this NRMSE de- creases and levels out at about
+the same goodness as the NRMSE for loaded patterns. Similar ﬁndings were
+obtained in other simulations (Jaeger, 2014). Pending a formal analysis,
+the following interpretation suggests itself: • For small numbers of
+loaded patterns the system stores and recalls individual patterns. The
+input simulation matrix D represents individual patterns. 24 Managing
+neural long-term memory • For large numbers of loaded patterns, the
+system learns a representation of the parametrized pattern family and
+can re-generate any pattern from that family from a cue. The input
+simulation matrix D represents the class of patterns. In suggestive
+wording, as more and more patterns are loaded this memory system changes
+its nature from “rote learning” to “understanding” the nature of the
+pattern fam- ily. With the aid of autoconceptors, any member of the
+family can be “recognized” from a cue and re-generated. This
+family-learning eﬀect becomes eﬀective already when only a single
+pattern has been loaded, and when as few as about 5 patterns are loaded,
+the recall log10 NRMSE for novel patterns is within 20% of the accuracy
+for loaded patterns. This is another display of the generalization
+powers of conceptor-based systems, which we encountered before in
+connection with conceptor morphing (Section 2.2). 3.3 Analysis of
+Auto-Adaptation Dynamics The dynamics of autoadaptation—that is, the
+evolution of C(n) under the simultaneous reservoir state update (16),
+(17) (or variants) and conceptor matrix adaptation rule (22)— is highly
+nonlinear and involves at least the two timescales of reservoir updates
+(fast, N variables) and C adaptation (slow, N2 variables). A full
+analysis is out of reach, but some core aspects are analytically
+accessible. In Jaeger (2014) I investigate properties of ﬁxed points of
+C auto-adaptation. Here I review the most important ﬁndings and attempt
+an interpretation of some phenomena found in simulation studies in the
+light of these partial analytical insights. This subsection assumes some
+familiarity with methods from dynam- ical systems theory. Readers not
+interested in technical detail may jump to the intuitive summary at the
+end of this subsection. The analysis in Jaeger (2014) is based on
+assuming an adaptation rate λ that is small enough to admit temporal
+averaging over the fast z(n) state variables. The discrete update
+equation (22) can then be transformed into a continuous-time ODE which
+is easier to analyze. This ODE is τ ˙ C = (I −C) C QC C′ −α−2 C, (25)
+where QC = Ez[tanh(W z + b) tanh(W z + b)′] = Er[r r′] is the
+autocorrelation matrix of reservoir states (here in a version with input
+internalization weights, versions with input simulation weights are
+analog) when these states evolve under the control of C. The time
+constant τ is of no concern for the qualitative analysis. Speciﬁcally I
+investigated two objects: Fixed points F of (25). These are candidates
+for conceptors that are asymptotically obtained for convergent
+autoadaptation runs. Jacobians JF of ﬁxed points F. JF is an N2 × N2
+matrix whose (i, j)-th element is the derivative ∂˙ Fi/∂Fj, under the
+dynamics (25) linearized in F, and where Fi is the i-th element of F
+(enumerated row-wise). The eigenvalues of JF characterize stability
+properties of F. Here is a summary of insights from this analysis: •
+Fixed points F are positive-semideﬁnite matrices with eigenvalues (=
+singular values) ranging in [0, 1], and thus qualify as conceptors. 25
+Jaeger • When F has singular values that are smaller than 1/2 and
+greater than 0, JF has positive eigenvalues and hence F is an unstable
+ﬁxed point. Such F cannot be obtained in empirical auto-adaptation runs.
+Conversely, this means that if auto-adaptation converges, the resulting
+conceptors C have singular values that are either exactly zero or larger
+than 1/2. • The rank of F is bounded from above by the number of
+singular values of QF which are greater than 4α−2. This implies that
+reducing the aperture α forces an increasing number of singular values
+of F to become zero. • Assume F has rank k. Then JF has k(N −k) zero
+eigenvalues, that is, a center manifold K of dimension k(N −k). On this
+center manifold the stability properties of the dynamics (25) cannot be
+elucidated by linearization techniques; it may be stable, instable, or
+neutral. • If F is a rank-k solution of the ﬁxed-point equation (21)
+which is generic in the sense that the nonzero singular values of F are
+pairwise diﬀerent, and if Q in (21) is ﬁxed (i.e. its dependency on C is
+ignored), then diﬀerential changes of F along a k(N −k)- dimensional
+subspace will also lead to rank-k solutions of (21) (Jaeger (2014),
+Section 3.13.4). The identity of the center manifold dimension and the
+dimension of this local solution space implies that the center manifold
+coincides with the local solution space. Hence the adaptation dynamics
+on the center manifold K is neutrally stable— K is a plane attractor.
+Note however that this interpretation is based on ﬁxing Q at QF in the
+vicinity of F. Plane attractors are non-generic in randomly parametrized
+ODEs, and ﬁxed point solutions F are generically isolated (not embedded
+in a plane attractor). When the dependence of Q on C is included in the
+picture, and F is a ﬁxed-point solution of (21), we would generically
+expect a separation of timescales in the autoadaptation dynamics in the
+vicinity of F: fast convergence toward F in directions orthogonal to K
+and (very) slow drift within K. Below I present a numerical simulation
+that corroborates this intuition. • In order to obtain a better
+understanding of convergence properties in directions orthogonal to K
+one needs to analyse the negative eigenvalues of the Jacobian JF .
+Assume again that F has rank k, and furthermore the k nonzero singular
+values s1, . . . , sk of F are greater than 1/2. Then the N2 −k(N −k)
+nonzero eigenvalues of JF are all negative. They come in three sorts
+(Proposition 16 in Jaeger (2014)): 1. N(N −k) eigenvalues are equal to
+−α−2 (“sort 1”), 2. k eigenvalues are associated with the k singular
+values si and have the form −α−2 (2si −1)/(1 −si) (“sort 2”), 3. the
+remaining k(k −1) eigenvalues (“sort 3”) come in pairs λ1,2 = −α−2 2  
+sl 1 −sm + sm 1 −sl ± s sl 1 −sm − sm 1 −sl 2 + 4  , where m < l ≤k.
+26 Managing neural long-term memory When k ≪N, which is often the case,
+the majority of all eigenvalues of F is of sort 1, revealing that in the
+majority of directions orthogonal to the center manifold the convergence
+rate toward F is inversely proportional to α2. A relevant message here
+is that increasing the aperture substantially slows down convergence. An
+eigenvalue of sort 2 is also inversely proportional to α2, but
+furthermore the term (2si −1)/(1 −si) indicates that as si ↓1/2, the
+convergence rate in this direction slows down arbitrarily much, while
+conversely for si ↑1, convergence becomes arbitrarily fast. Finally,
+eigenvalues of sort 3 are products of two factors too, the ﬁrst factor
+being again inversely proportional to α2. The second factor, which
+depends on a pair sl, sm, may become arbitrarily large or arbitrarily
+small depending on sl, sm and the ± choice. Speciﬁcally, this second
+factor approaches zero if both sl, sm approach 1/2 from above and the
+“−” option is taken. In summary, outside the center manifold convergence
+rates are always co-determined by a factor proportional to α2, and by
+factors that depend on the singular values si of F, where these latter
+factors may shrink toward zero if associated singular values si approach
+1/2. • As we have just seen, singular values si of F which are close to
+1/2 lead to slow convergence (which implies weak stability) in some
+directions of C. It is therefore relevant to investigate into typical
+values of si. Unfortunately I can only provide a plausibility argument
+to the eﬀect that most si will be close to 1 and only very few (if any
+at all) close to 1/2. This argument goes as follows. Recall from (19)
+that F, because it is a minimizer of (18), can be written as F = R(R +
+α−2I)−1, where R = E[z z′]. This implies that the singular values si of
+F relate to the singular values sR i of R by si = sR i / (sR i + α−2).
+Furthermore, nonzero si must be greater than 1/2. Assume the “worst
+case” that the smallest nonzero singular value of the (rank k) matrix F
+is sk = 1/2, which translates to sR k = α−2. Let sR k−1 = sR k + ε be
+the next greater singular value of R. A simple argument based on the
+derivative d si/d sR i evaluated at sR k yields that for small
+increments ε we get sk−1 ≈1/2 + 1/4 α2 ε. In words, the singular values
+si of F grow away from 1/2 by increments 1/4 α2 ε. Since apertures are
+often in the order of 10 (or much larger), this means that we may expect
+that most if not all nonzero singular values of F will be close to 1.
+This is in fact what I consistently observe in simulations, like in the
+demos above (Figure 9). It is a desirable eﬀect because according to the
+considerations made in this subsection before, singular values si ≈1 or
+si = 0 foster noise robustness of auto-adaptation. • The analyses
+available so far can explain the robustness of conceptor auto-adaptation
+to state noise. When at some stage of auto-adaptation the matrix C(n)
+has k nonzero singular values and N −k singular values equal to zero,
+the latter will be preserved under auto-adaptation because the states
+z(n) = C(n) r(n) that enter the adaptation of C(n) will have zero
+components in the N −k directions associated with the zero singular
+values. The eﬀect of state noise on the nonzero si(n) is to drive them
+closer to 1 than they would go without state noise. Conceptors
+eventually converged to with state noise are not identical, but similar
+to variants that would be obtained without noise: the diﬀerence being
+that the former are (even) more rectangular than the latter. This
+favourable situation however hinges on the condition that the post- cue
+Ccue has (many) zero singular values. In the simulations in previous
+subsections 27 Jaeger ! " " A B Figure 11: Hypothetical phase portraits
+of C autoadaptation in the parameter space of C (schematic). Blue points
+show stable ﬁxed point solutions C. The gray plane in A represents the
+center manifold K and in B the merged center manifolds of neighboring
+ﬁxed point C. Green arrows show sample trajectories of late stages of C
+adaptation. Green crosses mark the starting points of the adaptation
+trajectories set by the cueing procedure. A: When a small number of
+patterns has been loaded, individual stable ﬁxed point conceptors C are
+created. B: In the case of learning a d-parametric pattern class, ﬁxed
+point solutions Ci become located within a d-dimensional pattern
+manifold M (magenta line). For explanation see text. this was achieved
+by (i) initializing C(0) = 0 and (ii) not inserting state noise during
+the cueing—state noise insertion in that sensitive period would have led
+to a large number of nonzero singular values in Ccue. If state noise or
+other perturbations are unavoidable during cueing, it will be a
+practical idea to simply zero small singular values of the developing
+C(n) through a thresholding mechanism. Based on these insights I
+tentatively oﬀer the following qualitative account of conceptor
+auto-adaptation dynamics. This dynamics evolves in the N2-dimensional
+parameter space of conceptor (or conceptor candidate) matrices C(n)
+under the assumption of a small enough adaptation rate λ, such that we
+may use the ODE (25). I distinguish two cases depending on whether few
+or many patterns have been loaded. Figure 11 gives a graphical
+impression. Representing individual patterns. This corresponds to the
+situation called “rote learn- ing” in Section 3.2. Here I assume that a
+small number of patterns pj have been loaded, and that they become
+represented by corresponding isolated attracting ﬁxed points F j of
+(25). The dynamics in a neighborhood of F j then should be characterized
+by a (very) slow timescale of attraction in the directions of the center
+manifold K and faster attraction in orthogonal directions (Figure 11 A).
+The attraction orthogonal to 28 Managing neural long-term memory K may
+in turn be governed by a wide range of diﬀerent timescales due to what
+we have learnt about the dependency of eigenvalues of JF j on the
+singular values of F j. Representing a pattern family. When many
+patterns pj from a family characterized by d parameters have been
+loaded, we have seen in Section 3.2 that any pattern from that family
+will be re-generated upon cue equally well. I hypothesize that during
+the loading procedure a d-dimensional manifold M is created which
+represents the pattern family and which superﬁcially appears like a
+line/plane attractor: when by virtue of the cueing procedure the
+auto-adaptation is initialized into the vicinity of M, one will observe
+an auto-adaptation toward M (Figure 11 B). The dimension d of M will
+typically be much smaller than the dimension k(N −k) of the center
+manifold of conceptors in M. I hypothesize that M is embedded as a
+submanifold in a k(N −k)- dimensional manifold K which can be understood
+as a merge of the (locally deﬁned) center manifolds of conceptors
+sitting in M. The convergence toward M leads to a good reconstruction of
+the cue pattern after a “reasonable” adaptation time. It is this
+convergence which was exploited for 10,000 step runtimes in the
+experiment shown in Figure 10. However, as remarked earlier, line/plane
+attractors are non-generic objects and unlikely to exist in empirical or
+randomly created systems. Therefore, for very long runtimes I would
+predict a very slow drift within M that lets auto-adaptation ultimately
+end up in some isolated attracting ﬁxed point within M. According to
+this view, line/plane attractors only appear phenomenally on some
+intermediate timescale, and hence the class learning eﬀect described in
+Section 3.2 should degrade for very long adaptation times. In order to
+substantiate this interpretation of an only “ephemeral” appearance of a
+line/plane attractor, I carried out a long-duration auto-adaptation
+simulation. Ten 5- periodic patterns were loaded into a small (N = 50)
+reservoir. These patterns represented ten stages of a linear morph
+between two similar patterns p1 and p10, resulting in a morph sequence
+p1, p2, . . . , p10 where pi = (1 −(i −1)/9) p1 + ((i −1)/9) p10, thus
+representing instances from a 1-parametric family. Considering what was
+found in Section 3.2, loading these ten patterns should enable the
+system to re-generate by auto-adaptation any linear morph ptest between
+p1 and p10 after being cued with ptest. After loading, the system was
+cued for 20 steps with 20 diﬀerent cues. In each of these j = 1, . . . ,
+20 conditions, the cueing pattern pj test was the j-th linear
+interpolation between the loaded p1 and p10. At the end of the cueing,
+the system will be securely driven into a state z that is very
+accurately connected to re-generating the pattern pj test, and the
+conceptor matrix that has developed by the end of the cueing would
+enable the system to re-generate a close simile of pj test (a post-cue
+log10 NRMSE of about −2.7 was obtained in this simulation). After
+cueing, the system was left running in conceptor auto-adaptation mode
+for 1 Mio timesteps, with an adaptation rate of λ = 0.01. At times n =
+1, 1000, 10000, 1e6 the stage of convergence was assessed as follows.
+The pairwise distances between the twenty autoconceptors Cj(n) were
+compared, resulting in a 20×20 distance matrix D(n) = (∥Ck(n)
+−Cl(n)∥fro)k,l=1,…,20. Figure 12 shows color plots of these distance
+matrices. The outcome: at the beginning of autoadaptation (n = 1), the
+20 autoconceptors are spaced from each other by distances proportional
+to their morphing distances. In terms of the 29 Jaeger Figure 12:
+Numerical exploration of ﬁxed point solutions under C auto-adaptation.
+Each panel shows pairwise distances of 20 conceptor matrices obtained
+after n auto- adaptation steps, after being cued along a 20-step morph
+sequence of cue signals. Color coding: blue – zero distance; red –
+maximum distance. For explanation see text. schematic in Figure 11 B,
+they would all be almost equi-distantly lined up on the manifold M,
+which is a line in this case of a 1-parametric pattern family. Then, as
+the adaptation time n grows, they contract toward three point attractors
+within M (which would corre- spond to a version of 11 B with three
+isolated ﬁxed point attractors within M). These three point attractors
+correspond to the three dark blue squares on the diagonal of the last
+distance matrix shown in Figure 12. This singular simulation cannot, of
+course, provide conclusive evidence that the qualita- tive picture
+proposed in Figure 11 is correct. A rigorous mathematical
+characterization of the hypothetical manifold M and its relation to the
+center manifolds of ﬁxed point solutions of the adaptation dynamics
+remains to be worked out. Plane attractors have been proposed as models
+for a number of biological neural adap- tation processes (summarized in
+Eliasmith (2005)). Speciﬁcally, the fact that animals can ﬁx their gaze
+in arbitrary (continuously many) directions has been modelled by plane
+at- tractors in the oculomotoric neural control system. Each gaze
+direction corresponds to a (controlled) constant neural activation
+proﬁle. It would be interesting to carry out in-vivo experiments of gaze
+direction ﬁxation where the animal (or human) is cued with a direction
+target, which is then removed, under the instruction to preserve the
+gaze direction after target removal for an extended timespan. The
+mathematical model outlined above would predict that the gaze direction
+would start drifting, possibly becoming ultimately arrested in one of a
+number of isolated, “preferred” gaze directions. 3.4 Single-Step
+Content-Addressing by Thresholding We observed above that approximately
+rectangular conceptors evolved in auto-adaptation and that directions in
+z states which are nulled by Ccue remain nulled during auto-adaptation.
+This suggests a drastic shortcut of the recall procedure: take the
+preliminary Ccue which is available immediately after the cue period,
+then transform its singular value proﬁle to a binary 0-1-rectangular
+shape by thresholding to give Ccue, and use this conceptor for pattern
+re-generation. Accordingly, I re-ran the 5-periodic and mix-of-sines
+demos from 30 Managing neural long-term memory A 1 2 3 4 5 6 7 8 9 10 ï2
+ï1.5 ï1 ï0.5 0 0.5 Pattern index log10 NRMSE B 1 2 3 4 5 6 7 8 9 10 ï2
+ï1.5 ï1 ï0.5 0 0.5 Pattern index log10 NRMSE Figure 13: Using
+single-step adapted conceptors Ccue for cued pattern recall. A:
+5-periodic patterns, B: mix-of-sines. Red and blue plots are identical
+to Figure 9 and represent post-cue NRMSE from Ccue and C(t3). The black
+plot gives the NRMSE obtained from Ccue. Section 3.1.2 with the same
+reservoirs and cueing conditions, and directly at the end of the cueing
+phase I computed Ccue from Ccue as follows: 1. compute the SVD USU′ =
+Ccue, 2. recompute the entries si on the diagonal of S to new, binary
+values by thresholding, obtaining S with diagonal values si =  1, if si
+> τ 0, else for some threshold τ, 3. recombine into Ccue = USU′, 4.
+immediately use Ccue for re-generating a pattern and report the matching
+NRMSE with the original pattern that was used for the cue. Figure 13
+displays the outcome. I used thresholds τ of 0.5 and 0.01 respectively
+for the 5-periodic and mix-of-sines experiments. For both kinds of
+patterns the re-generation quality obtained from Ccue conceptors is
+essentially the same as the quality obtained from the auto-adapted C(t3)
+after 500 resp. 10,000 steps for the two kinds of patterns. Considering
+that thresholded Ccue are much faster and cheaper to create than online-
+adapted conceptors, yet (in these simulations) are of the same quality,
+it is natural to ask why one should bother about online-adapted
+autoconceptors at all instead of focussing all attention on thresholded
+conceptors. The reasons why I spent much eﬀort on the former (and used
+much of the reader’s patience) are manifold: 31 Jaeger • There are other
+applications of online-adapted autoconceptors besides pattern recall
+from a memory. In Jaeger (2014) I employ conceptor auto-adaptation in
+hierarchical RNN demonstrator systems for tasks of signal denoising,
+pattern classiﬁcation, and pattern mixture recognition, and in ongoing
+work I am using them for single-shot training of a nonlinear channel
+equalizer and blind signal separation. In all of these cases, an
+adaptive RNN-based system has to be able to smoothly adjust its
+reactions to a non-stationary input stream, requiring a continuously
+ongoing “smooth” adaptation. • A serious drawback of the above
+auto-adaptation mechanism is that it is based on stochastic gradient
+descent in a high-dimensional space, incurring the well-known sta-
+bility issues which mandate small adaptation rates, hence yield slow
+convergence. In Jaeger (2014) I introduce a simpliﬁed version of
+conceptors which basically constrains conceptor matrices C to diagonal
+form, leading to decoupled adaptation rules for the diagonal parameters
+which admits individual and very large adaptation rates. While systems
+of this kind work well in some speciﬁc scenarios (demos in Jaeger
+(2014), Section 3.15), I am not satisﬁed with them in general, mainly
+because the value range for well-working apertures becomes very narrow.
+My current research concentrates on new types of conceptors which
+combine fast online adaptivity with the robustness properties found in
+matrix conceptors. • In computational neuroscience, attractor-like
+phenomena of all sorts are widely inves- tigated as neural mechanisms
+for representing and processing information in neural systems (partial
+overviews in Durstewitz et al. (2000); Fusi and Wang (in press); Jaeger
+(2012)). The multiple-timescale attractor phenomenology of conceptor
+auto- adaptation discussed in the previous section sheds some further
+light on this ﬁeld, especially with respect to the role of line/plane
+attractors in the representation and addressing of continuous memory
+items. • Biological implausibility. The fast thresholding mechanism
+invokes a matrix SVD computation. Much research has been devoted to
+determine biologically plausible neural algorithms for the closely
+related task of computing a PCA or of ﬁnding some cost-optimal
+projection subspaces (Oja, 1982; Pehlevan et al., 2015). However, these
+neural algorithms share with my stochastic gradient conceptor adaptation
+the short- coming of slow convergence, and biological plausibility
+remains debatable in my view. 3.5 Comparison with Hopﬁeld Networks As I
+mentioned in the Introduction, Hopﬁeld networks and its relatives
+(Willshaw et al., 1969; Cooper, 1973; Kohonen, 1974; Palm, 1980;
+Hopﬁeld, 1982) are the paradigmatic model of content-addressable neural
+long-term memories. For brevity I will use the term Hopﬁeld networks
+(HNs) as an umbrella term for this family of models, and refer to the
+networks introduced in this section as autoconceptor networks (ACNs).
+ACNs are analogous to HNs in some ways and diﬀerent in others: Nature of
+memory items. Patterns stored in (auto-associative) HNs are static
+(often images), though hetero-associative HN variants can be trained to
+re-generate se- quences of static patterns—I brieﬂy discussed this in
+the Introduction. ACNs in- 32 Managing neural long-term memory
+trinsically host temporal patterns. The pattern sequences of static
+patterns learnt by sequence-representing HNs diﬀer in kind from the
+temporal patterns in ACNs. The former are “jump” transitions between a
+ﬁnite number of explicitly trained “waypoint” patterns, and in principle
+any transition order can be learnt. Temporal patterns in ACNs have what
+one might call intrinsic temporality; the reservoir state sequence can-
+not in general be re-trained in other orders. Speciﬁcally, ACNs can host
+non-periodic patterns sampled from ODE evolutions which is not possible
+with hetero-associative HNs. One might word this as, “hetero-associative
+HNs can store pattern sequences, and ACNs can store sequence patterns”.
+States and patterns. In HNs patterns are identiﬁed with certain network
+states. In ACNs patterns are state evolution processes. Symmetric
+vs. directed synaptic connections. Standard auto-associative HNs have
+symmetric connections, which admits an analysis of HN dynamics in terms
+of de- scent in an energy landscape. Reservoir networks in ACNs with
+their asymmetric weight matrices do not admit an energy-based
+interpretation. Pattern restauration. A hallmark of HNs is their ability
+to restore patterns perfectly and quickly from highly corrupted cues.
+This striking capability results from the fact that HN training creates
+well-deﬁned local minima in the HN energy landscape which correspond 1-1
+to target patterns; from any arbitrary cue the HN must settle in one of
+these perfect target patterns (setting aside the issue of spurious
+attractors in HNs). Furthermore, perfection of restauration is aided by
+the circumstance that HNs often are installed with binary neurons,
+representing binary patterns. In contrast, the continuous-valued states
+in ACNs and the vastly more complex multi-timescale dynamics of
+auto-adaptation limit the perfection and speed of pattern re-generation.
+Class learning. ACNs can learn entire continuous-parametric pattern
+classes (with the caveats pointed out in Section 3.3), which HNs cannot.
+All in all, while both HNs and ACNs are models of content-addressable
+neural long-term memories, their underlying neuro-dynamical working
+mechanisms and their performance characteristics are fundamentally—and
+interestingly—diﬀerent. 4. Discussion This article is the ﬁrst
+peer-reviewed publication about conceptors and thereby assumes the role
+of an “oﬃcial” introduction of this concept and name. New scientiﬁc
+concepts and terminology should be introduced with care and
+circumspection. So, what is a “conceptor”? This article dealt with
+conceptors that come in the speciﬁc form of positive-semideﬁnite
+matrices derived from reservoir state correlation matrices R via C = R
+(R + α−2I)−1. In Jaeger (2014) I also describe conceptors that are
+realized by a forward- and backprojection to/from a higher-dimensional
+random feature space. In my initial explorations (unpub- lished) I used
+aﬃne maps, as well as pure linear subspace projectors. Currently I am
+investigating a kind of conceptors built on the basis of a variant of
+self-organizing maps. In 33 Jaeger the light of this diversity I
+wouldn’t want to make any speciﬁc mathematical or algorithmical format a
+deﬁning part of “conceptors”. This article focussed on neural long-term
+memory for temporal patterns. In Jaeger (2014) however I use conceptors
+also for static patterns (where an input pattern is trans- formed to a
+single neural state, not a sequence of states), and without loading
+(which is not necessary when conceptors are employed for non-generative
+tasks like pattern classiﬁcation). I am also aware of ongoing work by
+others in static pattern recognition where backprop- trained “deep”
+neural networks are combined with conceptors. Thus, neither temporality
+of patterns, nor loading them persistently, nor the use of random
+networks are necessary attributes of “conceptors”, the way I want them
+to be seen. Then what is left? Here is an outline of how I would like
+the concept of conceptors to be understood: 1. Set-up: patterns encoded
+by states. Given: some computational framework where a diversity of
+patterns pj are encoded by probability distributions P j over a metric
+state space X. Comment: patterns can be temporal or static. The state
+space is typically high-dimensional, and encodings would typically be
+“distributed”. 2. Filtering of encodings. A conceptor Cj is a map
+associated with a pattern pj which transforms state vectors x ∈X to
+state vectors Cj(x) ∈X, and which is optimized in some way to preserve
+states xj that are typical for pattern pj: if P j(x) is large, then the
+distance d(x, Cj(x)) is small. Furthermore, Cj projects oﬀ-pattern
+states closer to pattern-typical regions of X: if P j(x) is small, then
+P j(Cj(x)) > P j(x). Comment: The map Cj be instantiated by a
+mathematical formula, or by some neural circuit, or in any other way. 3.
+Conceptual operations. Given a collection {pj} of patterns, on the
+associated col- lection of conceptors {Cj} one has available an
+assortment of operations which can construct new conceptors from the
+conceptors contained in the original collection {Cj}. These operations
+should be interpretable as “cognitive-level” operations on concepts, and
+it is these operations that connect conceptors with concepts. Com- ment:
+this is obviously vague. This article featured the following such
+operations: (i) conceptual blending by conceptor morphing, (ii)
+“focussing” by aperture adaptation. A large part of Jaeger (2014) is
+devoted to a third kind of conceptual operations on conceptors, namely,
+(iii) Boolean combinations of conceptors. My ultimate motivation to
+investigate conceptors is to establish an eﬀective link between
+“low-level”, “subsymbolic”, “distributed” neural representations and
+processing mecha- nisms on the one hand, and a “high-level”,
+“conceptual” organization and interpretability of such processing on the
+other hand. This intended use of conceptors, which is expressed in item
+3. in the list above, is to some degree independent of the “mechanics”
+of con- ceptors, which is stated in item 2. It turns out that conceptors
+also can serve relevant “low-level” functionalities, especially neural
+noise suppression and stabilization of neural state dynamics. Conceptors
+can be engineered into artiﬁcial neural architectures, and they might be
+instantiated in one way or the other by neural circuitry in biological
+systems. In such 34 Managing neural long-term memory cases they become
+procedurally eﬀective in the concerned systems, implementing conceptor
+mechanisms. This was the perspective adopted in this article. But
+conceptors can also be used “epistemologically” by a researcher who
+investigates some (likely neural) information processing system which
+may or may not itself have have eﬀective conceptor mechanisms inside.
+Then conceptors may become elements of a descriptive scientiﬁc language
+that talks about neural encodings of concepts. In Jaeger (2014) I
+describe in detail such scientiﬁc languages in the format of formal
+conceptor logics. Acknowledgments I am indebted to Emre Neftci for
+bringing the work of Sompolinsky and Kanter (1986) to my attention. The
+ﬁrst ideas of conceptors were triggered by research within the European
+FP7 project AMARSi (contract 248311, amarsi-project.eu) on the
+modulation of neural pattern generators for humanoid robot motor
+control. Appendix A. Documentation of Simulation Detail Training and
+test errors are given as normalized root mean square error (NRMSE)
+between a signal s(n) and its target t(n), that is, by the square root
+of the mean square error divided by the variance of the target. A.1
+Detail for Section 2.1 Pattern deﬁnition: Pattern p1 is a sinewave
+sampled at intervals of about 1.9944. Pattern p2 alternates between −0.5
+and 0.5. Network set-up: Initial weights W ∗were sampled from the normal
+distribution, then the weight matrix was rescaled to a spectral radius
+(largest absolute eigenvalue) of 1.3. Input and bias weights were
+sampled from the normal distribution, then scaled by 1.4 and 0.1
+respectively. Learning: For training W out the reservoir was driven by
+iid input sampled from the normal distribution scaled by 1.5 for 200
+steps (plus an initial washout of 100 steps). The linear regression was
+computed without regularization, resulting in a training NRMSE of 0.39
+(training W out from state patterns x1(n), x2(n) would have given an
+NRMSE of 0.14). For the (not regularized) linear regression leading to
+W, again 200 states from each of the two patterns were used, leading to
+an NRMSE of 0.093 (average over the three neurons). Recall: In order to
+numerically compare the re-generated patterns y(n) = W out xj(n) to the
+original patterns pj(n), sample trajectories of both were phase-aligned
+by (i) super- sampling with cubic spline interpolation by a factor of
+20, (ii) ﬁnding the best-ﬁtting phase shift, (iii) subsampling back to
+the original sampling rate, (iv) computing the NRMSE, which was 0.15 for
+the ﬁrst and 0.13 for the second pattern. Note: Parameters and the
+random seed for network set-up were hand-selected for good visual
+appearance of this demo example. Better recall accuracies were obtained
+with smaller apertures, but these would have given less instructive
+graphics. At any rate, a network size of N = 3 is far too small for
+high-precision results. 35 Jaeger A.2 Detail for Section 2.2
+Interpolation from 5-periodic to irrational sine (Fig. 3): A 100-unit
+reservoir was used, W ∗ scaled to a spectral radius of 1.6, input
+weights scaled to 1.6, bias vector to 0.3. Linear regression for W was
+regularized by a Tychonov regularizer of size ϱ2 = 0.0001. Apertures for
+the two conceptors: 10 and 100. Morphing between and beyond three
+patterns from a family (Fig. 4): Patterns were taken from the
+parametrized family with parameters A, B pA,B(n) = 2 1 2 sin(2πn/(P +
+A)) + 1 2 exp(B) + 1, A, B ∈R; |A| < P. This family contains modulated
+versions of sines whose period lengths vary around a ref- erence period
+P by diﬀerences A and whose shape is modulated by B. Figure 4 (top
+panels) shows the three stored patterns, which were deﬁned by P ≈8.2, A
+= −1.1 √ 3; 1.1 √ 3/2; 0, B = −0.2, −0.2, 0.4. Going upward by one tile
+changes a mixture from (a1, a2, a3) to (a1 − 1/8, a2 −1/8, a3 + 1/4),
+going right by one tile to (a1 −1/4, a2 + 1/4, a3). The reservoir had
+100 units, spectral radius of initial weight matrix: 2.2, input weight
+scaling: 2.2, bias scaling; 1.5, aperture of all conceptors 2.0. Ridge
+regression coeﬃcient for loading: ϱ = 0.001. A.3 Detail for Section 2.3
+Preparation of training data. Fifteen human motion capture (mocap)
+sequences were retrieved from the public-domain mocap repository
+maintained by the Graphics Lab at Carnegie Mellon University
+(http://mocap.cs.cmu.edu/). Using the public mocap tool- suite provided
+by Burger and Toiviainen (2013), the marker trace format of the original
+mocap data was transformed into joint angle data in the following way. A
+human segment model with 17 segments was chosen. The original marker
+trace data was transformed into metric 3D trajectories of the segment
+endpoints (joints). The joint between the two hip joints was designated
+as “root”. Let x, y denote the two ground coordinates and z the height
+coordinate (measured as distance from ground), and let δ (measured in
+rad) denote the horizontal pointing direction (in x, y) of the root. The
+motion of the root joint was coded in the following four variables: 1.
+h(n): simply the z coordinate of the Euclidean trajectory of the root,
+2. ˙ δ(n): the angular velocity (in rad/frame) of the root pointing
+direction, 3. d1(n), d2(n): travel distance of root joint in the x, y
+plane of the current frame, relative to the horizontal pointing
+direction (Fig. 14), measured in mm/frame. The locations of the other
+joints were coded relative to their predecessor joints in the kinematic
+chain tree, with the root joint as the top node, as follows: 1. The
+current frame n is horizontally shifted and rotated such that the root
+joint has (x, y)-position (0, 0) and is pointing in the direction of the
+x-axis. For every joint j this results in three Euclidean coordinates
+xj(n), yj(n), zj(n). 2. For each of the 19 non-root joints j, the
+current orientation was coded in three variables sx j (n), sy j(n), sz
+j(n) as follows: 36 Managing neural long-term memory x y current root
+xy-direction current root
+xy-motion d1 d2 Figure 14: How the quantities d1, d2 geometrically
+relate to current root direction and root travel. (a) Determine the
+predecessor joint i of j (the adjacent joint that is closer to the
+root). (b) Compute the segment vector sj 0(n) = (xj(n)−xi(n),
+yj(n)−yi(n), zj(n)−zi(n))′ and normalize it to sj(n) = sj 0(n)/∥sj
+0(n)∥. The three components of sj(n) are returned as coding the current
+spatial angle of the segment ending in joint j. All in all this leads to
+a 61-dimensional coding of a body pose and root motion per frame. From
+such 61-dimensional sequences, joint trajectories in Euclidean task
+space can be recovered by a reversal of the coding procedure. For each
+of the 15 original mocap timeseries, such a 61-dimensional encoding was
+pro- duced. Each of the 61 signal components was shifted/scaled such
+that it ranged exactly in [−1, 1], across all 15 patterns. These 15
+range-normalized sequences were then loaded into the reservoir, and the
+readout weights were computed to recover them. Reservoir setup. Diﬀerent
+from all other simulations reported in the article, the motor pattern
+demonstration used a reservoir with leaky integration neurons: x(n + 1)
+= (1 −a) x(n) + a tanh(W x(n) + W in p(n + 1) + b), where the leaking
+rate a is an additional tuning parameter. This alternative choice of
+network model does not aﬀect any of the conceptor-related computations.
+Reservoirs based on leaky integration units eﬀectively implement
+temporal smoothing which is indicated when slowly changing (relative to
+the network update cycle) patterns have to be processed. Simulation
+parameters. Network size N = 600; leaking rate a = 0.6; spectral radius
+of W ∗was 1; input and bias weights were sampled from the uniform
+distribution on [−.8, .8]. Loading each pattern used a washout of 50
+network updates (corresponding to 5/12 seconds of simulated real time).
+Two of the input channels were found to act essentially only as noise
+sources (because they were essentially constant and after range
+normalization small ﬂuctuations in the constant value were magniﬁed);
+their input weights were nulled. Linear regression without
+regularization was used for computing W and W out. The aperture was set
+to α = 10 for all ﬁfteen conceptors except for the “slow walk” (α = 2)
+and “boxing: jab” patterns (α = 20; with α = 10 the jab pattern would be
+reduced to a mildly active legwork without the jabs being triggered). 37
+Jaeger 0 60 120 0 0.5 1 Figure 15: The morphing ramp ϱ(n) used for
+smooth transitions between motor patterns. Training errors. The training
+NRMSE for W was 0.0068 and for W out was 0.044. Video creation. For
+creating the video, the durations of the individual patterns were set to
+yield an appealing overall choreography. Between every two successive
+pattern pi, pj evocations, a transition period of 120 network updates (=
+1 simulated second) was inserted. In this transition period the
+preceding conceptor Ci was morphed into the succeeding con- ceptor Cj,
+using a morphing function ϱ : {1, . . . , 120} →[0, 1] made from two
+suitably scaled and shifted branches of the square function (red and
+green lines in Fig. 15), via Cmorph(m) = (1 −ϱ(m)) Ci(m) + ϱ(m)Cj(m) [m
+= 1, . . . , 120]. While the reservoir was generating the behavioral
+sequence visualized in the video, the only external input to the system
+was the activation sequence of conceptors (shown in the left upper
+corner of the video). The visualization of the re-generated motion
+sequence in the video keeps the simulated actor centered in the drawing
+box and illustrates its motion in the x, y plane by a moving ﬂoor tile
+pattern. The centering as well as the corresponding virtual ﬂoor motion
+is com- puted relative to the mean of the x, y coordinates of all 20
+joints. This mean is therefore always centered on x = y = 0 in each
+displayed frame. The apparent foot slipping results from this “quick and
+dirty” centering method. A.4 Detail for Section 2.4 Data generation. For
+the R¨ ossler attractor, training time series were obtained from the
+standard R¨ ossler ODE ˙ x = −(y +z), ˙ y = x+a y, ˙ z = b+x z −c z with
+a = b = 0.2, c = 8. The evolution of this system was Euler approximated
+with stepsize 1/200 and the resulting discrete time series was then
+subsampled by 150. The x and y coordinates were assembled in a
+2-dimensional driving sequence, where each of the two channels was
+shifted/scaled to a range of [0, 1]. For the Lorenz attractor, the ODE ˙
+x = σ(y −x), ˙ y = r x −y −x z, ˙ z = x y −b z with σ = 10, r = 28, b =
+8/3 was Euler-approximated with stepsize 1/200 and subsequent
+subsampling by 15. The x and z coordinates were collected in a
+2-dimensional driving sequence, again each channel normalized to a range
+of [0, 1]. The Mackey-Glass timeseries was obtained from the delay
+diﬀerential equation ˙ x(t) = β x(t−τ) 1+x(t−τ)n −γ x(t) with β = 0.2, n
+= 10, τ = 17, γ = 0.1. An Euler approximation with stepsize 1/10 was
+used. To obtain a 2-dim timeseries that could be fed to the reservoir
+through the same two input channels as the other attractor data, pairs
+x(t), x(t −τ) were combined into 2-dim vectors. Again, these two signals
+were normalized to the [0, 1] range. The H´ enon attractor is governed
+by the iterated map x(n + 1) = y(n) + 1 −a x(n), y(n + 1) = b x(n),
+where I 38 Managing neural long-term memory used a = 1.4, b = 0.3. The
+two components were ﬁled into a 2-dim timeseries (x(n), y(n))′ with no
+resampling, and again normalization to a range of [0, 1] in each
+component. Reservoir setup. A 500-unit reservoir RNN was created with a
+normal distributed, 10%- sparse weight matrix W ∗scaled to a spectral
+radius of 0.6. The bias vector b and input weights W in (sized 400 × 2
+for two input channels) were sampled from standard normal distribution
+and then scaled by 0.4 and 1.2, respectively. These scaling parameters
+were found by a coarse manual optimization of the performance of the
+pattern loading process. The network size was chosen large enough to
+warrant a robust trainability of the four chaotic patterns. Repeated
+executions of the experiment with diﬀerent randomly initialized weights
+(not documented) showed no signiﬁcant diﬀerences. Pattern loading. The
+length of training signals used in loading was L = 2500 with a washout
+of n0 = 500 for all four patterns. The ridge regression regularizer was
+ϱ2 W = 1e−6. Output weights were computed from the pattern-driven states
+with a regularizer ϱ2 out = 1e−8. The average (over neurons and the four
+patterns) NRMSEs obtained for the reservoir and readout weights were
+0.0082 and 0.013, respectively. A.5 Detail for Section 3.2 Scalings of
+reservoirs: spectral radius of W ∗: 1.1; W in: 1.1; b: 0.25. Aperture:
+1000. Regularization coeﬃcients ϱ2 = 0.01 both for W out and D. Data
+collection runlengths in loading: 500 (plus 100 washout) per pattern.
+Cueing: washout 100 steps, cue adaptation time 12 steps. No noise added
+to cue signal. State noise added during auto-adaptation with a
+signal-to-noise ratio of 1. 39 Jaeger References S.-I. Amari. Learning
+patterns and pattern sequences by self-organizing nets of threshold
+elements. IEEE Trans. on Computers, C-21(11):1197–1207, 1972. A. Billard
+and G. Hayes. DRAMA, a connectionist architecture for control and
+learning in autonomous robots. Adaptive Behavior, 7(1):35–63, 1999. K.
+J. Bostr¨ om, H. Wagner, M. Prieske, and M. de Lussanet. Model for a
+ﬂexible motor memory based on a self-active recurrent neural network.
+Human Movement Science, 32: 880–898, 2013. B. Burger and P. Toiviainen.
+MoCap Toolbox – A Matlab toolbox for computational analysis of movement
+data. In Roberto Bresin, editor, Proceedings of the 10th Sound and Music
+Computing Conference, pages 172–178, Stockholm, Sweden, 2013. KTH Royal
+Institute of Technology. URL
+https://www.jyu.fi/hum/laitokset/musiikki/en/research/coe/
+materials/mocaptoolbox. CMU Graphics Lab. Motion Capture Database. URL
+http://mocap.cs.cmu.edu/. re- trieved Feb 2013. A. Coates, P. Abbeel,
+and A. Y. Ng. Learning for control from multiple demonstrations. In
+Proc. 25th ICML, Helsinki, 2008. L. N. Cooper. A possible organization
+of animal memory and learning. In B. Lundqvist and S. Lundqvist,
+editors, Collective properties of physical systems: Medicine and Natural
+Sciences, Nobel Symposia on Medicine and Natural Sciences, pages
+252–264. Academic Press, New York and London, 1973. R. Douglas and T.
+Sejnowski. Future challenges for the sciene and engineering of learning:
+Final workshop report. Technical report, National Science Foundation,
+2008. URL http: //www.nsf.gov/sbe/SLCWorkshopReportjan08.pdf. D.
+Durstewitz, J. K. Seamans, and T. J. Sejnowski. Neurocomputational
+models of working memory. Nature Neuroscience, 3:1184–91, 2000. C.
+Eliasmith. A uniﬁed approach to building and controlling spiking
+attractor networks. Neural Computation, 17:1276–1314, 2005. R. M.
+French. Catastrophic interference in connectionist networks. In L.
+Nadel, editor, Encyclopedia of Cognitive Science, volume 1, pages
+431–435. Nature Publishing Group, 2003. S. Fusi and X.-J. Wang.
+Long-term, short-term and working memory. In M. Arbib and J. Bonaiuto,
+editors, From Neuron to Cognition via Computational Neuroscience. MIT
+Press, in press. M. Gillies and B. Spanlang. Comparing and evaluating
+real time character engines for virtual environments. Presence,
+19(2):95–117, 2010. 40 Managing neural long-term memory B. Goodrich and
+I. Arel. Unsupervised neuron selection for mitigating catastrophic for-
+getting in neural networks. In Proc. IEEE 57th International Midwest
+Symposium on Circuits and Systems (MWSCAS), pages 997–1000. IEEE, 2014.
+S. Grossberg. Linking attention to learning, expectation, competition,
+and consciousness. In L. Itti, G. Rees, and J. Tsotsos, editors,
+Neurobiology of attention, chapter 107, pages 652–662. San Diego:
+Elsevier, 2005. X. Hinaut and P. F. Dominey. A three-layered model of
+primate prefrontal cortex encodes identity and abstract categorical
+structure of behavioral sequences. J. Physiology - Paris,
+105(1-3):16–24, 2011. J. J. Hopﬁeld. Neural networks and physical
+systems with emergent collective computational abilities. Proc. NatL
+Acad. Sci. USA, 79:2554–2558, 1982. J. Huang and M. Hagiwara. A combined
+multi-winner multidirectional associative memory. Neurocomputing,
+48:369–389, 2002. H. Jaeger. The ”echo state” approach to analysing and
+training recurrent neural networks. GMD Report 148, GMD - German
+National Research Institute for Computer Science, 2001. URL
+http://minds.jacobs-university.de/pubs. H. Jaeger. Reservoir
+self-control for achieving invariance against slow input distortions.
+technical report 23, Jacobs University Bremen, 2010. H. Jaeger. Long
+short-term memory in echo state networks: Details of a simulation study.
+Technical Report 27, Jacobs University Bremen, 2012. URL http://minds.
+jacobs-university.de/pubs. H. Jaeger. Controlling recurrent neural
+networks by conceptors. Technical Report 31, Jacobs University Bremen,
+2014. arXiv:1403.3369. X. Jiang, V. Gripon, C. Berrou, and M. Rabbat.
+Storing sequences in binary tournament- based neural networks. IEEE
+Trans. on Neural Networks and Learning Systems, 27(5): 913–925, 2016. M.
+I. Jordan. Serial order: a parallel distributed processing approach. In
+J. W. Donahoe and V. Packard Dorsel, editors, Neural-Networks Models of
+Cognition, chapter 25, pages 471–495. Elsevier, 1997. abridged reprint
+of a technical report from 1986. T. Kohonen. An adaptive associative
+memory principle. IEEE Transactions on Computers, 23(4):444–445, 1974.
+J. F. Kolen and J. B. Pollack. Multiassociative memory. In Proc. of the
+Thirteenth Annual Conference of the Cognitive Science Society, pages
+785–789, 1991. A. F. Krause, V. Drr, B. Blsing, and T. Schack.
+Evolutionary optimization of echo state net- works: multiple motor
+pattern learning. In Proc. ANNIIP - 6th International Workshop on
+Artiﬁcial Neural Networks and Intelligent Information Processing, 2010.
+41 Jaeger R. Laje and D. V. Buonomano. Robust timing and motor patterns
+by taming chaos in recurrent neural networks. Nature Neuroscience,
+16(7):925–933, 2013. L. Lukic, J. Santos-Victor, and A. Billard.
+Learning coupled dynamical systems from human demonstration for robotic
+eye-arm-hand coordination. In Proc. IEEE-RAS International Conference on
+Humanoid Robots, Osaka 2012, 2012. M. Lukosevicius. A practical guide to
+applying echo state networks. In K.-R. M¨ uller, G. Montavon, and G.
+Orr, editors, Neural Networks Tricks of the Trade, Reloaded, LNCS, pages
+659–686. Springer Verlag, 2012. G. Manjunath and H. Jaeger. Echo state
+property linked to an input: Exploring a funda- mental characteristic of
+recurrent neural networks. Neural Computation, 25(3):671–696, 2013. N.
+M. Mayer and M. Browne. Echo state networks and self-prediction. In
+Biologically Inspired Approaches to Advanced Information Technology,
+volume 3141 of LNCS, pages 40–48. Springer Verlag Berlin / Heidelberg,
+2004. E. Oja. A simpliﬁed neuron model as a principal component
+analyzer. J. Math. Biol., 15: 267–273, 1982. R. W. Paine and J. Tani.
+How hierarchical control self-organizes in artiﬁcial adaptive systems.
+Adaptive Behaviour, 13(3):211–225, 2005. G. Palm. On associative memory.
+Biol. Cybernetics, 36(1):19–31, 1980. C. Pehlevan, T. Hu, and D. B.
+Chklovskii. A hebbian/anti-hebbian neural net- work for linear subspace
+learning: A derivation from multidimensional scaling of streaming data.
+Neural Computation, 27(7):1461–1495, 2015. draft version on
+http://arxiv.org/pdf/1503.00669.pdf. J. B. Pollack. Recursive
+distributed representations. Artiﬁcial Intelligence, 46(1-2):77–105,
+1990. F. R. Reinhart and J. J. Steil. Recurrent neural associative
+learning of forward and inverse kinematics for movement generation of
+the redundant pa-10 robot. In A. Stoica, E. Tunsel, T. Huntsberger, T.
+Arslan, S. Vijayakumar, and A. O. El-Rayis, editors, Proc. LAB-RS 2008,
+vol. 1, pages 35–40, 2008. R. F. Reinhart and J. J. Steil. A constrained
+regularization approach for input-driven recurrent neural networks.
+Diﬀerential Equations and Dynamical Systems, 19(1–2):27– 46, 2011. DOI
+10.1007/s12591-010-0067-x is an 2010 online pre-publication. G. J.
+Rinkus. A combinatorial neural network exhibiting episodic and semantic
+memory properties for spatiotemporal patterns. Phd thesis, Boston
+University, 1996. H. Ritter and T. Kohonen. Self-organizing semantic
+maps. Biological Cybernetics, 61: 241–254, 1989. 42 Managing neural
+long-term memory L. Shastri. Advances in Shruti – a neurally motivated
+model of relational knowledge repre- sentation and rapid inference using
+temporal synchrony. Artiﬁcial Intelligence, 11:79–108, 1999. H.
+Sompolinsky and I. Kanter. Temporal association in asymmetric neural
+networks. Phys- ical Review Letters, 57(22):2861–2864, 1986. D. Sussillo
+and L. Abbott. Transferring learning from external to internal weights
+in echo- state networks with sparse connectivity. PLoS ONE, 7(5):e37372,
+2012. I. Sutskever, G. E. Hinton, and G. W. Taylor. The recurrent
+temporal restricted boltzmann machine. In D. Koller, D. Schuurmans, Y.
+Bengio, and L. Bottou, editors, Advances in Neural Information
+Processing Systems 21 (NIPS 08), pages 1601–1608, 2009. I. Sutskever, J.
+Martens, and G. Hinton. Generating text with recurrent neural networks.
+In Proc. ICML 2011 (online), 2011. URL
+http://www.icml-2011.org/papers.php. G. W. Taylor, G. E. Hinton, and S.
+T. Roweis. Two distributed-state models for generating high-dimensional
+time series. Journal of Machine Learning Research, 12(March):1025– 1068,
+2011. D. J. Willshaw, O. P. Buneman, and H. C. Longuet-Higgins.
+Non-holographic associative memory. Nature, 222(June 7):960–962, 1969.
+J. Wright and I. Jordanov. Intelligent approaches in locomotion. In
+Proc. WCCI 2012 IEEE World Congress on Computational Intelligence, pages
+1–8, 2012. doi: dx.doi.org/ 10.1109/IJCNN.2012.6252537. F. wyﬀels and B.
+Schrauwen. Design of a central pattern generator using reservoir
+computing for learning human motion. In Proc. Advanced Technologies for
+Enhanced Quality of Life, 2009. AT-EQUAL ’09, pages 118–122. IEEE, 2009.
+F. wyﬀels, J. Li, T. Waegeman, B. Schrauwen, and H. Jaeger. Frequency
+modulation of large oscillatory neural networks. Biological Cybernetics,
+108:145–157, 2014. 43
