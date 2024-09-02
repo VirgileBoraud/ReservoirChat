@@ -1,0 +1,1108 @@
+Cortico-Striatal Origins of Reservoir Computing, Mixed Selectivity, and
+Higher Cognitive Function Peter Ford Dominey Abstract The computational
+richness and complexity of recurrent neural networks is well known, and
+has yet to be fully exploited and understood. It is interesting that in
+this context, one of the most prevalent features of the cerebral cortex
+is its massive recurrent connectivity. Despite this central principle of
+cortical organization, it is only slowly becoming recognized that the
+cortex is a reservoir. Of course there are mechanisms in the cortex that
+allow for plasticity. But the general model of a reservoir
+asarecurrentnetworkthatcreatesahighdimensionaltemporalexpansionofitsinputs
+which can then be harvested for extracting the required output is fully
+achieved by the cortex. Future research will ﬁnd this obvious. This
+chapter provides a framework for more clearly understanding this
+conception of cortex and the corticostriatal system. 1 Introduction As
+Jaeger and colleague note (Lukosevicius and Jaeger 2009, Lukoševiˇ cius
+et al. 2012) reservoir computing was independently invented three times,
+by Dominey in the context of the primate prefrontal cortex (Dominey
+1995; Dominey et al. 1995), by Maass as the liquid state machine (Maass
+et al. 2002), and by Jaeger (Jaeger 2001, Jaeger and Haas 2004) as the
+echo state network. This chapter reviews the origins of reservoir
+computing in the context of the neurophysiology of the primate cortex
+and striatum—the corticostriatal system. It further describes how this
+modeling, initially developed to simulate detailed electrophysiology of
+the primate cortex, went on to simulate human behavior in a number of
+sensorimotor sequencing tasks, language comprehension and production,
+and even narrative processing. The link back to primate neurophysiology
+is made, based on the subsequent characterization of a highly prevalent
+feature of neural coding in the primate cortex, called mixed selec-
+tivity. This is the observation that when agents perform reasonably
+complex tasks that have different internal and externally driven states,
+the single unit responses P. F. Dominey (B ) INSERM UMR1093-CAPS,
+Université Bourgogne Franche-Comté, UFR des Sciences du Sport, F-21000
+Dijon, France e-mail: peter.dominey@inserm.fr © Springer Nature
+Singapore Pte Ltd. 2021 K. Nakajima and I. Fischer (eds.), Reservoir
+Computing, Natural Computing Series,
+https://doi.org/10.1007/978-981-13-1687-6_2 29 30 P. F. Dominey of
+individual neurons encode non-linear mixtures of these states, thus
+called mixed selectivity (Rigotti et al. 2013). One of the most
+prevalent characteristics of cortical neuroanatomy is the over- whelming
+abundance of very short-distance, local, recurrent connections between
+pyramidal cells and inhibitory interneurons (Markov et al. 2011). While
+we are so accustomed to seeing this, it didn’t have to be that way.
+Pyramidal cells might have received their thalamic inputs and kept to
+themselves, or communicated only over long-distance connections. But
+instead their largest preference is to commu- nicate with their local
+neighbors. This must be for something, and that is what we shall
+describe here. Part of the clue is the overwhelming aspect of sequential
+or temporal structure in our existence. In the rest of this section, we
+brieﬂy review the neurophysiological and behavioral phenomena that
+motivated one ﬂavor of reservoir computing. 1.1 Initial
+Motivation—Barone and Joseph In the 1980s, there was a massive activity
+and success in characterizing the functional neuroanatomy of the
+interactions between cortex and basal ganglia—the corticos- triatal
+system—particularly in the domain of fast eye movements, the oculomotor
+saccade. Regions of the peri-arcuate frontal cortex including the
+frontal eye ﬁelds were carefully studied as non-human primates (macaque
+monkeys) made saccades to visual targets, and memorized targets,
+revealing properties related to the visual targets, memory of the
+target, the saccade itself (Bruce & Goldberg 1985, Goldberg and Bushnell
+1981). Similarly, the role of the basal ganglia—the caudate nucleus of
+the striatum—the input node (Hikosaka 1989, Hikosaka et al. 1989a, b,
+c), and the
+substantianigraparsreticulata(HikosakaandWurtz1983a,b,c,d),relaytotheoutput
+structure, the superior colliculus in all aspects of saccades—visual
+response, delayed memory response, and saccade response had been very
+well characterized. One of the characteristic coding properties observed
+throughout the cortex, striatum, SNr, and superior colliculus was a
+topography of saccade amplitude and direction. That is, neurons coded
+for a particular saccade amplitude and direction, and their neighbors
+coded for similar metrics. Because the retinal coding and the saccade
+response to the target overlap, this coding can be considered in terms
+of a spatial receptive ﬁeld, a motor response ﬁeld, and a retinal error.
+We developed the ﬁrst complete model of how the cortex and basal ganglia
+cooperate to produce a variety of oculomotor saccade behavior that
+provided a coherent framework for the interpretation of this
+neurophysiological data (Dominey and Arbib 1992). During this period
+researchers in Lyon France took what was at that time a very radical
+step, and examined the role of the corticostriatal system when monkeys
+were trained to learn and reproduce spatio-temporal sequences of
+saccades and manual button presses to the spatial sequence elements. In
+this pioneering work, Barone and Joseph discovered a fascinating coding
+of space and sequential order (Barone and Joseph 1989). That is, certain
+neurons had a spatial preference that was modulated Cortico-Striatal
+Origins of Reservoir Computing, Mixed … 31 by the sequential order. Such
+coding began to provide clues on how the underlying system might work.
+The drive to understand this behavioral neurophysiology was the
+principal motivation for the modeling work that led to one branch of
+reservoir computing. 1.2 Further Motivation—Temporal Structure Another
+clue on how the system works came from additional studies of sequence
+learning, this time in humans. In this domain of sequential behavior, a
+number of human studies revealed the importance of temporal structure,
+or rhythm, in the iden- tity of a behavioral sequence. A classic
+manifestation of this was observed in the serial reaction time task,
+where subjects were asked to respond to stimuli and their reaction times
+were measured. Unknown to subjects, the stimuli could be ordered in more
+or less complex sequences, and subjects reliably displayed robust
+learning of these sequences (Stadler 1993). Interestingly, the temporal
+structure of delays imposed between successive stimuli was learned as an
+integral part of the sequence, laying another requirement on models of
+sequence learning. 1.3 Abstract Structure and Language Looking toward
+the origins of these capacities for sequence learning, developmental
+psychologist developed clever methods to measure sequence learning in
+infants as young as nine months old. Saffran et al. (1996) demonstrated
+that within minutes, these infants could learn the serial order of sound
+sequences. Nazzi et al. (1998) tested nine-month-old children’s ability
+to discriminate temporal structure of different language rhythm classes,
+and again observed a robust ability for discriminating rhythm classes in
+these children. Finally, Marcus et al. (1999) tested seven-month- old
+infant’s ability to learn abstract patterns of sounds like we-ga-ga or
+ba-ni-ni that correspond to an abstract rule ABB. They demonstrated that
+remarkably, the chil- dren could then use this learning to discriminate
+whether new sequences followed an ABB vs ABA rule. This was exciting
+evidence that pre-linguistic infants mastered a form of abstract
+generative rule, that could be used in the service of language learning.
+This again provides further requirements on a neurophysiological system
+for sensorimotor sequence learning. 32 P. F. Dominey 1.4 Renaissance:
+Neural Dynamics, Mixed Selectivity, and Higher Cognitive Function A ﬁnal
+piece of the puzzle of reservoir computing has recently arisen in
+studies of primate physiology that extend what was initially observed in
+Barone and Joseph (1989). In particular, Rigotti et al. (2013) clearly
+established the link between this multidimensional coding of different
+dimensions of cognitive task execution, and the ability of the primates
+to perform the task. As will be developed below, this mixed selectivity
+is a signature of the neural dynamics of reservoir computing (Enel et
+al. 2016, Rigotti et al. 2013). Given this brief overview of some of the
+motivations for developing a brain- inspired sequence learning system,
+we now take the next step in characterizing the genesis of the model. 2
+Corticostriatal Foundations The primate corticostriatal system consists
+in two of the most remarkable aspects of the primate brain. The ﬁrst is
+the undeniable prevalence of local recurrent connections in the entire
+cortex, and the second is the massive projection from cortex to the
+sizable sub-cortical structure, the striatum, the input node of the
+basal ganglia. Here, we begin to examine the neuroanatomy,
+neurophysiology, and resulting behavior of this system that lead to the
+development of one branch of reservoir computing. 2.1 Barone and Joseph,
+and the Primate Behavioral Neurophysiology of Sequence Learning In the
+heyday of the exploration of the corticostriatal oculomotor system,
+Barone and Joseph (1989) recorded neurons in the frontal cortex, around
+the arcuate sulcus, near the frontal eye ﬁelds where Goldberg and others
+found saccade related activity. But they asked a daring new question.
+Barone and Joseph trained their primates to observe different spatial
+sequences of three successively presented spatial targets on an array in
+front of the animal. During the static phase of the trial, the animal
+was required to maintain the gaze on a central ﬁxation point. Then, in
+the dynamic phase, the removal of the ﬁxation point, and simultaneous
+onset of all three targets was the signal for the animal to make a
+saccade to the ﬁrst target, and then touch it. Successive presentation
+of the remaining targets was the go-signal for the second and ﬁnal
+saccades of the three-element sequence. The animals underwent several
+months of training in order to learn to perform this task. Their
+behavior was successively shaped: First making saccades to a single
+element, then sequences of two element, and ﬁnally three elements. After
+the behavior was attained the neural activity was Cortico-Striatal
+Origins of Reservoir Computing, Mixed … 33 Fig. 1 Behavior and
+neurophysiology in the sequential saccade task. A Upper panel
+illustrates three peripheral visual target buttons L, U and R, and the
+central ﬁxation point. Six possible three-element sequences were used.
+Second and third left panels illustrate the temporal success of these
+stimuli in the static and dynamic phases. During the static phase, the
+animal must maintain gaze on the ﬁxation point. During the dynamic
+phase, the successive temporal onset of the targets signals the animal
+to saccade and then touch the ﬁrst, second, and third element of the
+memorized sequence. B Visual-tonic cell. Traces of action potentials
+(spikes, neural ﬁring) of a neuron that responded during the static
+phase with a spatial selectivity for the upper target, but only when it
+was ﬁrst in the sequence recorded, using single electrodes that
+penetrated into the cortex around the arcuate sulcus. Half of the 300
+cells that they recorded displayed a complex combination of spatial and
+sequential dimensions of the task. Visual tonic cells showed a visual
+response to a given target location in the static phase. However, this
+spatial selectivity was modulated by the rank of that element in the
+sequence. This is a form of mixed selectivity (Rigotti et al. 2013) that
+mixes spatial location and rank in the sequence during the static phase.
+Such a unit is illustrated in Fig. 1. Another particularly interesting
+type of response was seen in Context cells which responded to a saccade
+to a given target (L, U or R) in the dynamic phase, but in a way that
+was dependent on where it occurred in the sequence. Such neurons thus
+displayed a form of mixed selectivity, mixing spatial location and
+saccade rank. One can imagine how such units might be used in a
+population code to determine the next element in the ongoing sequence.
+2.2 Requirements on the System—Mixture of Inhibition and Excitation,
+Modulated by Time How can we imagine the wiring of a neural network so
+as to allow the network to perform the task, and to generate these
+neural responses that mix spatial location and sequence rank in doing
+so? In order to produce neurons with a response like the visual tonic
+cell seen in Fig. 1, we would imagine that neurons should receive
+excitatory retinotopic or spatially selective input (for spatial
+selectivity), and inhibitory input 34 P. F. Dominey from other spatially
+selective neurons (for rank selectivity). In Fig. 1, this neuron would
+get excitatory input for location U, and inhibitory input from neurons
+that themselves get excitatory inputs from L and R. Prewiring such
+neurons could be done for a given task, but there must be a more general
+architectural solution that can yield these results. 2.3 Primate
+Cortical Neuroanatomy The presence of spatial selectivity in these
+frontal oculomotor areas is well docu- mented, and is likely due to
+spatially organized inputs from the parietal cortex in the dorsal stream
+(Bruce and Goldberg 1984). This can explain the spatially selective
+responses here, but what about the context effects? If we look at
+cortical neuroanatomy, one of the most prevalent features is the
+existence of local short-range connections between neighboring neurons
+(Goldman-Rakic 1987; Markov et al. 2011). Via these local recurrent
+connections, neurons with a visual tonic response to a given spatial
+target could project to a local neighbor that has a spatial response to
+a different target location. If this projection is inhibitory (via an
+intervening inhibitory interneuron), then we have a circuit to produce
+these context or mixed selective effects. Here, we have the foundation
+then for the notion that cortex can be modeled as a population of
+neurons that receive excitatory input from an external source, and that
+has local recurrent excitatory and inhibitory connections. 2.4 Primate
+Corticostriatal System—Plasticity
+Thequestionremains,howcouldrepresentationsgeneratedinthiscorticalnetworkbe
+used for sequence learning? The ﬁrst part of the response to this
+question is derived from what is perhaps the second most prevalent
+aspect of cortical neuroanatomy, which is the massive projection from
+all of cortex to the striatum, which is the input nucleus of the basal
+ganglia (Selemon and Goldman-Rakic 1985). That is, all of the cerebral
+cortex projects in an orderly way onto the striatum. What’s more, there
+is signiﬁcant overlap and intermingling of the projections of different
+cortical regions into the striatum. Alexander et al. (1986)
+characterized how this massive corticostriatal system can be divided
+into a set of segregated (but partially overlap- ping)) pathways
+dedicated to sensorimotor and cognitive functions, based on the
+different corticostriatal topography. Of particular interest to us, the
+saccade-related neurons in the frontal eye ﬁelds, and neurons in the
+dorsolateral prefrontal cortex (as recorded by Barone and Joseph)
+project to overlapping zones in the anterior part of the caudate nucleus
+of the striatum (Selemon and Goldman-Rakic 1988). This means that
+sequence-related activity in the cortex can project onto oculomotor
+saccade output structures in the striatum, thus binding sequence context
+onto saccade motor behavior. Cortico-Striatal Origins of Reservoir
+Computing, Mixed … 35 The ﬁnal element in this puzzle comes from one of
+the major neurophysiological properties of the striatum, which is that
+it is a site for major plasticity, under the control of reward-related
+dopamine (Ljungberg et al. 1992; Schultz et al. 1993). Indeed, under the
+control of dopamine, corticostriatal synapses are candidates for
+long-term depression and long-term potentiation (Calabresi et al. 2007;
+Centonze et al. 2001; Di Filippo et al. 2009). That is, through
+reward-related learning, the system can learn by trial and error to
+associate the dynamic state of the recurrent prefrontal network with the
+appropriate output in the caudate nucleus of the striatum. 3
+Corticostriatal Reservoir Computing
+Wenowhavetherequiredingredientstoassembleaneurophysiologicallyvalidmodel
+of sequence learning that should be able to learn the Barone and Joseph
+sequencing task, while at the same time generating and exploiting mixed
+selectivity (manifest as visual-tonic and context activity, as observed
+in the prefrontal neurons by Barone and Joseph). 3.1 Model
+Implementation—Birth of the Reservoir We developed the ﬁrst model of
+reservoir computing in Dominey (1995), Dominey et al. (1995), initially
+in the context of the primate corticostriatal sequence learning
+physiology. The model builds on the initial model of the corticostriatal
+saccade system (Dominey and Arbib 1992), by introducing the recurrent
+PFC system (the reservoir), and the reward-related learning in
+PFC-caudate connections (the readout). Illustrated in Fig. 2, individual
+cortical and sub-cortical layers were implemented as 5 × 5 arrays of
+leaky integrator neurons with sigmoidal output functions. In the
+oculomotor circuit, visuospatial input enters the system and activates
+the posterior parietal cortex which projects with a topographic input to
+the oculomotor frontal eye ﬁelds (FEF). FEF has an excitatory projection
+to the caudate, and the output system, the Superior Colliculus. In
+parallel, the caudate has a topographic inhibitory projections to the
+substantia nigra pars reticulate (SNr), which itself has a tonic
+inhibitor activation on the Superior Colliculus (Chevalier and Deniau
+1990). In a standard saccade, FEF activation activates Caudate, which
+dis-inhibits the tonic inhibition of SNr on Superior Colliculus. This
+removal of inhibition, combined with the excitatory input from FEF,
+allows the Superior Colliculus to activate and generate the desired
+saccade. Reservoir Genesis: This classic oculomotor circuit was then
+enhanced with the ability to make conditional behavior—to choose the
+correct saccade target from among several based on learning. We ﬁrst
+studied how different visual cues could be associated with different
+targets, and we then studied how spatial sequences could be associated
+with output saccade sequences, which required the Prefrontal cortex 36
+P. F. Dominey Fig. 2 A Corticostriatal model for sequence learning.
+Classic oculomotor circuit. Spatial input to Posterior Parietal Cortex,
+FEF, Caudate, with disinhibition of Superior Colliculus via the dual
+inhi- bition of Caudate and SNr, and generation of saccade in Superior
+Colliculus. Prefrontal sequencing circuit (reservoir). In parallel,
+sequence state coding in the recurrent network projects to Caudate.
+Through trial and error learning, at each saccade choice time,
+activation patterns in Prefrontal Cortex become associated with the
+correct saccade choice at that time, via reward-related dopamine in the
+Caudate that strengthens Prefrontal Cortex—Caudate connections (Modiﬁed
+from Dominey et al. 1995). B PFC neuron activity during static and
+dynamic phase for the six three-element Up, Left, Right sequences used
+in Barone and Joseph (1989) (Modiﬁed from Dominey 1995) sequencing
+circuit, the reservoir (Dominey et al. 1995). The Prefrontal Cortex is
+modeled as recurrent network made of two 5 × 5 layers of neurons. The
+ﬁrst, PFC, receives the topographic input from Parietal Cortex, and
+project topographically to the second, PFCD which projects back to the
+ﬁrst with random and mixed excita- tory and inhibitory connections. We
+had initially considered modeling plasticity in these internal PFC- PFCD
+connections. However, a crucial aspect of our modeling was to respect
+the temporal structure of the primate behavior. Simulation time steps
+correspond to 5 ms of real-time. The sequencing task takes several
+seconds, with stimuli presented for hundreds of milliseconds, delays,
+then onset of the dynamic phase, with several seconds unfolding as the
+animal chooses the three successive sequences. In simulation, this
+corresponds to an order of 1000 time steps for a single sequence
+presentation and recall. Modifying recurrent connections is computation-
+ally expensive and non-trivial, if we want to keep track of the role of
+a recurrent connection over 1000 time steps into the past (Pearlmutter
+1995). We thus choose to keep the recurrent connections ﬁxed, with a
+mixture of inhibitory and excitatory recurrent connections to provide a
+rich spatio-temporal dynamics within the system, and to use neural
+plasticity to bind states of activity in the recurrent network with the
+desired responses in the output layer, in our case, corresponding to the
+caudate or striatum (Dominey 1995, Dominey et al. 1995). This was the
+genesis of the ﬁrst implementation of reservoir computing. The rich
+dynamics can be seen in Fig. 2B. Cortico-Striatal Origins of Reservoir
+Computing, Mixed … 37 The PFC layer projects to Caudate, forming the
+readout. The PFC-Caudate connections are 1:N and are initialized as
+random, and they are subject to modi- ﬁcation according to a simple
+learning rule. Each time the model is asked to make a choice (by the
+go-signal, offset of the central target corresponding to the Fixation
+Point), when the output activation in the Superior Colliculus reaches a
+threshold, that output is evaluated. If it corresponds to the correct
+choice, the PFC-Caudate connections to the Caudate neuron involved in
+that choice are strengthened, other- wise they are weakened. Then,
+weight normalization is performed to conserve the total amount of
+synaptic weight in the PFC-Caudate weight matrix. This synaptic
+plasticity in the PFC-Caudate connections is perfectly justiﬁed by
+synaptic plasticity under the control of reward-related dopamine
+(Calabresi et al. 2007; Centonze et al. 2001; Di Filippo et al. 2009).
+3.2 Modeling Barone and Joseph (1989) The model is trained in a
+progressive manner. Each trial consists of a static phase where the
+input sequence is presented and the model generates no output. During
+this phase, however, the PFC is driven through a stimulus- driven state
+activation trajectory, which is unique for each input sequence. Then
+during the dynamic phase, the inhibitory ﬁxation point is removed, the
+three targets are presented and the model must chose the correct
+response, with a positive synaptic change on the PFC-Caudate weights for
+the Caudate neuron corresponding to the choice if the choice is correct
+and negative synaptic change if incorrect. During initial training, only
+the correct target is presented at each go-signal, which allows an
+initial shaping of the correct behavior, then in subsequent epochs, all
+three targets are presented and the model must choose. Figure 2B
+illustrates the trajectory of activation of the PFC neurons during
+successive trials with each of the six target sequences. We thus
+observed that the model could learn the sequencing task, and perform
+like the trained primates. We also saw that there was rich activity in
+the recurrent PFC network. But what remained, most interesting, was to
+perform a more detailed analysis of the activity patterns of individual
+neurons in the recurrent network, and compare them to those observed in
+the primate. Indeed, this approach is speciﬁc to these studies of
+reservoir computing in the context of understanding the neurophys-
+iology of the primate cortex. We analyzed the data in Fig. 2 and
+categorized cells as Context, Visual-tonic, signal related, and other.
+Interestingly, we found the same proportions of these response types as
+found in the study of Barone and Joseph. Figure 3 illustrates typical
+examples of Visual-Tonic and Context cells from the primate study of
+Barone and Joseph and comparison with examples of cell types from our
+model. Examining the comparison in detail, it is actually quite striking
+how similar the activation patterns of the real and simulated neurons
+are. 38 P. F. Dominey Fig. 3 Comparison of primate and model PFC neural
+activity. A Context cell. These cells respond after the saccade to a
+particular target, but depend on its rank in the target. Primate and
+model neurons that respond after saccades to the upper (U) target, but
+only when it is ﬁrst in the sequence. B Visual- Tonic cells display a
+response to the visual presentation of a target, but depend on its
+location in the sequences. Primate and model neurons respond after a
+given target (U for the primate and L for the model) but only when it is
+ﬁrst in the sequence. In both primate and model there is complex
+activity later in the dynamic phase 3.3 Complex Sequence Learning
+Motivated by the success of the model in learning the six sequences,
+performing like the monkey, and generating neural activity as seen in
+the primate cortex, we then set out to further explore the sequence
+learning capabilities of the system. Figure 4 illustrates the activation
+in the PFC reservoir during the presentation of a complex sequence
+ABCDABCEABCFABCGABCH that has a repeating subse- quence (ABC) with
+different successive successors D, E, F, G, and H. This is a challenging
+sequence because it requires a memory of the past 4 elements to deter-
+mine the correct choice after ambiguous element C. Observing the last
+row in panel 4B, where the activation vector for the ﬁnal choice H is
+compared to all other states, we see that the cosine is near 1 or D, E,
+F and G, all of which had the same repeating subsequence that preceded,
+but that each had a different unique element prior to that subsequence.
+This indicates that the reservoir has sufﬁcient memory to distinguish
+what happened each time before the intervening repeating subsequence
+ABC. Cortico-Striatal Origins of Reservoir Computing, Mixed … 39 Fig. 4
+A Reservoir activity in during presentation and execution of a complex
+sequence. B Simi- larity matrix comparing the cosines of activation
+vectors at each choice epoch in the reproduction phase. Strong ﬁlling
+indicates cosine near 1, corresponding to similar (and potentially
+confusing) state vectors 3.4 Temporal Structure In the initial
+development of the reservoir (Dominey 1995; Dominey et al. 1995), a
+deliberate choice was made to use ﬁxed connections in the recurrent
+network, so as to provide rich dynamics that could represent the
+spatio-temporal structure of arbitrary problems. The motivation was the
+difﬁculty of applying learning rules to the recurrent connections, which
+often involve a cut-off of the temporal sensitivity (Pearlmutter 1995).
+Thus, one of the most robust and inherent characteristics of the
+resulting network is its inherent sensitivity to time, delays, and
+temporal structure. This can be observed by stimulating the recurrent
+network with a brief input, and then observing the resulting state
+trajectory in the absence of further external input. An example of this
+can be seen in Fig. 5A. There, we can observe the reliable and
+reproducible state trajectory following a ﬁxed input that could be used
+to discriminate temporal delays. The system was trained to respond with
+different outputs according to which one of three delays was imposed
+following the same initial input, before the go-signal to respond was
+provided. This was a ﬁrst form of interesting temporal behavior
+demonstrated by the network (Dominey 1998b). A second form of temporal
+behavior is revealed by reduced reaction times for responses to
+sequentially presented stimuli, due to increased excitation with signiﬁ-
+cant learning. We recall that all of the neurons in the system are leaky
+integrators with sigmoid output functions. The leaky integrator must
+charge to reach ﬁring threshold, and thus, the delay in this activation
+is a function of the strength of the inputs. After signiﬁcant learning,
+the PFC-caudate connections become increased and lead to a faster
+activation of the caudate neurons, resulting in reduced reaction times
+in the 40 P. F. Dominey Fig. 5 Temporal Structure coding in the dynamic
+reservoir. A Activity in 25 State units (half of the reservoir
+population of 50) during and after a short input/perturbation. Prolonged
+and delayed activity reﬂects the reservoir dynamics. Different patterns
+at T1, T2 and T3 are reliably re-produced and thus allow the system to
+learn to discriminate these different time intervals. B Human and model
+response times in a serial reaction time task. Blocks 1–6 and 8 use a
+repeating sequence with each input element associated with a speciﬁc
+temporal structure. Block 7 uses the same sequence, with different
+temporal structure. This increases the response times, as if the
+sequence itself had been changed. Block 9 uses a different sequence,
+also producing increased reaction times output generated by the system,
+for well-learned behavior. This allowed us to simu- late human behavior
+in tasks where reaction time was a measure of sequence learning (Dominey
+1998a, b). The classic paradigm for this is the SRT or serial reaction
+time task, where subjects are to respond as quickly as possible to
+stimuli that are presented in typically long (several hundred) blocks of
+responses. Unknown to the subjects, the stimuli can be organized in more
+or less complex sequences, and the difference in reaction times for
+short blocks of trials that follow the learned sequence, vs. in a random
+order, is a measure of learning. A typical proﬁle is illustrated in Fig.
+5B. There, RTs are shown for 6 blocks of 80 trials with the repeating
+10-trial sequence B–C–B–D–C–A–D–A–C–D using temporal structure where
+elements A and D are always preceded by RSIs of 200 ms and B and C by
+RSIs of 1000 ms. In block 7 the same sequence is used, and the temporal
+structure is modiﬁed by swapping the 200 and 1000 ms delays. What we
+observe, both for humans and the temporal recurrent network model, is
+that the sequence is learned as a multimodal structure combining serial
+and temporal structure. This is a demonstration that the temporal
+recurrent network (TRN) inher- ently possesses this sensitivity to
+serial and temporal structure, due to the dynamic network properties.
+Cortico-Striatal Origins of Reservoir Computing, Mixed … 41 3.5 Abstract
+Structure This allowed us to conclude that the TRN was inherently
+sensitive to serial and temporal structure. In the late 1990s, efforts
+were being made to assess human infants sensitivity to such dimensions
+of sequential structure. Clever behavioral methods were adopted to
+assess sequence learning in infants as young as 7–9 months of age, by
+measuring an increase in their rate of sucking on a paciﬁer in response
+to novel stimuli. Thus, the infants could be habituated with audio
+sequences of a particular type, and then presented with test sequences
+that either adhered to or varied from the habituated sequences, and the
+behavioral response in case of a changed sequence was evidence that the
+infant had learned (Jusczyk 1997). It was thus demonstrated by Saffran
+et al. (1996) that 8 month olds could learn sequential structure of
+simple 3 element sound sequences, and by Nazzi et al. (1998) that they
+were sensitive to the temporal rhythmic structure of different language
+rhythm classes. We adapted these tasks to the TRN and demonstrated
+indeed that the model could reproduce the learning effects that were
+observed in the children (Dominey and Ramus 2000). Interestingly,
+however, there was another dimension of sequential structure that the
+TRN model failed to capture. In a protocol similar to that used by
+Saffran, Marcus et al. (1999) generated syllable sequences according to
+simple rules ABA vs ABB, and then tested whether the infants could
+discriminate new sequences as adhering to the learned rules. Thus, in
+the test phase, the infant would be exposed to sound sequences that it
+had never heard before, but that did (or did not) adhere to the rule
+that they had learned. Intuitively, we anticipated that the TRN would
+fail in this task, because there is no mechanism or representation that
+can detect the structure of repetition that characterizes the difference
+between ABA and ABB. The TRN can learn sequence identity but not
+theseunderlyingrules.Inordertoaccountforsuchbehavior,thesystemwouldrequire
+some form of working memory and a recognition function to compare the
+current element with previous elements in a sequence. We implemented
+such a mechanism that augmented the TRN, thus resulting in a dual model
+with TRN and ANR for Abstract Recurrent Network (Dominey et al. 2003),
+that we referred to as the Abstract Temporal Recurrent network (ATRN)
+illustrated in Fig. 6. Using the model illustrated in Fig. 6, we tested
+the learning of sequences like ABCBAC, and then tested with sequences
+like DEFEDF. The STM and recognition mechanisms perceived both of these
+sequences as having a structure u u u n-2 n-4 n-3, where u indicates
+that the current element is unrecognized with respect to the contents of
+the STM, and n-x indicates that it is a repetition of the element
+n-places back in the STM. Thus, in terms of the abstract structure, the
+two sequences ABCBAC and DEFEDF are the same. This allows the system to
+explain and simulate the results of abstract structure learning as
+observed by Marcus. We performed a number of human experiments and
+ﬁnally concluded that there are dissociable neurophysio- logical systems
+(corresponding to the TRN and ARN) for learning the surface and abstract
+structure of sensorimotor sequences (Dominey et al. 1998). 42 P. F.
+Dominey Fig. 6 Combined Temporal and Abstract Recurrent Network. In the
+ARN, sequence elements are stored in a short-term memory that always
+contains the last 5 elements seen. This is compared with current
+element, in order to detect repetition structure, as in 123–213. This
+recognition (abstract) structure is input to the recurrent State-StateD
+network, which now can learn the serial order, or the abstract
+structure, or both 4 Higher Cognitive Function I—Language 4.1 Language
+Acquisition and Grammatical Constructions Given the ability to model
+infant’s behavior in learning serial, temporal, and abstract structure
+of language-like sound sequences (Dominey and Ramus 2000), we felt that
+these precursors to language learning could be exploited in the
+simulation of some aspects of language acquisition. The question was how
+to map language processing into this domain of sequence learning. In
+response to this we identiﬁed a behavioral paradigm for testing language
+in aphasic patients, developed by (Caplan et al. 1985) that was well
+suited. In this thematic role assignment task, the patients heard a
+sentence, and then they had to identify (by pointing to pictures) the
+agent, object, and recipient of the action described in the sentence, in
+that order. Thus, this language comprehension task had a sequence
+processing aspect: the sentence was presented as a sequence of words,
+then the response was the sequence agent, object, recipient (the
+thematic roles) in that order. The challenge was to correctly extract
+these thematic roles, which did not necessarily map on to a ﬁxed order
+in the sentence. In active sentences like “The giraffe gave the elephant
+to the monkey”, the nouns giraffe, elephant and monkey appear already in
+the required agent, object, recipient order. However, in sentences like
+“The elephant was given to the monkey by the giraffe”, the nouns came in
+the wrong order, and the participant had to use the grammatical
+structure of the sentence to determine the thematic roles. We translated
+this protocol Cortico-Striatal Origins of Reservoir Computing, Mixed …
+43 into a sequence learning task, where given an input sequence, the
+system had to produce the nouns in the order Agent, Object, Recipient.
+Here are two examples. Example 1 Input: The A was given to the B by the
+C Response: C A B Rule: ABC-CAB Example 2 Input: A gave B to C Response:
+A B C Rule: ABC-ABC Looking at Examples 1 and 2, the inputs are
+different. In particular, the presence and order of the closed class
+elements was, to and by is different for these two sentences, and can be
+used to distinguish between them. The solution is to send the closed
+class words to the TRN while the repetitive structure of the open class
+words is detected and encoded in the ARN. This way the structure of the
+closed class words forms a pattern that can be associated with the
+abstract rule. Interestingly, this approach corresponds to a
+well-validated hypothesis of linguistic development. The competition
+hypothesis holds that, across languages, different cues like word order
+and grammatical marking, are used to encode thematic roles (Bates and
+MacWhinney 1987; Li and Macwhinney 2013). While we initially had a very
+clear idea about the neuroanatomy of the corticostriatal system for the
+core of the reservoir, the mapping of the additional elements of the
+language model onto the neurophysiology required some effort, and the
+result is revealed in Fig. 7. This neuroanatomical reality was informed
+by the proposed models of Friederici and Hagoort (Friederici 2002, 2012;
+Hagoort 2005). Fig. 7 Here, we map the elements of the reservoir and
+abstract structure processing onto human neurophysiology. A Grammatical
+function words and closed class morphology enter from superior temporal
+gyrus and enter into the recurrent reservoir in BA47. Open class
+elements from middle temporal gyrus enter a semantic working memory in
+BA45. The grammatical construction that is uniquely identiﬁed by the
+closed-class driven pattern of activity in BA47 modulates the open class
+working memory of BA45 into the structured meaning representation in
+BA44/46. B Display of main functional elements of the model during
+processing of the sentence “The elephant was given to the monkey by the
+dog.” Note the Mod1, 2, and 3 neurons that modulate their corresponding
+working memory elements, which generates the output sequence “dog,
+elephant, monkey” corresponding to the agent object and recipient of the
+sentence 44 P. F. Dominey In Fig. 7, the TRN function is carried out by
+STG—BA47 pathway where closed class grammatical structure is processed
+in the recurrent network. The ARN with its short-term memory and
+matching function is carried out by the MTG—BA45 pathway for open class
+elements. It is noteworthy that this proposed hybrid system is able to
+perform the described language processing capabilities, but in addition,
+it can be used to perform non- linguistic tasks that require the
+manipulation of abstract structure such as artiﬁcial grammar learning
+(Dominey and Inui 2009; Dominey et al. 2009). It is remarkable that the
+proposed model was able to perform thematic role assign- ment in natural
+language, and also able to learn non-linguistic abstract sequencing
+tasks. This means that from the limited perspective of the model,
+language has the same processing status as that of any cognitive
+sequence system in which conﬁgura- tions of function elements govern the
+application of systematic transformations, as in domains including
+music, mathematics, logical theorem proving and artiﬁcial symbol
+manipulation tasks (Dominey et al. 2003). This predicts that (1) similar
+brain activa- tion should be observed when humans process linguistic and
+non-linguistic abstract
+structure,and(2)impairmentsthataffectabstractstructureinlanguageshouldequally
+affect it in non-linguistic processing. These predictions were conﬁrmed
+using ERP (Hoen and Dominey 2000), and fMRI (Hoen et al. 2006) in
+healthy subjects, and by observing correlated impairments in aphasic
+patients for abstract and grammatical structure processing (Dominey et
+al. 2003; Dominey and Lelekov 2000; Lelekov et al. 2000). In the context
+of human neurophysiology, this research allows us to propose an
+additional circuit in the framework of Alexander et al. (1986), that is
+a language or grammatical structure circuit (Dominey 2013; Dominey and
+Inui 2009; Dominey et al. 2009). 4.2 The Reservoir Convergence Up to
+this point, we were exploring language learning with the modeling
+infrastruc- ture that had been developed initially to model the primate
+cortex, including online, trial by trial learning. In addition, our
+research team had not yet made the link to the related work of Jaeger
+and Maass. But this was about to change. As part of the European
+Information and Communication Technologies project Organic, Jaeger and
+Maass invited our team to join the proposal. One result of this was that
+we began to use more powerful simulation tools (Verstraeten et
+al. 2012), including radically more efﬁcient learning mechanisms for the
+cortico-striatal readout, which allowed the use of much larger training
+corpora (Hinaut and Dominey 2013). These corpora were organized as
+sentence meaning pairs, with sentences coded word by word, and meaning
+coded by speciﬁcation of the mapping between the ordered open class
+words, and their semantic roles (as illustrated in Fig. 8). In this work
+with Hinaut, for the ﬁrst time we thus exploited larger corpora, and
+advanced training methods that allowed us to demonstrate the ability of
+the model Cortico-Striatal Origins of Reservoir Computing, Mixed … 45
+Fig.8
+LanguageprocessingreservoirfromHinaut&Dominey(2013).Again,closedclasselements
+activate neurons that project to the recurrent reservoir BA47. A Open
+class elements stored in the BA45 working memory. On the right, a set of
+four readout neurons per open class element code its potential role as
+predicate, agent, object, or recipient (there are actually two of these
+4-element readouts per open class word, to accommodate sentences with
+two verbs). B Activity of readout neurons coding the role of SW2, the
+second semantic word in the sentence. Left, for the sentence “The boy
+gave the book to the teacher” we see that neuron coding for the Object
+role is active from the outset, that is it predicts the object role, and
+in this case it is correct. The Right panel illustrates activity for the
+sentence “The cat chased the boy that was bit by the dog”. There we see
+that the system immediately votes for SW2 to be the object of the ﬁrst
+verb. It determines that SW2 is also the object of the second verb but
+only after the word “was” appears. This reﬂects the real-time or on-line
+processing, as well as the parallel processing of multiple possibilities
+in parallel 46 P. F. Dominey to generalize to new constructions that it
+had not been exposed to before (Hinaut and Dominey 2013). This was a
+crucial step in the argument that language could be processed by
+reservoirs, as the ability to generalize to new grammatical structures
+is a crucial aspect of human language processing. Signiﬁcantly, the
+neurophysiological validity of the comprehension model was conﬁrmed in a
+human clinical evaluation (Szalisznyó et al. 2017). Similarly, we were
+able to demonstrate a link between the real-time processing of multiple
+possible sentence parses in the readout neurons of the reservoir, and
+language-related ERPs (the P600) observed in human sentence processing
+(Hinaut and Dominey 2013). To complete the grammatical construc- tion
+story, we applied the mechanism in the opposite sense for language
+production (Hinaut et al. 2015). 4.3 Narrative The key idea in the
+language processing modeling is that the linear string of words contains
+two forms of information. The basic semantic elements are coded in the
+semantic or open class words (nouns, verbs, etc.), while the structural
+relations between these elements (including who did what to whom) is
+coded by cues including grammatical markers (was, to, by, etc.) and word
+order, as speciﬁed in the cue competition model (Bates and MacWhinney
+1987; Li and Macwhinney 2013). This approach has been limited to the
+grammatical construction. At the level of the construction, grammatical
+words specify the relations between open class (semantic) elements in
+one or two events. For example, “The dog that chased the cat bit the
+boy” and “The dog was chased by the cat that bit the boy” express two
+quite different meanings that are coded by the grammatical function
+words. Considering narrative, we can extend the notion of grammatical
+construction to that of narrative construction, where narrative function
+words (before, after, because, since, then, etc.) deﬁne relations
+between open class elements across multiple events in a situation model.
+This is illustrated in Fig. 9, where the Narrative Cx Model uses
+separate reservoirs for comprehension and production, and mapping to and
+from a representation of multiple related events in the Situation Model.
+The narrative comprehension reservoir is very similar to the sentence
+comprehension reservoir, but it has two sets of readout neurons, coding
+events and narrative relations, respectively. The coding in events is as
+in the sentence model, that is, readout neurons specify the semantic
+role for each open class element in the sentence. The coding of
+narrative relations consists of an additional set of readout neurons
+that encode the narrative function words. In the system developed by
+Mealier et al. (2017), these narrative relations were extracted and used
+to create narrative links in the situation model. Thus, in processing
+the narrated sentence “I gave you the toy because you wanted it”, the
+system creates the causal link labeled “because” between the
+representations for the given event and the want event, as schematically
+illustrated above. Cortico-Striatal Origins of Reservoir Computing,
+Mixed … 47 Fig. 9 Human–robot interaction generates events that are
+stored in the ABM. These are used to generate a graph where events are
+linked by temporal and causal relations to build the situation model.
+Human narration is processed by the Narrative Construction (NCx)
+comprehension model which extracts events and narrative function words.
+These are automatically mapped onto events in the Situation model, and
+the narrative relations are added to the SM, thus producing narrative
+enrich- ment. In the opposite sense, a SM created from observation can
+be narrated by extracting events and narrative relations from the SM
+into the NCx production model, to generate the corresponding sentence(s)
+in a narrative to communicate the SM. See Mealier et al. (2017) for
+details 5 Higher Cognitive Function II. Executive Function Mixed
+Selectivity When a reservoir has been trained to perform such high-level
+cognitive functions, it is of interest to understand the underlying
+neural dynamics. We initiated such anal- yses in our comparison of
+primate neurophysiology underlying complex sequential behavior from
+Barone and Joseph (1989), and the comparison with the single-unit
+activity in our reservoir model that performed the same task (Dominey et
+al. 1995). One of the characteristics of the neural activity in the
+primate cortex and in the model was the complex mixture of different
+aspects of the task dimensions, in particular spatial location and
+sequential order. This form of complex neural activity has been recently
+examined more closely and characterized as mixed selectivity. 5.1
+Revelation of Mixed Selectivity in Primate Cortex In groundbreaking work
+that has had major impact in creating a new way of consid- ering
+cortical activity, Rigotti et al. (2013) characterized mixed selectivity
+in the
+activityofsingleunitsinprimatecortex,anddemonstratedthenecessityofthiscoding
+for successful execution of tasks requiring higher cognitive function.
+In a task that required seeing a sequence of two visual images and then
+having to either recognize or recall those images, they observed that
+frontal cortical neurons encoded complex 48 P. F. Dominey non-linear
+mixtures of image identity, rank in the sequence, and the task that was
+to be performed. Interestingly, they showed that the higher the
+dimensionality of the population coding, the better the performance on
+the task. This research revealed that the phenomenon of mixing
+task-related aspects in single-unit activity (like Barone and Joseph’s
+location and rank mixing) is a required and inherent property of
+cortical activity during complex task performance. 5.2 Explore Exploit
+We set out to examine reservoir dynamics and mixed selectivity in a
+complex task that requires exploration and exploitation. We based this
+approach on the research of Quilodran et al. (2008), who trained macaque
+monkeys to perform a task, illustrated in Fig. 10A, where one of four
+spatial targets was rewarded, and the subject had to explore by trial
+and error to ﬁnd the rewarded target. After the ﬁrst reward, the
+exploration phase ended and the subject could repeat that target for a
+reward several times in the exploitation phase, before the signal to
+change indicated the beginning of a new exploration. Quilodran et
+al. described neural responses related to feedback in the exploration,
+and the shift between exploration and exploitation. In a reanalysis of
+the data, we (Enel et al. 2016) determined that the dACC neurons display
+signiﬁcant
+mixedselectivity.ANOVAonthefactorstargetchoice,phase,andtaskepochrevealed
+a broad distribution of neurons that had signiﬁcant main effects (i.e.,
+selectivity for one of the three task variables), and two and three-way
+interactions. Thus, 16% of dACC neurons displayed a dynamic mixed
+selectivity, revealed by a signiﬁcant three-way interaction. 5.3
+Modeling Explore Exploit We trained a 1000 unit reservoir model
+(illustrated in Fig. 10) to perform the explore/exploit task.
+Essentially the model learns to shift (explore) when no rewarded is
+provided, to stay (exploit) when the choice is rewarded, and when
+exploring, to not start with the same target that was just rewarded. The
+model learns to perform this task well (Enel et al. 2016). We then
+analyzed the neural activity within the reser- voir and compared this to
+the dACC neurons. The similarity in the neural coding was striking. The
+distribution of neurons that coded the epoch (explore/exploit), the task
+phase, and the target choice, between the model and the dACC were quite
+similar. Most striking, however, was the similar distribution of the
+different inter- actions between epoch, phase, and choice. These
+observations argue that the cortex behaves computationally as a
+reservoir (Fig. 11). Cortico-Striatal Origins of Reservoir Computing,
+Mixed … 49 Fig. 10 Reservoir processing of Explore-Exploit task. A
+Task—subject must search for one of four targets that is rewarded
+(explore). After the ﬁrst reward, the subject can repeat several times
+(exploit), until the Signal To Change. B Mapping of this task to
+reservoir: inputs are Fixation point, lever, targets, reward, and signal
+to changes. Readout Outputs are saccade and touch to the four possible
+targets. C Timing of inputs, reservoir activity (in a few sample cells)
+and outputs over several trials, with two correct rewarded trials, then
+the signal to change, and a search of three trials before the new
+rewarded target is found and repeated 5.4 Adaptation in the Face of
+Diversity It has been noted that living cortex is plastic, and that
+adaptive change is likely a central component of cortical physiology. In
+contrast, by deﬁnition, reservoirs are not plastic. From our
+perspective, this is not a statement that living cortex is not plastic,
+but rather an approach to investigate how far we can explain nature in
+the simpliﬁed model of the reservoir. Within this context there are
+clearly methods to investigate the role of plasticity. Because phase
+(exploration vs. exploitation) is so central to this task, we
+investigated the introduction of an adaptation in the form of a neuron
+that could learn to ﬁre during the exploration phase, and be silent
+during exploitation. The activity of this phase neuron is illustrated in
+Fig. 12. We also 50 P. F. Dominey Fig. 11 Simple task-related activity,
+and non-linear mixed selectivity in reservoir and primate cingulate
+cortex. A and B, single units from Model and dACC that illustrate simple
+phase and choice responses. C Model and dACC units with choice
+selectivity that is modulated by phase (mixed selectivity). D Model and
+dACC units that display complex mixed selectivity for task epoch, and
+phase Fig. 12 A Decoding of a phase neuron (active during search but not
+repeat) from reservoir and dACC. B Performance of models with and
+without phase neuron. When phase neuron feeds its task- crucial input
+back into the reservoir, less than half the number of neurons are
+required to perform the task demonstrated that a similar phase neuron
+can be trained to decode the phase from the population of 85 neurons
+recorded in the primate dACC. This is despite fact that within the
+recorded neurons, no single unit was found that displayed this phase
+encoding behavior. Most interestingly, when this phase information was
+fed back Cortico-Striatal Origins of Reservoir Computing, Mixed … 51
+into the reservoir, a dramatic improvement in performance could be
+realized, as revealed by a signiﬁcant reduction in the number of neurons
+required in the reservoir to perform the task. Similar beneﬁts of
+introducing such memory state neurons into the reservoir context has
+been elegantly demonstrated by Pascanu and Jaeger (2011). 5.5 From Main
+Effects to Mixed Selectivity In the initial days of primate
+neurophysiology, tasks were often reduced to a single behavioral
+dimension, e.g., making a saccade to a spatial target, and the scientist
+typically then interrogated single units to determine if they encode the
+task-related variable. In such cases, many neurons are found to encode
+the main effect—that is, the neuron has an easily identiﬁable response
+to a clearly relevant aspect of the task, e.g., saccade amplitude and
+direction (Bruce and Goldberg 1985). However, had the animal been
+performing a more complex task, as in the saccade sequencing task, then
+more complex responses could have been looked for, and would likely have
+been found, as observed by Barone and Joseph. In our own work, we
+observed that the primate cortex and the reservoir indeed display both
+task-related responses, and complex, dynamic mixed selectivity (Enel et
+al. 2016). Interestingly, while it is difﬁcult to interpret the function
+of mixed selectivity in single units, when they are interrogated as a
+population, the crucial role of mixed selectivity is revealed. It repre-
+sents a high dimensional projection of task variables and their history,
+from which diverse pertinent aspects of the problem at hand can be read
+out of the population (Rigotti et al. 2013; Sussillo and Barak 2013). 6
+Cortico-Hippocampal Interaction for Synthesis of Novel Adaptive
+Experiences The previous section indicates that the recurrent reservoir
+maintains a representation of state, including externally visible and
+hidden internal states as required performing a complex task. Here, we
+explore another property of reservoir computing, which is the ability to
+concatenate reservoir state trajectories. When a reservoir with output
+feedback learns an input sequence, it will traverse a trajectory of
+internal states. If the end of one state trajectory overlaps with the
+beginning of another, then the reservoir, when launched on the ﬁrst will
+naturally follow it and then continue—via the overlap—into the second
+trajectory. We recently examined how this property could explain a form
+of optimization behavior observed in navigating rodents. 52 P. F.
+Dominey When rats are placed in a large (e.g., 1 m diameter) open space
+with 5–6 baited food wells irregularly distributed in space, they
+display an interesting form of spatial optimization. The initial trials
+typically yield trajectories that are not well organized and meandering.
+Over successive trials, the trajectories become more structured, and
+ﬁnally spatially optimal. This has been characterized as a form of
+solving the traveling salesman optimization problem (de Jong et
+al. 2011). During this kind of behavior, activation of hippocampal place
+cells encodes the position of the animal as it navigates (Moser et
+al. 2008). Interestingly, between trials, hippocampal place cell
+activations also recalls previous navigation paths, and future plans. We
+simulated aspects of these processes by training a reservoir to
+auto-generate spatial sequences of place cell activation patterns,
+corresponding to the trajectories illustrated in Fig. 13i (Cazin et
+al. 2018), in a network where input to the network was the current loca-
+tion in a place cell code, and the readout codes the next location in
+the navigation sequence, also in a place cell code. The novelty was that
+the model was trained on the replay of short “snippets” of place cell
+activation sequences that were drawn from its recent navigation
+trajectories. For illustration, short paths linking the marked rewards
+are colored red, while long and inefﬁcient paths are marked in blue. We
+introduced a place cell activation replay mechanism that favors replay
+of rewarded locations, and also propagates reward backwards along the
+spatial trajectory. This is illustrated in Fig. 13ii. Because there is a
+limited reward propagation budget, for long and inefﬁcient sequences
+there is not enough reward and the sequence will thus be
+under-represented in the replay. For short efﬁcient sequences between
+rewards, there is ample reward, and so the sequence will be well
+represented in the replay that is used to train the reservoir. This is
+illustrated in the replay proﬁle in Fig. 13iv, which illustrates that
+snippets on short trajectories between rewards will have a high
+probability of being replayed. This means that in the end the reservoir
+is selectively Fig. 13 Reservoir synthesizes an efﬁcient trajectory from
+multiple ambiguous inputs. i Three spatial navigation sequences between
+baited feeders (marked). Red indicates “efﬁcient” paths, and blue
+“non-efﬁcient”. ii Reward propagation from rewarded locations forms a
+spatial gradient. iii Illustration of spatial gradient that favors
+efﬁcient trajectories. iv. Histogram of generated trajectories
+illustrates that efﬁcient subsequences have been regrouped to form the
+overall efﬁcient sequence Cortico-Striatal Origins of Reservoir
+Computing, Mixed … 53 exposed predominantly to the efﬁcient
+subsequences, and can concatenate them to creatively generate the
+composite optimal sequence that was never seen in its entirety during
+training. This work thus introduces a simple form of reinforcement
+learning into the reservoir computing domain, which may have important
+impact in future research. 7 Discussion In 1995, we set out to build a
+neural network model that respected the neuroanatomy of the primate
+corticostriatal system, that could learn to perform a visuospatial
+sequencing task as deﬁned in the primate (Barone and Joseph 1989), and
+that could explain the complex mix of space and time that was
+represented in the prefrontal neurons of animals that performed this
+task. In order to avoid the computational complexity of learning in
+recurrent connections, we chose to keep these connections ﬁxed (with
+rich dynamics) and to have plasticity only in the corticostriatal
+(readout) connections (Dominey 1995; Dominey et al. 1995). Historically,
+this was the ﬁrst implementation of reservoir computing. The resulting
+model was a success according to our objectives. We then set out to
+explore the computational capabilities of this system, and began to
+discover its versatility. In this review, we have seen sensitivity to
+serial, temporal and abstract structure, the ability to learn and
+generalize over patterns of grammatical elements for learning
+grammatical constructions as form to meaning mappings. We have seen the
+application to complex non-linguistic tasks in the context of
+exploration/exploitation, and in optimization in spatial navigation.
+Strikingly, in all of these contexts, the reservoir (and sometimes the
+readout) activity has been demonstrated to bear striking likeness to
+that observed in the living cortex. This contributes to the position
+that cortex is a system of reservoirs organized in parallel
+interdigitated subsystems, and
+thatprogressinfutureunderstandingofhumancognitionwillbemadethroughfurther
+development and analysis of cooperating reservoir systems. One of the
+main areas where we have still not completed this demonstration is in
+the domain of meaning, but there is hope. Embodied theories of cognition
+hold that meaning is constituted of reactivation of sensorimotor
+experiential traces, generating a form of simulation of the intended
+meaning (Barsalou 2008; Barsalou et al. 2003). This has been revealed in
+human brain imagery studies that identify the system used for
+understanding images and sentences that depict everyday human activity,
+as corresponding to a widespread activation of the sensorimotor system,
+the spatial cognition system and representations of self and others
+(Jouen et al. 2018, 2015). From the reservoir perspective, we can
+consider that meaning is a dynamic neural state trajectory that
+traverses a sequence of neural states that is similar to those traversed
+in the actual experience of a given event. This can be considered in the
+context of perception and prediction during actions, such that at the
+same time that the nervous system is navigating a complex high
+dimensional space in real-time, it is predicting the perceived outcome
+of its own actions and of those of other agents in 54 P. F. Dominey the
+world. This predictive mechanism will thus be the same for real-time
+predictive control, and for off-line simulation of lived experiences.
+The system should contin- uously be predicting/generating commands for
+what will happen next. This should be modulated by external contextual
+cues as well as internal contextual cues. Highly sensorized and actuated
+humanoid robots are an obvious candidate for providing such a framework,
+and our current research addresses the generation of meaning in
+reservoir networks in this context (Mealier et al. 2017; Moulin-Frier et
+al. 2018). 8 Conclusions The power of recurrent connections has been
+clearly demonstrated in the research reported in the different chapters
+of this volume. When we see that the cortex is a massive system built up
+of locally constructed reservoir circuits, that are also inter-
+connected by a vast network of longer connections, and that all of this
+cortex projects with a rich segregated yet interleaving topography to
+the striatum to allow for highly rich readout—when we appreciate all
+this, we see a massive computing potential in the cortico-striatal
+system. However, we also see that we must fashion our thinking about
+neural computation so as to be able to fathom how this very
+characteristic organization can be marshaled to allow the highly precise
+and abstract thought that the human is capable of. Executive function,
+working memory, variable binding and passing (or their functional
+equivalents) are all implemented in this framework, and we still have
+work to construct the integrated computational framework to accomplish
+this (Graves et al. 2014). In this context, Jaeger (2017) has developed
+the conceptor framework that allows the imposition of a form of biasing
+structure on reservoirs, which thus allows the management and control of
+reservoir dynamics for multiple different stored patterns. Such
+mechanisms provide a direction for future research on how reservoir
+dynamics can be controlled for precision cognitive functions.
+Theparallelcorticostriatalcircuitsdescribedby(Alexanderetal.1986)implement
+a set of cooperating reservoirs for diverse sensorimotor and cognitive
+functions. We extended this to include a language or grammatical
+structure circuit (Dominey 2013; Dominey and Inui 2009; Dominey et
+al. 2009), and an executive function circuit (Enel et al. 2016). Future
+research should investigate the interaction of multiple such parallel
+and overlapping reservoir systems and their cooperation within an
+integrated, real-time cognitive system. References G.E. Alexander, M.R.
+DeLong, P.L. Strick, Parallel organization of functionally segregated
+circuits linking basal ganglia and cortex. Annu. Rev. Neurosci. 9,
+357–381 (1986) P. Barone, J.P. Joseph, Prefrontal cortex and spatial
+sequencing in macaque monkey. Exp. Brain Res. 78, 447–464 (1989)
+Cortico-Striatal Origins of Reservoir Computing, Mixed … 55 L.W.
+Barsalou, Grounded cognition. Annu. Rev. Psychol. 59, 617–645 (2008)
+L.W. Barsalou, W. Kyle Simmons, A.K. Barbey, C.D. Wilson, Grounding
+conceptual knowledge in modality-speciﬁc systems. Trends Cogn. Sci. 7,
+84–91 (2003) E. Bates, B. MacWhinney, Competition, variation, and
+language learning, in Mechanisms of Language Acquisition, ed. by B.
+MacWhinney, E. Bates (Erlbaum, Hillsdale, NJ, 1987), pp. 157–193 C.J.
+Bruce, M.E. Goldberg, Physiology of the frontal eye ﬁelds. Trends
+Neurosci. 7, 436–441 (1984) C.J. Bruce, M.E. Goldberg, Primate frontal
+eye ﬁelds. I. Single neurons discharging before saccades. J.
+Neurophysiol. 53, 603–635 (1985) P. Calabresi, B. Picconi, A. Tozzi, M.
+Di Filippo, Dopamine-mediated regulation of corticostriatal synaptic
+plasticity. Trends Neurosci. 30, 211–219 (2007) D. Caplan, C. Baker, F.
+Dehaut, Syntactic determinants of sentence comprehension in aphasia.
+Cognition 21, 117–175 (1985) N. Cazin, M.L. Alonso, P.S. Chiodi, T.
+Pelc, B. Harland et al., Prefrontal cortex creates novel navigation
+sequences from hippocampal place-cell replay with spatial reward
+propagation 466920 (2018) D. Centonze, B. Picconi, P. Gubellini, G.
+Bernardi, P. Calabresi, Dopaminergic control of synaptic plasticity in
+the dorsal striatum. Eur. J. Neurosci. 13, 1071–1077 (2001) G.
+Chevalier, J.M. Deniau, Disinhibition as a basic process in the
+expression of striatal functions. Trends Neurosci. 13, 277–280 (1990)
+L.W. de Jong, B. Gereke, G.M. Martin, J.-M. Fellous, The traveling
+salesrat: insights into the dynamics of efﬁcient spatial navigation in
+the rodent. J. Neural Eng. 8, (2011) M. Di Filippo, B. Picconi, M.
+Tantucci, V. Ghiglieri, V. Bagetta et al., Short-term and long-term
+plasticity at corticostriatal synapses: implications for learning and
+memory. Behav. Brain Res. 199, 108–118 (2009) P.F. Dominey, Complex
+sensory-motor sequence learning based on recurrent state representation
+and reinforcement learning. Biol. Cybern. 73, 265–274 (1995) P.F.
+Dominey, Inﬂuences of temporal organization on sequence learning and
+transfer: Comments on Stadler (1995) and Curran and Keele (1993). J.
+Exp. Psychol. Learn. Mem. Cogn. 24, 14 (1998a) P.F. Dominey, A shared
+system for learning serial and temporal structure of sensori-motor
+sequences? Evidence from simulation and human experiments. Brain Res.
+Cogn. Brain Res. 6, 163–172 (1998b) P.F. Dominey, Recurrent temporal
+networks and language acquisition-from corticostriatal neuro- physiology
+to reservoir computing. Front. Psychol. 4, 1–14 (2013) P.F. Dominey,
+M.A. Arbib, A cortico-subcortical model for generation of spatially
+accurate sequential saccades. Cereb. Cortex 2, 153–175 (1992) P.F.
+Dominey, T. Lelekov, Nonlinguistic transformation processing in
+agrammatic aphasia. Behav. Brain Sci. 23, 30-+ (2000) P.F. Dominey, F.
+Ramus, Neural network processing of natural language: I. Sensitivity to
+serial, temporal and abstract structure of language in the infant. Lang.
+Cogn. Process. 15, 87–127 (2000) P.F. Dominey, T. Inui, Cortico-striatal
+function in sentence comprehension: insights from neuro- physiology and
+modeling. Cortex 45, 1012–1018 (2009) P.F. Dominey, M.A. Arbib, J.P.
+Joseph, A model of corticostriatal plasticity for learning oculomotor
+associations and sequences. J. Cogn. Neurosci. 7, 25 (1995) P.F.
+Dominey, T. Lelekov, J. Ventre-Dominey, M. Jeannerod, Dissociable
+processes for learning the surface structure and abstract structure of
+sensorimotor sequences. J. Cogn. Neurosci. 10, 734–751 (1998) P.F.
+Dominey, M. Hoen, J.M. Blanc, T. Lelekov-Boissard, Neurological basis of
+language and sequential cognition: evidence from simulation, aphasia,
+and ERP studies. Brain Lang. 86, 207– 225 (2003) P.F. Dominey, T. Inui,
+M. Hoen, Neural network processing of natural language: II. Towards a
+uniﬁed model of corticostriatal function in learning sentence
+comprehension and non-linguistic sequencing. Brain Lang. 109, 80–92
+(2009) 56 P. F. Dominey P. Enel, E. Procyk, R. Quilodran, P.F. Dominey,
+Reservoir computing properties of neural dynamics in prefrontal cortex.
+PLoS Comput. Biol. 12, (2016) A.D. Friederici, Towards a neural basis of
+auditory sentence processing. Trends Cogn. Sci. 6, 78–84 (2002) A.D.
+Friederici, The cortical language circuit: from auditory perception to
+sentence comprehension. Trends Cogn. Sci. (2012) M.E. Goldberg, M.C.
+Bushnell, Behavioral enhancement of visual responses in monkey cerebral
+cortex. II. Modulation in frontal eye ﬁelds speciﬁcally related to
+saccades. J. Neurophysiol. 46, 773–787 (1981) P.S. Goldman-Rakic,
+Circuitry of primate prefrontal cortex and regulation of behavior by
+representational memory. Handb. Neurophysiol. 5, 40 (1987) A. Graves, G.
+Wayne, I. Danihelka, Neural turing machines (2014), arXiv:1410.5401 P.
+Hagoort, On Broca, brain, and binding: a new framework. Trends Cogn.
+Sci. 9, 416–423 (2005) O. Hikosaka, Role of basal ganglia in saccades.
+Rev. Neurol. (Paris) 145, 580–586 (1989) O. Hikosaka, R.H. Wurtz, Visual
+and oculomotor functions of monkey substantia nigra pars retic- ulata.
+I. Relation of visual and auditory responses to saccades. J.
+Neurophysiol. 49, 1230–1253 (1983a) O. Hikosaka, R.H. Wurtz, Visual and
+oculomotor functions of monkey substantia nigra pars reticulata. II.
+Visual responses related to ﬁxation of gaze. J. Neurophysiol. 49,
+1254–1267 (1983b) O. Hikosaka, R.H. Wurtz, Visual and oculomotor
+functions of monkey substantia nigra pars retic- ulata. III.
+Memory-contingent visual and saccade responses. J. Neurophysiol. 49,
+1268–1284 (1983c) O. Hikosaka, R.H. Wurtz, Visual and oculomotor
+functions of monkey substantia nigra pars retic- ulata. IV. Relation of
+substantia nigra to superior colliculus. J. Neurophysiol. 49, 1285–1301
+(1983d) O. Hikosaka, M. Sakamoto, S. Usui, Functional properties of
+monkey caudate neurons. I. Activities related to saccadic eye movements.
+J. Neurophysiol. 61, 780–798 (1989a) O. Hikosaka, M. Sakamoto, S. Usui,
+Functional properties of monkey caudate neurons. II. Visual and auditory
+responses. J. Neurophysiol. 61, 799–813 (1989b)
+O.Hikosaka,M.Sakamoto,S.Usui,Functional propertiesofmonkeycaudate
+neurons.III.Activities related to expectation of target and reward. J.
+Neurophysiol. 61, 814–832 (1989c) X. Hinaut, P.F. Dominey, Real-time
+parallel processing of grammatical structure in the fronto- striatal
+system: a recurrent network simulation study using reservoir computing.
+PLoS ONE 8, 1–18 (2013) X. Hinaut, F. Lance, C. Droin, M. Petit, G.
+Pointeau, P.F. Dominey, Corticostriatal response selection in sentence
+production: Insights from neural network simulation with reservoir
+computing. Brain Lang. 150, 54–68 (2015) M. Hoen, P.F. Dominey, ERP
+analysis of cognitive sequencing: A left anterior negativity related to
+structural transformation processing. NeuroReport 11, 3187–3191 (2000)
+M. Hoen, M. Pachot-Clouard, C. Segebarth, P.F. Dominey, When Broca
+experiences the Janus syndrome: an ER-fMRI study comparing sentence
+comprehension and cognitive sequence processing. Cortex 42, 605–623
+(2006) H. Jaeger, The “echo state” approach to analysing and training
+recurrent neural networks-with an erratum note’. GMD Technical Report
+148. German National Research Center for Information Technology Bonn,
+Germany (2001) H. Jaeger, Using conceptors to manage neural long-term
+memories for temporal patterns. J. Mach. Learn. Res. 18, 1–43 (2017) H.
+Jaeger, H. Haas, Harnessing nonlinearity: predicting chaotic systems and
+saving energy in wireless communication. Science 304, 78–80 (2004) A.
+Jouen, T. Ellmore, C. Madden, C. Pallier, P. Dominey, J. Ventre-Dominey,
+Beyond the word and image: characteristics of a common meaning system
+for language and vision revealed by functional and structural imaging.
+NeuroImage 106, 72–85 (2015) Cortico-Striatal Origins of Reservoir
+Computing, Mixed … 57 A. Jouen, T. Ellmore, C. Madden-Lombardi, C.
+Pallier, P. Dominey, J. Ventre-Dominey, Beyond the word and image:
+II-Structural and functional connectivity of a common semantic system.
+NeuroImage 166, 185–197 (2018) P.W. Jusczyk, The Discovery of Spoken
+Language (MIT Press, Cambridge, 1997) T. Lelekov, N. Franck, P.F.
+Dominey, N. Georgieff, Cognitive sequence processing and syntactic
+comprehension in schizophrenia. NeuroReport 11, 2145–2149 (2000) P. Li,
+B. Macwhinney, Competition model. Encycl. Appl. Linguist. (2013) T.
+Ljungberg, P. Apicella, W. Schultz, Responses of monkey dopamine neurons
+during learning of behavioral reactions. J. Neurophysiol. 67, 145–163
+(1992) M. Lukosevicius, H. Jaeger, Reservoir computing approaches to
+recurrent neural network training. Comput. Sci. Rev. 3, 22 (2009) M.
+Lukoševiˇ cius, H. Jaeger, B. Schrauwen, Reservoir computing trends.
+KI-Künstliche Intell. 26, 365–371 (2012) W. Maass, T. Natschlager, H.
+Markram, Real-time computing without stable states: a new framework for
+neural computation based on perturbations. Neural Comput. 14, 2531–2560
+(2002) G.F. Marcus, S. Vijayan, S. Bandi Rao, P.M. Vishton, Rule
+learning by seven-month-old infants. Science 283, 77–80 (1999) N.
+Markov, P. Misery, A. Falchier, C. Lamy, J. Vezoli et al., Weight
+consistency speciﬁes regularities of macaque cortical networks. Cereb.
+Cortex 21, 1254–1272 (2011) A.-L. Mealier, G. Pointeau, S. Mirliaz, K.
+Ogawa, M. Finlayson, P.F. Dominey, Narrative construc- tions for the
+organization of self experience: proof of concept via embodied robotics.
+Front. Psychol.: Lang. (2017) E.I. Moser, E. Kropff, M.-B. Moser, Place
+cells, grid cells, and the brain’s spatial representation system. Annu.
+Rev. Neurosci. 31, 69–89 (2008) C. Moulin-Frier, T. Fischer, M. Petit,
+G. Pointeau, J.-Y. Puigbo et al., DAC-h3: a proactive robot cognitive
+architecture to acquire and express knowledge about the world and the
+self. IEEE Trans. Cogn. Dev. Syst. 10, 1005–1022 (2018) T. Nazzi, J.
+Bertoncini, J. Mehler, Language discrimination by newborns: toward an
+understanding of the role of rhythm. J. Exp. Psychol. Hum. Percept.
+Perform. 24, 756–766 (1998) R. Pascanu, H. Jaeger, A neurodynamical
+model for working memory. Neural Netw. 24, 199–207 (2011) B.A.
+Pearlmutter, Gradient calculations for dynamic recurrent neural
+networks: A survey. IEEE Trans. Neural Netw. 6, 1212–1228 (1995) R.
+Quilodran, M. Rothe, E. Procyk, Behavioral shifts and action valuation
+in the anterior cingulate cortex. Neuron 57, 314–325 (2008)
+M.Rigotti,O.Barak,M.R.Warden,X.-J.Wang,N.D.Dawetal.,Theimportanceofmixedselectivity
+in complex cognitive tasks. Nature (2013) J.R. Saffran, R.N. Aslin, E.L.
+Newport, Statistical learning by 8-month-old infants. Science 274,
+1926–1928 (1996) W. Schultz, P. Apicella, T. Ljungberg, Responses of
+monkey dopamine neurons to reward and conditioned stimuli during
+successive steps of learning a delayed response task. J. Neurosci. 13,
+900–913 (1993) L.D. Selemon, P.S. Goldman-Rakic, Longitudinal topography
+and interdigitation of corticostriatal projections in the rhesus monkey.
+J. Neurosci. 5, 776–794 (1985) L.D. Selemon, P.S. Goldman-Rakic, Common
+cortical and subcortical targets of the dorsolateral prefrontal and
+posterior parietal cortices in the rhesus monkey: evidence for a
+distributed neural network subserving spatially guided behavior. J.
+Neurosci. 8, 4049–4068 (1988) M.A. Stadler, Implicit serial learning:
+questions inspired by Hebb (1961). Mem. Cogn. 21, 819–827 (1993) D.
+Sussillo, O. Barak, Opening the black box: low-dimensional dynamics in
+high-dimensional recurrent neural networks. Neural Comput. 25, 626–649
+(2013) 58 P. F. Dominey K. Szalisznyó, D. Silverstein, M. Teichmann, H.
+Duffau, A. Smits, Cortico-striatal language path- ways dynamically
+adjust for syntactic complexity: a computational study. Brain Lang. 164,
+53–62 (2017) D. Verstraeten, B. Schrauwen, S. Dieleman, P. Brakel, P.
+Buteneers, D. Pecevski, Oger: modular learning architectures for
+large-scale sequential processing. J. Mach. Learn. Res. 13, 2995–2998
+(2012)

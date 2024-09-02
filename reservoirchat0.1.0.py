@@ -136,7 +136,7 @@ def app():
             message = run_local_search('ragtest',
                                           'ragtest/output/everything3/artifacts',
                                           'ragtest',
-                                          4,
+                                          0,
                                           'This is a response',
                                           False,
                                           user_message,
@@ -274,13 +274,13 @@ def app():
                         )
                 
                 # The Legal Notice
-                chat.send("When using ReservoirChat, we ask you not to include any personal data in your interactions with the system. The data contained in the chat will be analyzed by Inria.",
+                chat.send("When using ReservoirChat, we ask you not to include any personal data in your interactions with the system. The data contained in the chat will be analyzed by Inria. ReservoirChat may provide incorrect responses, and by using it, you acknowledge that its information should not be considered 100% accurate.",
                         user="Legal Notice",
                         avatar='png/gavel.png',
                         respond=False
                         )
                 # The main information
-                chat.send("Hi and welcome! My name is ReservoirChat. I'm a RAG (Retrieval-Augmented Generation) interface specialized in Reservoir Computing using a Large Language Model (LLM) to help respond to your questions. Based on several documents and ReservoirPy documentation, I can answer general questions on Reservoir Computing and generate code. ReservoirChat uses [GraphRag](https://microsoft.github.io/graphrag/) and [Codestral](https://mistral.ai/news/codestral/).",
+                chat.send("Hi and welcome! My name is ReservoirChat. I'm a RAG (Retrieval-Augmented Generation) interface specialized in Reservoir Computing using a Large Language Model (LLM) to help respond to your questions. Based on several documents and ReservoirPy documentation, I can answer general questions on Reservoir Computing and generate code. I am based on [GraphRag](https://microsoft.github.io/graphrag/) and [Codestral](https://mistral.ai/news/codestral/).",
                         user="ReservoirChat",
                         avatar="png/logo.png",
                         respond=False

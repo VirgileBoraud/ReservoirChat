@@ -1,1 +1,0 @@
-{"exp": "esn_optimization", "hp_max_evals": 100, "hp_method": "random", "seed": 42, "instances_per_trial": 5, "hp_space": {"N": ["choice", 500], "sr": ["loguniform", 0.01, 10], "lr": ["loguniform", 0.001, 1], "input_scaling": ["choice", 1.0], "ridge": ["loguniform", 1e-08, 10.0], "seed": ["choice", 1234]}}
