@@ -1,7 +1,7 @@
 import json
 
 # Load the provided Jupyter Notebook file
-with open('doc/notebook/Edge_of_stability_Ceni_Gallicchio_2023.ipynb', 'r', encoding='utf-8') as file:
+with open('Documentation_Training-Dataset/1 - Basic/text/playground-master/performances/sparse_vs_dense.ipynb', 'r', encoding='utf-8') as file:
     notebook_content = file.read()
 
 # Parse the Jupyter Notebook content
@@ -18,7 +18,7 @@ for cell in notebook_data['cells']:
         markdown_content += '```python\n' + '\n'.join(cell['source']) + '\n```\n\n'
 
 # Save the extracted content to a markdown file
-markdown_file_path = 'doc/md/Edge_of_stability_Ceni_Gallicchio_2023.md'
+markdown_file_path = 'Documentation_Training-Dataset/1 - Basic/text/playground-master/performances/sparse_vs_dense.md'
 with open(markdown_file_path, 'w', encoding='utf-8') as markdown_file:
     markdown_file.write(markdown_content)
 

@@ -56,7 +56,7 @@
 
 - Creates a model with 10 parallel reservoirs connected to the same readout
 
-**Advanced
+**Advanced**
 
 - What is a liquid state machine?
 
