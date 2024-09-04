@@ -900,7 +900,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
 
     Here is the Python code to do this:
 
-    python
+    ```python
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -954,7 +954,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
     plt.title('Mackey-Glass Time Series')
     plt.legend()
     plt.show()
-
+    ```
     Breakdown of the Code:
 
         Mackey-Glass Generator: The function mackey_glass generates the time series.
@@ -981,7 +981,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
 
     Here's a complete Python code to generate the dataset:
 
-    python
+    ```python
 
     import numpy as np
     import pandas as pd
@@ -1044,7 +1044,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
     print(f"Y_train shape: {Y_train.shape}")
     print(f"X_test shape: {X_test.shape}")
     print(f"Y_test shape: {Y_test.shape}")
-
+    ```
     Explanation:
 
         Mackey-Glass time series generation: We define the mackey_glass function that generates the time series based on specific parameters.
@@ -1066,7 +1066,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
         Separate into X (input) and Y (output for prediction 20 steps ahead)
         Create a train/test split
 
-    python
+    ```python
 
     import numpy as np
     import pandas as pd
@@ -1131,7 +1131,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
 
     X_test_df = pd.DataFrame(X_test.reshape(X_test.shape[0], -1))
     Y_test_df = pd.DataFrame(Y_test)
-
+    ```
     import ace_tools as tools; tools.display_dataframe_to_user(name="Train Data", dataframe=pd.concat([X_train_df, Y_train_df], axis=1))
 
     Explanation of Steps:
@@ -1165,7 +1165,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
 
     Let’s start by writing some code that implements an ESN and trains it using Ridge regression on a simple synthetic dataset of time series data.
 
-    python
+    ```python
 
     import numpy as np
     from sklearn.linear_model import Ridge
@@ -1257,7 +1257,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
     plt.plot(predictions[:300], label='ESN Predictions')
     plt.legend()
     plt.show()
-
+    ```
     Explanation:
 
         ESN Class:
@@ -1291,23 +1291,23 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
 
     Make sure the required libraries are installed:
 
-    bash
+    ```bash
 
     pip install numpy scikit-learn matplotlib
-
+    ```
     Step 2: Import Libraries
 
-    python
+    ```python
 
     import numpy as np
     from sklearn.linear_model import Ridge
     import matplotlib.pyplot as plt
-
+    ```
     Step 3: Define the ESN Class
 
     This is a simple implementation of an Echo State Network.
 
-    python
+    ```python
 
     class ESN:
         def __init__(self, n_input, n_reservoir, n_output, spectral_radius=1.25, sparsity=0.1, alpha=0.5, random_state=None):
@@ -1367,12 +1367,12 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
                 y_pred[t] = np.dot(self.W_out, state)
 
             return y_pred
-
+    ```
     Step 4: Train and Test the ESN
 
     Let's create some synthetic time series data and train the ESN.
 
-    python
+    ```python
 
     # Generate synthetic time series data
     def generate_sine_wave_data(T=1000, freq=0.1):
@@ -1399,7 +1399,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
     plt.plot(y_pred, label="Predicted Output")
     plt.legend()
     plt.show()
-
+    ```
     Explanation:
 
         ESN Class:
@@ -1423,16 +1423,16 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
 
         If you haven't already installed the necessary libraries, install them using the following commands:
 
-        bash
+    ```bash
 
     pip install pyESN
-
+    ```
     Alternatively, if you are using ReservoirPy:
 
-    bash
+    ```bash
 
         pip install reservoirpy
-
+    ```
         Prepare the dataset:
 
         You need to load or generate some time series data. For demonstration purposes, let's use a sample dataset or generate synthetic time series data.
@@ -1448,7 +1448,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
     Here’s a sample code that implements this process using pyESN:
     Implementation using pyESN
 
-    python
+    ```python
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -1489,7 +1489,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
     plt.plot(range(n_train, n_train + n_test), pred_test, label="Predicted", linestyle="--")
     plt.legend()
     plt.show()
-
+    ```
     Explanation:
 
         Dataset Generation: A simple sine wave is generated as the time series for demonstration.
@@ -1504,7 +1504,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
 
     If you prefer using ReservoirPy, the syntax is slightly different but follows the same principles. Here's a similar implementation using ReservoirPy:
 
-    python
+    ```python
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -1546,7 +1546,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
     plt.plot(range(n_train, n_train + n_test), pred_test, label="Predicted", linestyle="--")
     plt.legend()
     plt.show()
-
+    ```
     Key Differences in ReservoirPy:
 
         Reservoir creation: The Reservoir node is created separately, and the run() method is used to get the internal states of the reservoir.
@@ -1566,10 +1566,10 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
 
         Install the necessary libraries: Ensure you have the required libraries by installing them with:
 
-        bash
+        ```bash
 
         pip install numpy scikit-learn joblib
-
+        ```
         Echo State Network Basics: An Echo State Network consists of:
             Input weights: Mapping from the input to the reservoir.
             Reservoir: A large, sparse, random, recurrent neural network with fixed weights.
@@ -1579,7 +1579,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
 
     Here’s the code:
 
-    python
+    ```python
 
     import numpy as np
     from sklearn.linear_model import Ridge
@@ -1665,7 +1665,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
         predictions = esn.predict(X)
 
         print("Predictions shape:", predictions.shape)
-
+    ```
     Explanation of Key Parts:
 
         Initialization: The ESN is initialized with reservoir size, spectral radius (which controls the dynamic behavior of the reservoir), and sparsity (which ensures the reservoir is sparse).
@@ -1695,7 +1695,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
     Let’s write the code for a basic ESN model with parallelization:
     Echo State Network with Parallelization
 
-    python
+    ```python
 
     import numpy as np
     from scipy import sparse
@@ -1770,7 +1770,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
         predictions = esn.predict(input_sequence)
         
         print("Predictions:", predictions)
-
+    ```
     Breakdown of the Code
 
         Initialization: The EchoStateNetwork class is initialized with the input size, reservoir size, output size, and other hyperparameters. The input weights and reservoir weights are created. The reservoir weights are normalized based on the spectral radius to ensure the ESN's stability.
@@ -1798,7 +1798,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
 
     We will use numpy for matrix operations and multiprocessing for parallelization. Here's a basic implementation:
 
-    python
+    ```python
 
     import numpy as np
     from multiprocessing import Pool
@@ -1887,7 +1887,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
         predictions = esn.predict(inputs)
 
         print("Predictions:", predictions)
-
+    ```
     Explanation:
 
         ESN Initialization:
@@ -2927,12 +2927,12 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
 
     Example:
 
-    python
+    ```python
 
     param_grid = {'C': [0.1, 1, 10, 100], 'kernel': ['linear', 'rbf']}
     grid_search = GridSearchCV(SVC(), param_grid, cv=5)
     grid_search.fit(X_train, y_train)
-
+    ```
     4. Random Search
 
         Definition: Instead of exhaustively searching every combination of hyperparameters (as in grid search), random search samples combinations randomly from the parameter space.
@@ -2942,13 +2942,13 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
 
     Example:
 
-    python
+    ```python
 
     from sklearn.model_selection import RandomizedSearchCV
     param_dist = {'C': np.logspace(-3, 3, 10), 'kernel': ['linear', 'rbf']}
     random_search = RandomizedSearchCV(SVC(), param_dist, n_iter=10, cv=5)
     random_search.fit(X_train, y_train)
-
+    ```
     5. Bayesian Optimization
 
         Definition: Bayesian optimization models the hyperparameter tuning process as a probabilistic function and uses past evaluation results to choose the next hyperparameter set to evaluate. Popular libraries include scikit-optimize, GPyOpt, and Hyperopt.
@@ -2957,12 +2957,12 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
 
     Example:
 
-    python
+    ```python
 
     from skopt import BayesSearchCV
     opt = BayesSearchCV(SVC(), {'C': (1e-6, 1e+6, 'log-uniform')}, n_iter=32)
     opt.fit(X_train, y_train)
-
+    ```
     6. Genetic Algorithms (Evolutionary Optimization)
 
         Definition: Genetic algorithms mimic natural selection, using mutation and crossover techniques to "evolve" a population of candidate hyperparameters.
@@ -3118,7 +3118,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
 
     Here’s a Python code that demonstrates this:
 
-    python
+    ```python
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -3189,7 +3189,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
     plt.ylabel('Neuron Activation')
     plt.legend()
     plt.show()
-
+    ```
     Code Breakdown:
 
         Lorenz system generation: The lorenz_system function defines the equations, and generate_lorenz_data integrates these equations over time using solve_ivp from scipy.
@@ -3216,7 +3216,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
 
     First, we simulate the Lorenz system using the standard equations.
 
-    python
+    ```python
 
     import numpy as np
     from scipy.integrate import odeint
@@ -3303,7 +3303,7 @@ Its efficiency in training and its ability to handle complex temporal dynamics m
     plt.ylabel("Neuron Activation")
     plt.legend(loc="upper right")
     plt.show()
-
+    ```
     Explanation:
 
         Lorenz System Generation: The lorenz function defines the Lorenz system's differential equations, which are solved using odeint to generate the Lorenz time series.
