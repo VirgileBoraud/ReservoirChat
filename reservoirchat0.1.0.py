@@ -1,43 +1,21 @@
 import panel as pn
-import pandas as pd
-import numpy as np
-from openai import OpenAI
-import re
 import os
-from concurrent.futures import ThreadPoolExecutor
-import requests
 import json
 import time
-import ast
-# import subprocess
 from graphrag.query.cli import run_global_search
 from graphrag.query.cli import run_local_search
 import uuid
 from pymongo import MongoClient
-from datetime import datetime
+
 # Initialize MongoClient
 client = MongoClient('localhost', 27017)
 db = client['ReservoirChat']
 ma = client['MangoChat']
+
 def app():
     class ReservoirChat:
-
         # Initializing the class
-        def __init__(self, model_url="http://localhost:1234/v1", embedding_url="http://localhost:1234/v1", api_key="lm-studio", embedding_model="nomic-ai/nomic-embed-text-v1.5-GGUF", model="LM Studio Community/Meta-Llama-3-8B-Instruct-GGUF", message="You are ReservoirChat, a helpful, smart, kind, and efficient AI assistant. You are specialized in reservoir computing. When asked to code, you will code using the reservoirPy library. You will also serve as an interface to a RAG (Retrieval-Augmented Generation) and will use the following documents to respond to your task. DOCUMENTS:", similarity_threshold=0.75, top_n=5):
-            
-            # Basic variables
-            self.model_client = OpenAI(base_url=model_url, api_key=api_key)
-            self.embedding_client = OpenAI(base_url=embedding_url, api_key=api_key)
-            self.embedding_url = embedding_url
-            self.embedding_model = embedding_model
-            self.model = model
-            self.similarity_threshold = similarity_threshold
-            self.top_n = top_n
-            self.message = message
-
-            # The vector store is called, it serve to keep the loaded vector created by the self.load_data function and to not have to load each document each time
-            self.df = self.load_embeddings_from_csv('embeddings.csv')
-            
+        def __init__(self):
             # Read the content of the code documents, to be used by the prompt when we think the user ask to code
             # Serve for better coding output
             self.code_content = self.read_file('doc/md/codes.md')
@@ -71,6 +49,15 @@ def app():
 
         # --------------------------------------------------------------------------------------------------------------------------------------------------
         
+        # To read markdown file (used to read the codes.md document)
+        def read_file(self, filepath):
+            try:
+                with open(filepath, 'r', encoding='utf-8') as file:
+                    return file.read()
+            except Exception as e:
+                print(f"Error reading file: {e}")
+                return ""
+
         # Used to load cookie, to be used in a cookie approach instead of cache approach in history of conversation
         def load_from_cookies(self, name, default):
             cookie_value = pn.state.cookies.get(name)
@@ -89,163 +76,6 @@ def app():
                             """)
             print(f"Cookie {name} set with value {value}")
             return cookie
-
-        # To read markdown file (used to read the codes.md document)
-        def read_file(self, filepath):
-            try:
-                with open(filepath, 'r', encoding='utf-8') as file:
-                    return file.read()
-            except Exception as e:
-                print(f"Error reading file: {e}")
-                return ""
-        
-        # used to load the vector store stored on a csv_file
-        def load_embeddings_from_csv(self, csv_file):
-            try:
-                df = pd.read_csv(csv_file)
-                df['ticket_embedding'] = df['ticket_embedding'].apply(eval).apply(np.array)
-                return df
-            except Exception as e:
-                print(f"Error loading embeddings from CSV: {e}")
-                return pd.DataFrame()
-        
-        # Used to get embeddings from a documents
-        def get_embedding(self, text):
-            try:
-                url = self.embedding_url
-                headers = {'Content-Type': 'application/json'}
-                payload = {'texts': [text.replace("\n", " ")]}
-                
-                response = requests.post(url, headers=headers, data=json.dumps(payload))
-                
-                if response.status_code == 200:
-                    return response.json()[0]
-                else:
-                    print(f"Error getting embeddings: {response.json()}")
-                    return None
-            except Exception as e:
-                print(f"Error getting embeddings: {e}")
-                return None
-
-        # Get the list of files in a specified directory path (used to load the data of a list of documents)
-        def file_list(self, directory_path):
-            try:
-                # Get the list of files in the directory
-                files = os.listdir(directory_path)
-                
-                # Filter out directories, only keep files and add the directory path to each file name
-                file_names = [os.path.join(directory_path, file) for file in files if os.path.isfile(os.path.join(directory_path, file))]
-                
-                return file_names
-            except Exception as e:
-                print(f"An error occurred: {e}")
-                return []
-
-        # Process a file (different files have different process) to create a list of JSON objects
-        def process_file(self, filepath):
-            all_entries = []
-            document_name = os.path.basename(filepath)
-            try:
-                with open(filepath, 'r', encoding='utf-8') as file:
-                    data = file.read()
-
-                if "Q&A" in filepath:
-                    # Process as Q&A document
-                    questions_answers = data.split("Question: ")
-                    for qa in questions_answers[1:]:
-                        parts = qa.split("Answer: ")
-                        question = parts[0].strip()
-                        answer = parts[1].strip() if len(parts) > 1 else ""
-                        all_entries.append({"document": document_name,"ticket": question, "response": answer})
-
-                elif "codes" in filepath:
-                    # Process as code document with titles
-                    sections = data.split("## ")
-                    for section in sections[1:]:
-                        lines = section.split('\n', 1)  # Split only on the first newline
-                        title = lines[0].strip()
-                        if len(lines) > 1:
-                            code_block_match = re.search(r'```python(.*?)```', lines[1].strip(), re.DOTALL)
-                            if code_block_match:
-                                code = f"```python{code_block_match.group(1).strip()}```"
-                                all_entries.append({"document": document_name,"ticket": title, "response": code})
-
-                else:
-                    # Process as regular Markdown document without separating code
-                    sentences = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s', data) ## I have to change things here
-                    for sentence in sentences:
-                        if sentence.strip():
-                            all_entries.append({"document": document_name,"ticket": sentence.strip(), "response": sentence.strip()}) ## Use knowledge graph ot create big fan fiction of the docmet 9different concept, family, character, gemerate code to better respond, use this auestion to respond, split document, etc...)
-
-            except Exception as e:
-                print(f"Error processing file {filepath}: {e}")
-            return all_entries
-        
-        # Load data from a list of documents
-        def load_data(self, filepaths):
-            try:
-                with ThreadPoolExecutor() as executor:
-                    results = executor.map(self.process_file, filepaths)
-
-                all_qa_pairs = [qa for result in results for qa in result]
-
-                if not all_qa_pairs:
-                    print("No data loaded.")
-                    return
-
-                self.df = pd.DataFrame(all_qa_pairs)
-                self.df['ticket_embedding'] = self.df['ticket'].apply(lambda x: self.get_embedding(x))
-                self.df.to_csv('embeddings.csv', index=False)
-                print("Data saved to embeddings.csv")
-            except Exception as e:
-                print(f"Error loading data: {e}")
-    
-        # The cosine similarity function used when comparing 2 vectors
-        def cosine_similarity(self, a, b):
-            return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
-
-        # Returns the top n closest texts. Is used to compare the query of a user to embeddings of text.
-        def get_top_n_closest_texts(self, text, n=None):
-            if n is None:
-                n = self.top_n
-            query_embedding = self.get_embedding(text)
-            self.df.dropna(subset=['ticket_embedding'], inplace=True)
-            self.df['similarity'] = self.df['ticket_embedding'].apply(lambda x: self.cosine_similarity(query_embedding, x))
-            top_n_indices = self.df[self.df['similarity'] >= self.similarity_threshold].nlargest(n, 'similarity').index
-            print(self.df.loc[top_n_indices])
-            return self.df.loc[top_n_indices]
-
-        # Function to get the response (with history of current conversation) from the query of the user
-        def get_responses(self, user_message, history):
-            top_n_results = self.get_top_n_closest_texts(user_message)
-            top_n_texts = ("document name: " + top_n_results['document'] + " | ticket: " + top_n_results['ticket'] + " | response: " + top_n_results['response']).tolist()
-            # print(top_n_texts)
-            system_message = self.message
-            system_message += f"History of the previous message: {history}"
-            '''if "code" in user_message.lower():
-                system_message += f"\n\nAdditional Code Content:\n{self.code_content}\n"'''
-            system_message += "\n" + str(top_n_texts)
-            # print(system_message)
-            n_history = [
-                {"role": "system", "content": system_message},
-                {"role": "user", "content": user_message},
-            ]
-
-            completion = self.model_client.chat.completions.create(
-                model=self.model,
-                messages=n_history,
-                temperature=0.1,
-                stream=True,
-            )
-
-            response_text = ""
-            for chunk in completion:
-                if chunk.choices[0].delta.content:
-                    response_text += chunk.choices[0].delta.content
-                    # For streaming purposes (which means real time response), we need to yield the response
-                    yield response_text
-
-            self.history.append({"User":user_message,"Document_used":top_n_texts,"ReservoirChat":response_text})
 
         # Function to insert or update conversations from self.history_history
         def mongo(self, history_history):
@@ -304,7 +134,7 @@ def app():
                     print(history)
                     print('---------------------------------------------------')
             message = run_local_search('ragtest',
-                                          'ragtest/output/everything3/artifacts',
+                                          'ragtest/output/basic/artifacts',
                                           'ragtest',
                                           0,
                                           'This is a response',
@@ -317,7 +147,7 @@ def app():
                 # For streaming purposes (which means real time response), we need to yield the response
                 yield response_text
                 time.sleep(0.01)
-            '''system_message = f
+            '''system_message = f"""
                     You are ReservoirChat, a helpful, smart, kind, and efficient AI assistant.
                     You are specialized in reservoir computing.
                     If a user ask a question in a language, you will respond in this language.
@@ -333,7 +163,7 @@ def app():
                     {history}
 
                     DOCUMENTATION:
-                    {message}
+                    {message}"""
                     
             prompt = [
                 {"role": "system", "content": system_message},
@@ -411,6 +241,7 @@ def app():
                         pn.Column(
                             pn.pane.HTML("""
                             <div style="display: flex; justify-content: center; align-items: center;">
+                                <h2 style='color:#31ABC7; font-size:32px;margin-right:10px;'>Basic</h2>
                                 <h2 style='font-size:32px;'>Reservoir</h2>
                                 <h2 style='color:#31ABC7; font-size:32px;'>Chat</h2>
                             </div>
@@ -444,13 +275,13 @@ def app():
                         )
                 
                 # The Legal Notice
-                chat.send("When using ReservoirChat, we ask you not to include any personal data in your interactions with the system. The data contained in the chat will be analyzed by Inria.",
+                chat.send("When using ReservoirChat, we ask you not to include any personal data in your interactions with the system. The data contained in the chat will be analyzed by Inria. ReservoirChat may provide incorrect responses, and by using it, you acknowledge that its information should not be considered 100% accurate.",
                         user="Legal Notice",
                         avatar='png/gavel.png',
                         respond=False
                         )
                 # The main information
-                chat.send("Hi and welcome! My name is ReservoirChat. I'm a RAG (Retrieval-Augmented Generation) interface specialized in Reservoir Computing using a Large Language Model (LLM) to help respond to your questions. Based on several documents and ReservoirPy documentation, I can answer general questions on Reservoir Computing and generate code. ReservoirChat uses [GraphRag](https://microsoft.github.io/graphrag/) and [Codestral](https://mistral.ai/news/codestral/).",
+                chat.send("Hi and welcome! My name is ReservoirChat. I'm a RAG (Retrieval-Augmented Generation) interface specialized in Reservoir Computing using a Large Language Model (LLM) to help respond to your questions. Based on several documents and ReservoirPy documentation, I can answer general questions on Reservoir Computing and generate code. I am based on [GraphRag](https://microsoft.github.io/graphrag/) and [Codestral](https://mistral.ai/news/codestral/).",
                         user="ReservoirChat",
                         avatar="png/logo.png",
                         respond=False
@@ -722,27 +553,6 @@ def app():
 
             return layout
 
-    # This is the instructions the LLM will follow
-    system_message = '''You are ReservoirChat, a helpful, smart, kind, and efficient AI assistant. 
-            You are specialized in reservoir computing.
-            If a user ask a question in a language, you will respond in this language.
-            You will serve as an interface to a RAG (Retrieval-Augmented Generation).
-            When given documents, you will respond using only these documents. They will serve as inspiration to your response.
-            If you are not given any document, you will exactly respond : "I didn't found any relevant information about on the documents I was provided, please refer to the [issue](https://github.com/VirgileBoraud/ReservoirChat/issues) of the github if it should be".
-            You will never invent a source if it was not given.
-            You will give the source if given.
-            When asked to code, you will use the given additional code content,
-            these documents are the only inspiration you can have to respond to the query of the user.
-            You will not return the exact responses your were provided, but they will serve as inspiration for your real response.
-            You will never use the database you have acquired elsewhere other than in the documents given.
-            You will be given a list in this format:
-            {"User": where the previous question of the user is,"Document_used": where the previous documents used are,"ReservoirChat": the response you used for the previous question, as the user can refer to them, you will take them into account for any question of the users.}
-            Don't ever ever ever write the source when speaking to the user.
-            You will use the following documents to respond to your task:
-            DOCUMENTS:
-            (document name : where the name of the document with the similarity are, you will display the name of these documents when you are asked to give the source | ticket: Where the similar questions or embeddings are | answer: the answer or resulting embeddings that will serve you as inspiration to your answer)
-            '''
-
     if __name__ == "__main__":
         if not pn.state.cookies.get("uuid"):
             uuid_v4 = str(uuid.uuid4())
@@ -750,14 +560,7 @@ def app():
             uuid_v4 = pn.state.cookies.get("uuid")
         collection = db[uuid_v4]
         mangollection = ma[uuid_v4]
-        reservoirchat = ReservoirChat(model_url='http://localhost:8000/v1',
-                        embedding_url='http://127.0.0.1:5000/v1',
-                        api_key='EMPTY',
-                        embedding_model='nomic-ai/nomic-embed-text-v1.5',
-                        model='TechxGenus/Codestral-22B-v0.1-GPTQ',
-                        message=system_message,
-                        similarity_threshold=0.6,
-                        top_n=5)
+        reservoirchat = ReservoirChat()
 
         # file_list = reservoirchat.file_list('doc/md') # The file list used to load the new data into the RAG application
         # reservoirchat.load_data(file_list) # To load new data into the RAG application

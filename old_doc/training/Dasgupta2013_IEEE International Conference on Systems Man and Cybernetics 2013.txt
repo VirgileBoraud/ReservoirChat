@@ -1,0 +1,606 @@
+Neural Combinatorial Learning of Goal-directed Behavior with Reservoir
+Critic and Reward Modulated Hebbian Plasticity Sakyasingha Dasgupta†,
+Florentin W¨ org¨ otter†, Jun Morimoto‡ and Poramate Manoonpong†
+†Bernstein Center for Computational Neuroscience (BCCN),
+Georg-August-Universit¨ at, Friedrich Hund Platz 1, 37077, G¨ ottingen,
+Germany dasgupta@physik3.gwdg.de ‡ATR Computational Neuroscience
+Laboratories, 2-2-2 Hikaridai, Seika-cho, Soraku-gun, Kyoto 619-0288,
+Japan Abstract—Learning of goal-directed behaviors in biological systems
+is broadly based on associations between conditional and unconditional
+stimuli. This can be further classiﬁed as classical conditioning
+(correlation-based learning) and operant condition- ing (reward-based
+learning). Although traditionally modeled as separate learning systems
+in artiﬁcial agents, numerous animal experiments point towards their
+co-operative role in behavioral learning. Based on this concept, the
+recently introduced frame- work of neural combinatorial learning
+combines the two systems where both the systems run in parallel to guide
+the overall learned behavior. Such a combinatorial learning demonstrates
+a faster and efﬁcient learner. In this work, we further improve the
+framework by applying a reservoir computing network (RC) as an adaptive
+critic unit and reward modulated Hebbian plasticity. Using a mobile
+robot system for goal-directed behavior learning, we clearly demonstrate
+that the reservoir critic outperforms traditional radial basis function
+(RBF) critics in terms of stability of convergence and learning time.
+Furthermore the temporal memory in RC allows the system to learn
+partially observable markov decision process scenario, in contrast to a
+memoryless RBF critic. Keywords—Re-inforcement learning, Reservoir
+networks, Corre- lation learning, Temporal memory I. INTRODUCTION
+Operant conditioning (or reinforcement learning) and clas- sical
+conditioning (or correlation-based learning) form the two classes of
+conditioning for associative learning in bio- logical systems. Several
+animal experiments provide evidence of effective learning when these two
+classes are combined together [14]. Inspired by this in [8] the neural
+combinatorial learning framework was introduced. This combined the input
+correlation learning (ICO) [13] and actor-critic reinforcement learning
+(RL) [1] for controlling artiﬁcial agents in continuous time. The
+learning performance of the combined system clearly outperforms the
+individual mechanisms for both standard benchmark learning problems as
+well as complex goal-directed behavior problems. However, the
+actor-critic learner was mod- elled in a traditional manner, using a
+feedforward radial basis function (RBF) critic network [9]. Although
+this works well for most standard memoryless markovian learning tasks,
+it fails to approximate the value function in case of non-markovian or
+partially observable markov decision problems (POMDP). The role of the
+critic within the actor-critic learning paradigm is crucial as it needs
+to approximate the expected cumulative future reward (value function)
+such that the temporal difference (TD) error can be minimised. This
+TD-error in turn drives the policy of the actor and guides the behavior
+of the controlled agent. In case of highly non-linear environments where
+the agent has only partial sensory capabilities, a critic with tem-
+poral memory is required. As such in this paper, we replace the previous
+RBF based critic with a new recurrent neural network based adaptive
+critic of the reservoir computing (RC) type. RC networks [4][5] make use
+of a randomly connected dynamic reservoir with delayed temporal memory
+capacity [2]. Using a recursive least squares algorithm, this type of
+critic can be trained very fast in an online setup. Furthermore due to
+internal feedback connections, the short term memory of incoming sensory
+information can be used to solve POMDP learning problems. The RC based
+critic enhances the actor- critic based learner. In order to combine it
+with the ICO learning component of the combinatorial framework, learning
+of the connection weights between the two systems (Fig. 1) is very
+important. We solve this problem by introducing a new learning rule
+based on a biologically plausible mechanism called reward modulated
+Hebbian plasticity (RMHP) [6]. The RMHP rule updates the connection
+weights between ICO and actor-critic RL by checking for correlations
+between a constant reward signal and the deviation from the mean output
+level of the respective learning mechanisms. As such depending on the
+learner which drives the agent towards the correct goal (i.e. positively
+reinforced), the weight adaptation proceeds to ﬁnally ﬁnd a suitable
+combination between the two learning systems. Previously in [10][11] an
+application of the echo-state network (speciﬁc RC network) as an
+adaptive critic for reinforcement learning was presented. Although the
+authors implemented an online learner, the training and testing data for
+the RC network were carried out by manually controlling a wheeled robot.
+Moreover these implementations were designed with the purpose of
+minimizing a speciﬁc utility function for obstacle avoidance,
+door-passing scenario or very simple learning to reach a single goal. In
+contrast we implement a completely continuous learner where the
+reservoir critic learns online with- out any initial manual control of
+the robot. Furthermore, to the best of our knowledge, this is the very
+ﬁrst implementation that combines correlation learning with reservoir
+based actor-critic learning and reward modulated Hebbian learning to
+succesfully demonstrate a more efﬁcient and fast learner. In addition,
+the RMHP learning rule is both biologically plausible and an effective
+mechanism to learn the contribution of competing systems modulated by
+constant reward signal. As proposed in our previous work [2]
+self-adaptation of the reservoir neurons non-linearity is carried out
+using a general intrinsic plasticity mechanism based on the Weibull
+probability distribution. We test our combined network on a complex
+goal-directed behavior task with a simulated wheeled robot for both
+fully and partially observable scenarios. The RC based adaptive critic
+clearly outperforms feedforward critic networks based on RBF kernels,
+both in terms of stability of performance as well as the learning time.
+Moreover the RMHP based weight adaptation rule, by working on a very
+slow timescale is able to accurately combine the two learning systems in
+an adap- tive manner. Speciﬁcally this type of a neural combinatorial
+learning framework based on reservoir critics can be used to solve
+complex control problems as well as to solve tasks with delayed reward
+or partially observable state space, in continuous time. This article is
+organized as follows. Section II introduces the neural combinatorial
+learning framework in greater detail with descriptions of the new
+reservoir based actor-critic learner (section II A) and the reward
+modulated Hebbian plasticity rule (section II B). Section III presents
+the experimental setup with the discussion of results. This is followed
+by the conclusion in Section IV. II. NEURAL COMBINATORIAL LEARNING
+FRAMEWORK In this section we brieﬂy describe the neural combinatorial
+learning framework (CLF), as introduced in our previous work [8]. The
+CLF combines two classes of associative learning, namely classical
+conditioning and operant conditioning, as a dual learning system. It is
+used for goal directed behaviors in continuous state-action spaces.
+Classical conditioning involves the presentation of two different
+stimuli often termed as a conditional stimulus (CS) and an unconditional
+stimulus (US), leading to corresponding responses. The agent learns the
+association between the US and CS such that after learning completes, it
+now responds to the CS rather than the original unconditioned response
+(an innate reﬂex action) to the US. In general the CS acts as a
+predictor signal (occuring earlier in time) for the US, e.g. the famous
+Pavlovian dog [12] initially salivates (unconditioned response) at the
+sight of food (US) and after learning salivates at the ring of a bell
+(CS) much prior to the sight of food. However this type of learning
+occurs in the absence of any explicit future positive or negative
+feedback (other than the immediate reﬂex signal) for a particular
+action. In contrast, Operant conditioning based learning involves an
+explicit reinforcer or reward signal that provides positive or negative
+feedback to the agent for every corresponding action. Over time the
+agent learns to respond with the desired action such that it maximises
+(for the positive case) the total accumulated reward. As such this type
+of conditioning is popularly termed as Reinforcement learning (RL).
+Although these two mechanisms are distinct from each other they seem to
+occur in combination as suggested from several animal behavioral
+studies. For a more clearer understanding let Neural ICO learning Neural
+actor-critic reinforcement learning
+
+Agent Feedback OICO Oac OCOM Behavior Environment Disturbances (Combined
+controller) (Control signals) (Controlled system) Fig. 1. Combinatorial
+learning framework with parallel combination of ICO learning and
+actor-critic reinforcement learning. Individual learning mechanisms
+adapt their weights independantly and then their ﬁnal weighted outputs
+(Oico and Oac) are combined into Ocom using a reward modulated Hebbian
+plasticity rule (dotted arrows represent plastic synapses). Ocom
+controls the agent behavior (policy) while sensory feedback from the
+agent is sent back to both the learning mechanisms in parallel. us
+consider the example of Pavlov’s dog once again. Say, once the bell is
+rung, the dog is now required to perform a speciﬁc task (e.g. stand on
+two legs) and only then it receives food. In this slightly modiﬁed
+scenario, the bell is still the conditional stimulus; however, now the
+food acts as the reinforcer or reward signal. The dog learns to
+associate the sound of bell and food and starts to salivate based on
+classical conditioning. Interestingly after sufﬁcient repetitions, the
+dog would learn to perform the desired action of standing on two legs as
+soon as it hears the bell and expect to receive the food as reward. Thus
+the overall behaviour is shaped through a combined learning system.
+Inspired by such biological systems the CLF acts as a neural learning
+system that succesfully combines classical conditional (CC) with operant
+or reward based conditioning. Input cor- relation learning (ICO)1 [13]
+was implemented as an exam- ple of CC, while a continuous actor-critic
+learner [1] was implemented as an example of reward based conditioning.
+Taking advantage of the individual learning mechanisms, the combined
+framework can learn the appropiate control policy for the agent in a
+fast and robust manner outperforming the singular implementation of the
+individual components. The input correlation learning (ICO) and
+actor-critic RL subsystems can either be combined in series or in
+parallel. Pre- viously in [7] serial combination was presented, where
+the ICO learner was used for reward related feature space extraction and
+provide prior knowledge to the actor-critic learner. Although this
+considerably improved the performance of the combined learning system,
+it suffered from the drawback of technical inconvinience of running the
+learning systems separately. This is also biologically less plausible.
+We extended this to a parallel combination in [8], however with a
+memoryless radial basis function critic network. Furthermore the
+subsystems were combined with equally weighted contribution in a
+non-adaptive manner to control the overall action of the Agent. As such
+in this work, we start with a parallel combination (Fig. 1) of the two
+individual learning systems. The actor-critic reward based learner is
+extended with a dynamic adaptive reservoir based critic with delay
+temporal memory capability [2] that can handle partially observable
+markov decision process problems (POMDP) in continuous time. Furthermore
+we implement a new reward modulated hebbian plasticity rule that learns
+the degree of contribution of the two learning systems. 1ICO learning is
+implemented as a differntial Hebbian learner. For more details refer to
+[8] The learning goal of the ICO learning system is to use a predictive
+signal (CS) in order to predict the occurence of the reﬂex signal (US).
+This in general enables the agent to react earlier and avoid the reﬂex
+altogether. Here the synaptic adap- tation takes place by changes via
+heterosynaptic interactions as a consequence of the order of the
+arriving inputs. If the predictive inputs (agents sensory signals) are
+followed by the reﬂex input, the plastic synapses of the predictive
+inputs get strengthened and if the order is reveresed, it weakens based
+on a differential Hebbian learning method. For further details of the
+ICO learning system, the reader is refered to [13] [16]. A. Actor-critic
+Learning with Dynamic Reservoir The continuous actor-critic
+reinforcement learning scheme is particularly suited for complex
+continuous state-action prob- lems while at the same time being based on
+a biological learning model [3]. The basic learning model can be divided
+into two sub-mechanisms popularly termed as the actor and the adaptive
+critic (Fig. 2). The actor behaves as the main controller of an agent,
+while the critic provides an evaluative feedback or reinforcement signal
+to the actor by observing the consequences of its behaviour in the
+environment (controlled system). This evaluative feedback in general
+acts as a measure of goodness of behaviour i.e. overtime the agent
+learns to anticipate reinforcing events. Inspired by the reservoir
+computing framework, here we use a large recurrent neural network
+(dynamic reservoir) as the critic. This provides a dynamic network with
+a large repertoire of reservoir signals that can be used to approximate
+the value function v(t). It approximates the accumulated sum of the
+future rewards r(t) with the discount factor γ where, 0 ≤γ < 1. v(t) = ∞
+X i=1 γi−1r(t + i). (1) The primary goal of the critic is to predict
+v(t) such that the temporal-difference error δ (TD-error) is minimized
+over time. The TD-error δ is computed from the predictions as follows:
+δ(t) = r(t) + γv(t) −v(t −1). (2) The reservoir network (Fig. 2 bottom)
+is constructed as a random RNN with N internal neurons and ﬁxed synaptic
+connectivity. The recurrent neural activity within the dynamic reservoir
+varies as a function of it’s previous activity and the current driving
+input signal. As such, the discrete time state dynamics of reservoir
+neurons is given as: x(t+1) = (1−λ)x(t)+λfsys(Winu(t+1)+Wsysx(t)), (3)
+y(t) = fout(Woutx(t)), (4) where x(t) is the N dimensional vector of
+reservoir state activations, u(t) is the input to the reservoir,
+consisting of the agent’s states (sensory inputs) and y(t) is the vector
+of output Neural actor-critic reinforcement learning
+
+x Sensory signals R Reward signal  V (t) V (t-)  Critic x x u u u1 K
+   2 u2 u1     O w w w Actor  K 2 1    Sensory signals u u u1
+K    2 Plastic synapse Excitatory synapse Inhibitory synapse    
+  uK ac Dynamic Reservoir Win Wsys Wout TD error Fig. 2. The Neural
+circuit of actor-critic RL based on TD learning. (Top) The actor modeled
+as a stochastic neural network. (Below) The critic modeled using a
+dynamic reservoir network (details in text). neurons. Here the predicted
+value function v(t) = y(t). The reservoir time scale is controlled by
+the parameter λ, where 0 < λ ≤1. Win and Wsys are the input to reservoir
+weights and the internal reservoir recurrent connection weights,
+respectively. The output weights Wout are calculated using the recursive
+least squares (RLS) algorithm at each time step, while the training
+inputs u(t) are being fed into the reservoir. Wout are calculated such
+that the overall TD-error is minimized. We implement the RLS algorithm
+using a ﬁxed forgetting factor (λRLS < 1) as follows: RLS algorithm for
+self-adaptive reservoir training: Initialize: Wout = 0, exponential
+forgetting factor (λRLS) is set to a value less than 1 (we use 0.85) and
+the auto-correlation matrix ρ is initialized as ρ(0) = I/β, where I is
+unit matrix and β is a small constant. Repeat: At time step t Step 1:
+For each input signal u(t), the reservoir state x(t) and network output
+y(t) are calculated using Eq. 3 and Eq. 4. Step 2: Online error e(t)
+calculated as: e(t) ←δ(t) Step 3: Gain vector K(t) is updated as: K(t) ←
+ρ(t−1)x(t) λRLS+xT (t)ρ(t−1)x(t) Step 4: Update the auto-correlation
+matrix ρ(t) ρ(t) ← 1 λRLS h ρ(t −1) −K(t)xT (t)ρ(t −1) i Step 5: Update
+the instantaneous output weights Wout(t) Wout(t) ←Wout(t −1) + K(t)e(t)
+Step 6: t ←t + 1 Until: Maximum number of time steps is reached. As
+proposed in [15][2] we also implement a generic intrinsic plasticity
+mechanism based on the Weibull distribution for unsupervised adaptation
+of the reservoir neuron nonlinearity. This allows the reservoir to
+homoeostatically maintain a stable ﬁring rate while at the same time
+prevent unwanted chaotic neural activity. The reservoir neurons and the
+output neurons are updated using a tanh nonlinear activation function
+i.e. fsys = fout = tanh. The actor is designed as a stochastic unit,
+such that for a one dimensional action setup the output (Oac) is given
+as: oac(t) = ϵ(t) + K X i=1 wi(t)ui(t) (5) where K denotes the number of
+sensory inputs (u(t) = u1(t), u2(t), .., uK(t)) to the agent being
+controlled. wi repre- sent the synaptic weights for the different
+sensory inputs. ϵ(t) is the exploration quantity updated at every time
+step such that the agent should explore the environment more if the
+expected cummulative future reward v is suboptimal and decrease the
+exploration as v is maximised. As a result one should expect the
+exploration to tend towards zero as the agent starts to learn the
+desired behavior. Using a gaussian white noise σ (zero mean and standard
+deviation one) bounded by the minimum and maximum limits of the value
+function (vmin and vmax), the exploration term is modulated as follows
+(Ωis constant scale factor): ϵ(t) = Ωσ(t) h min h 0.5, max  0, vmax
+−v(t) vmax −vmin ii (6) The actor learns by an online adaptation (Fig.
+2 above) of its synaptic weights wi at each time step modulated by the
+TD- error δ(t) from the Critic network (Equation (2)) as follows: ∆wi(t)
+= αδ(t)ui(t)ϵ(t) (7) Where α is the learning rate such that 0 < α < 1.
+Instead of using direct reward to update the actor weights, using
+TD-error (i.e. error of an internal reward) allows the system to handle
+even delayed reward control problems. In general once the agent learns
+the desired behavior, the explo- ration term (ϵ(t)) should become zero,
+as a result of which no further weight change (Eq. (7)) occurs and
+oac(t) gives the desired action without any noise. The reservoir network
+being an input driven dynamical system, endows the critic with long
+temporal memory in contrast to traditional feedforward critic networks
+(RBF kernels). Speciﬁcally in order to solve POMDP scenarios, temporal
+memory is crucial to propagate the knowl- edge of previously visited
+state space (sensory signals) for expected reward in the future. As a
+result unlike RBF based critics our network can effectively deal with
+such problems in continuous time. B. Combinatorial learning with reward
+modulated Hebbian plasticity In the previous subsections we provided an
+overview of the combinatorial learning framework along with the
+description of the new dynamic reservoir based actor-critic reinforce-
+ment learning network. We now elaborate on the parallel combination of
+the correlation-based learner (ICO) and the reward-based learner
+(actor-critic) as depicted in Fig. 1. The system works as a dual learner
+where the individual learning mechanisms run in parallel to guide the
+behavior of the agent. Both the systems adapt their weights
+independently while receiving sensory feedback from the agent (system
+state) in parallel. The ﬁnal action that drives the agent is calculated
+as a weighted sum of the individual components. This can be described as
+follows: ocom(t) = ξicooico(t) + ξacoac(t) (8) where, oico(t) and oac(t)
+are the t time step outputs of the input correlation-based learner and
+the actor-critic learner, respectively. ocom(t) represents the t time
+step combinatorial action. The important parameter here is the weights
+of the individual components (ξico and ξac) that govern their degree of
+inﬂuence on the net action of the agent. A simple and straight forward
+approach [8] is to provide equal contribution (ξico = ξac = 0.5) for
+controlling the agent. Although this leads to successful solutions, they
+are sub-optimal. Intuitively for associative learning problems with
+immediate rewards the ICO system learns quickly as compared to distal
+reward based goal-directed problems where the ICO learner provides
+guidance to actor-critic learner. In general depending on the type of
+problem, the interaction between the two learning systems differs and
+needs to be taken into account. We solve this problem by introducing a
+new plasticity rule called reward modulated hebbian plasticity [6] in
+order to learn the individual synaptic weights. Based on this plasticity
+rule the ICO and actor-critic RL weights are learnt at each time step as
+follows : ∆ξico(t) = ηr(t)(oico(t) −¯ oico(t))oac(t), (9) ∆ξac(t) =
+ηr(t)(oac(t) −¯ oac(t))oico(t). (10) Here r(t) is the current time step
+reward signal received by the agent, while ¯ oico(t) and ¯ oac(t) denote
+the low-pass ﬁltered version (¯ oico,ac(t) = 0.9¯ oico,ac(t −1) +
+0.1oico,ac(t)) of the output from the ICO learner and the actor-critic
+learner, respectively. The plasticity model used here is based on the
+assumption that the net policy performance (agents behavior) U D IR B B
+B Blue steering (a) G G Green IR IR IR IR IR IR IR Object + - + -
+Direction of motion 0 deg Object IR IR IR IR IR IR IR IR IR DG 180 deg
+-180 deg Wheeled robot Green object (posi Blue object (negative reward)
+-45 deg 45 deg Starting or reset position +1 -1 G B Reinforcement
+
+Zone tive reward) -45 deg 45 deg Starting or reset position +1 -1 G B c)
+
+    Observable zone
+
+DG,B < 0.6 Boundary unobservable (c) (b) Observer Observer Fig. 3.
+Simulated mobile robot system for goal-directed behavior task. (a) (Top)
+The mobile robot NIMM4 with different types of sensors. The relative
+orientation sensor φ is used as state information for the robot.
+(Bottom) Variation of the relative orientation φG to the green goal. (b)
+Environmental setup for the fully observable case. The robot
+continuously senses its relative orientation to both the green and blue
+objects. Only whithin the reinforcement zone (shaded circle) the robot
+receives positive reward when near the green goal and negative reward
+when near the blue goal. (c) Environmental setup for the partially
+observable case. The robot can sense its relative orientation to the
+goals only when within the observable zone (outer dotted circles).
+Reinforcement is received similar to the fully observable case. Here the
+orange object represents an external observer. is inﬂuenced by a single
+global neuromodulatory signal. The learning rule measures correlations
+between the reward signal and the deviations of the ICO and actor-critic
+learner outputs from their mean values and accordingly adjusts the
+respective weights. In order to prevent uncontrolled divergence in the
+learnt weights (ξico and ξac), synaptic normalization is intro- duced by
+dividing the individual weights by the total sum of weights. This
+ensures that the weights always add up to one and 0 < ξico, ξac < 1. In
+general this plasticty rule occurs on a slow time scale which is
+governed by the learning rate parameter η. Typically η is set much less
+compared to the learning rate of the two individual learning systems
+(ICO and actor-critic). III. EXPERIMENTS AND RESULTS In order to test
+the performance of the combinatorial learn- ing framework with a
+reservoir critic and reward modulated Hebbian plasticity, we employ a
+goal-directed behavior control task using a simulated wheeled robot
+system (Fig. 3 (a)). The task is to let the wheeled robot NIMM4 learn to
+steer itself towards a desired goal (green ball, Figs. 3(b) and (c))
+within a given time. As the robot approaches the desired goal, it
+receives positive reinforcement. Additionally an undesired goal (blue
+spherical ball) with negative reinforcement was also placed within the
+same arena. NIMM4 is provided with two relative orientation sensors (φG
+- green ball, φB - blue ball) that can measure angle of deviations from
+the two goals. They can take values in the interval [−180o,180o] with
+the φG,B = 0o when the respective goal is directly in front of the
+robot. In addition NIMM4 also consists of two relative position sensors
+(DG,B) that can calculate it’s relative distance to a goal in the
+interval [0,1] with the respective sensor reading tending to zero, as
+the robot gets closer to a goal. The task is further divided into fully
+and partially obervable scenarios. In the ﬁrst case, the robot can
+continuously sense its angle of deviation to the two goals with φG,B
+always active. For the later case, the robot cannot sense direction to
+either of the goals (φG,B inactive) untill it reaches the half way
+distance to either of the goals i.e. DG,B < 0.6. In both the Fully
+Observable Partially Observable 0 20 40 60 80 100 120 140 160 Learning
+time at success (trials)
+
+Reservoir Critic RBF Critic Fully Observable Partially Observable 0 10
+20 30 40 50 60 70 80 90 100 Success rate %
+
+Reservoir Critic RBF Critic (a) (b) 98 % 92 % 94 % 48 % Fig. 4.
+Performance comparison between a reservoir based critic and RBF based
+critic for the fully observable and partialy observable cases (ICO and
+actor components remained the same). (a) Average learning time (trials)
+needed to succesfully complete the task, calculated over 50 experiments
+(error bars indicate standard deviation for 95 % conﬁdence interval).
+(b) Success rate in percentage. Here ”success” indicates the robots
+ability to correctly navigate to the green goal. -100 0 100 200 300 400
+500 600 700 -600 -400 -200 0 200 400 600
+
+-40 -30 -20 -10 0 10 20 30 40 -100 0 100 200 300 400 500 600 700 -600
+-400 -200 0 200 400 600
+
+-40 -30 -20 -10 0 10 20 30 0 0.5 1 1.5 2 2.5 3 x 10 5 -0.2 -0.15 -0.1
+-0.05 0 0.05 0.1 0.15 0 0.5 1 1.5 2 2.5 3 x 105 -0.2 -0.15 -0.1 -0.05 0
+0.05 0.1 0.15
+
+0 5 10 15 0.44 0.46 0.48 0.5 0.52 0.54 0.56
+
+0 5 10 15 x 10 4 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7
+
+ICO output weight Actor-critic output weight x 10 4 Time steps Time
+steps
+
+ICO output weight Actor-critic output weight (a) (b) (c) (d) (e) (f) G B
+G B Fig. 5. (a) Estimation of the value function v(t) using reservoir
+based critic. The v(t) estimate is plotted with respect to local
+co-ordinates of the robot and an observer located directly opposite to
+the robot starting position. Colormap indicates the changing v(t)
+values. The black ball indicates the starting position of the robot with
+random orientation and the curvature of the plot is resultant of the
+shape of view from the observer. (b) Estimation of value function v(t)
+for the same task using the static RBF based critic. (c) Convergence of
+exploration term ϵ(t) using reservoir critic. (d) Convergence of
+exploration term using RBF critic. (e) Adaptation of ICO weights ξico
+and actor-critic weights ξac using the RMHP rule for Combined learner
+with reservoir critic. (f) Adaptation of ICO weights ξico and
+actor-critic weights ξac using the RMHP rule for Combined learner with
+RBF critic. The continuous change in the learned weights even after
+successful learning of task is due to the Hebbian nature of the
+adaptation rule. This can be easily controlled by introducing additional
+synaptic scaling mechanism or in this case stop the weight updation once
+exploration (ϵ(t)) becomes zero. All the plots were generated for the
+same goal-directed behavior task of reaching the green goal. The plots
+indicate the best performance case for each setup. goal observer robot
+undesired goal Fig. 6. Simulation screenshots showing the actual
+behavior of the robot after succesfully learning the task. Upon
+learning, it continuously steers towards the green goal and avoids
+movements towards the blue ball. For video of a complete learning
+sequence, please visit http://www.manoonpong.com/rcrl/rcrl.wmv . cases
+when the robot gets very close to either of the goals, within a distance
+of (DG,B = 0.2) it receives a positive or negative reward. Within this
+boundary for the green goal it receives a continuous reward of +1 at
+every time step and a continuous reward of -1 in case of the blue goal,
+respectively. This distance is also used as the zone of reﬂex to trigger
+a reﬂex signal for the ICO learner. It is important to note that only
+the relative orientation sensory data is used as state input for both
+the ICO learner and the actor-critic learner. Furthermore as φG,B
+signals overlap with each other (i.e., the robot simultaneously senses
+its relative orientation to both the goals in the whole arena). NIMM4 is
+also supplied with eight infra-red sensors that are used only to reset
+it to the starting location if it hits a boundary before reaching either
+of the goals. Keeping the ICO learner ﬁxed for the combinatorial setup,
+we tested both the scenarios (Figs. 3(b) and (c)) for a reservoir based
+critic and a feedforward RBF critic. The combinatorial learning
+mechanism learns to steer the robot towards the desired goal (green
+object). Without control, the robot randomly moved around. The robot
+always starts from the same location, however with random orientation.
+50 runs were carried out with each setup for both fully observable and
+partially-observable scenarios. Each run consisted of a maximum of 200
+trials (robot resets). The robot was reset if it reached either of the
+goals or if it hit a boundary wall or if the maximum simulation time of
+15s was reached. ICO learning was setup as follows: φG,B were used as
+predic- tive signals. Two independent reﬂex signals were conﬁgured with
+one for blue ball and the other for the green ball. The reﬂex signal was
+designed to elicit a turn towards a ball once the robot comes close
+enough to it (inside the dotted circle in Figs. 3(b) and (c)).
+Irrespective of the kind of goal (desired or undesired) the reﬂex signal
+drives the robot towards it with a turn proportional to the deviations
+deﬁned by φG,B i.e large deviations cause sharper turns. The green and
+the blue ball were placed such that there was no overlap between the
+reﬂex areas, hence only one reﬂex signal got triggered at a time. In
+other words, the goal of the ICO learner is simply to learn to drive
+towards a goal location without any knowledge of their worth (positive
+or negative reward). The actor-critic learner was setup as follows: The
+inputs to the critic and actor networks (Fig. 2) consisted of the two
+relative orientation sensor data φG and φB. The reservoir network for
+the critic consisted of N = 100 neurons and one ouput neuron that
+estimates the value function v(t) (Eq. (1)). Reservoir input weights Win
+were drawn from an uniform distribution [−0.5, 0.5] while the reservoir
+recurrent weights Wsys were drawn from the uniform distribution [−1, 1].
+Wsys was subsequently scaled to a spectral radius of 0.9 with only 10%
+internal connectivity. The reward signal r(t) (Eq. (2)) was set to +1
+when the robot comes close to the green ball and to -1 when it comes
+close to the blue ball. A RBF feedforward network was used for
+comparison with the reservoir based critic. The RBF critic size was
+varied from 16 to 100 hidden neurons. All other combinatorial network
+parameters are summarised in Table 1. The performance of the reservoir
+based critic as compared to the RBF critic (keeping all other components
+of the combi- natorial learning framework the same) is compared in Fig.
+4 with respect to the fully and the partially observable scenarios of
+the same task. As observed from Fig. 4(b), the reservoir based critic
+clearly outperforms the RBF critic. Moreover the difference in
+performance is highly signiﬁcant in the POMDP scenario, where the
+reservoir network outperforms the RBF critic by a success rate greater
+than 50%. Temporal memory of incoming agent state information available
+to the reservoir critic is crucial for solving complex non-markovian
+prob- lems, as compared to memoryless feedforward critic networks.
+Furthermore although both the implementations have almost similar
+success rate for the fully observable case, the reservoir based system
+converges to a solution (learned behavior of driving the robot to the
+green goal) faster (less than 50 trials), as observed in Fig. 4(a).
+However, expectedly the POMDP scenario takes longer time to learn the
+correct behavior, owing to the reduction in the total sensory
+information available to the system. Upon successfully learning the task
+the weights of the actor (Eq. 7) converge such that the robot gets
+pulled towards the desired green goal. It should be noted that although
+linear actors (Eq. 5) were used in this setup, the POMDP scenario is
+effectively solved due to the inherent trace of previous inputs in the
+reservoir critic. In contrast the memoryless RBF critic system works on
+chance and hence learns the POMDP task with less than 50% success rate.
+In Figs. 5 (a) and (b) we compare the performance of the reservoir based
+critic with a RBF critic network in terms of the value function
+estimation curves for the same goal- directed behavior task (i.e. the
+fully observable task). It is clearly observed that the reservoir critic
+successfully enables the mobile robot to learn to drive towards the
+green goal while avoiding the blue goal. Furthermore unlike the RBF
+critic (Fig. 5(b)), the value function curve in Fig. 5(a) displays a
+strong gradient of the estimated value of v(t) with high positive TABLE
+I. The List of combinatorial network parameters Reservoir critic size
+(neurons) 100 RBF critic size (neurons) 16 - 100 Reservoir leak rate (λ)
+0.3 RLS learning constant (β) 10−2 Discount factor (γ) 0.95 Scale factor
+(Ω) 5 Maximum value (vmax) 50.0 Minimum value (vmin) -50.0 Neuron
+non-linearity (fsys,fout) tanh RLS learning rate (λRLS) 0.85 Actor
+learning rate (α) 0.001 RMHP learning rate (η) 0.0005 values towards the
+correct goal (green object). In contrast the memory less RBF critic
+estimates v(t) to values closer to zero in most locations except for
+regions within the zone of reward. As a result our modiﬁed critic learns
+the task faster as indicated by the fast convergence of the exploration
+term ϵ(t) in Figs. 5 (c) and (d). In Figs. 5(e) and (f) we plot the
+development of the ICO ξico and actor-critic weights ξac via the RMHP
+learning rule (Eqs. (9) and (10)). In case of the reservoir critic, the
+actor-critic learner component is seen to dominate over the ICO learner.
+In contrast when the RBF critic was used for the same task, the learnt
+behavior is dominated by the ICO component. This can be explained in
+terms of the memory of sensory state present in the reservoir network
+that successfully guides the agents behavior in contrast to the
+memoryless RBF network. In general the weight adaptation should occur in
+a task dependent manner. The actual behavior of the robot NIMM4 after
+succesfully learning the task of navigating towards the green goal, is
+depicted via screenshots of the simulation in Fig. 6. IV. CONCLUSION In
+this work we have successfully extended the neural combinatorial
+learning framework (CLF) using a reservoir network based adaptive
+critic, while using a stochastic linear actor unit and a basic
+implementation of input correlation learning. The resultant network
+effectively solves goal directed behavioral problems and outperforms the
+CLF with traditional radial basis function ( feed-forward network) based
+critics both in terms of rate of success and the overall learning time.
+Furthermore due to the inherent temporal memory of reservoir networks,
+our modiﬁed critic enables the CLF to solve partially observable
+scenarios. In addition we imple- ment a new biologically plausible
+reward modulated Hebbian plasticity rule which enables the CLF to learn
+the degree of inﬂuence of the ICO learner as compared to the
+actor-critic learner. This allows automatic weight adaptation between
+the two components working on a very slow time scale. As a future
+direction we plan to extend the linear actor units to reservoir based
+nonlinear actors which would work in conjunction with the reservoir
+critic. This would enable the controlled agent with memory capabilities
+in the action domain and thereby solve more complex goal-directed
+behavioral tasks like delayed reward maze navigation. Moreover
+behavioral analysis of the RMHP rule for evaluating the stability of
+learning against changing metaparameters (E.g. individual learning
+rates) with task independent evaluation measures will be carried out as
+further extension of our current work. ACKNOWLEDGMENT This research was
+supported by the Emmy Noether Pro- gram (DFG, MA4464/3-1), the Federal
+Ministry of Education and Research (BMBF) by a grant to the Bernstein
+Center for Computational Neuroscience II G¨ ottingen (01GQ1005A, project
+D1), the Strategic Japanese-German Cooperative Pro- gram on
+Computational Neuroscience (JST-DFG, WO388/11- 1), European Community’s
+Seventh Framework Programme FP7/2007-2013 (Speciﬁc Programme
+Cooperation, Theme 3, Information and Communication Technologies) under
+grant agreement no. 270273 (Xperience), and the International Max Planck
+Research School for Physics of Biological and Complex Systems.
+REFERENCES [1] Doya, K. (2000) Reinforcement Learning In Continuous Time
+and Space. Neural Computation, 12, 219-245. [2] Dasgupta, S.,
+Woergoetter, F., and Manoonpong, P. (2013) Information Dynamics based
+Self-adaptive Reservoir for Delay Temporal Memory Tasks. Evolving
+Systems, doi: 10.1007/s12530-013-9080-y. [3] Fr´ emaux, N., Sprekeler,
+H., Gerstner, W. (2013), Reinforcement Learning Using a Continuous Time
+Actor-Critic Framework with Spiking Neurons. PLoS Comput Biol 9(4):
+e1003024. doi:10.1371/journal.pcbi.1003024. [4] Jaeger, H., and Haas.,
+H. (2004): Harnessing Nonlinearity: Predicting Chaotic Systems and
+Saving Energy in Wireless Communication. Sci- ence, 304(5667), 78-80.
+[5] Maass, W., Natschlger, T., and Markram, H. (2002), Real-time
+computing without stable states: a new framework for neural computation
+based on perturbations. Neural Computation. 14 (11): 253160. [6]
+Legenstein, R., Chase, S.M., Schwartz, A.B., and Maass, W. (2010) A
+reward-modulated hebbian learning rule can explain experimentally
+observed network reorganization in a brain control task. J Neurosci
+30:84008410. [7] Manoonpong, P., W¨ org¨ otter, F., and Morimoto, J.
+(2010) Extraction of Reward-Related Feature Space Using
+Correlation-Based and Reward- Based Learning Methods. In Proc. 17th
+International Conference on Neural Information Processing, Sydney,
+Australia, November 22-25 (ICONIP’10),Part I, LNCS 6443, pp. 414-421.
+[8] Manoonpong, P., Kolodziejski, C., W¨ org¨ otter, F., and Morimoto J.
+(2013) Combining Correlation-Based and Reward-Based Learning in Neural
+Control for Policy Improvement. Advances in Complex Systems, doi:
+10.1142/S021952591350015X. [9] Morimoto, J., and Kenji, Doya. (1998)
+Reinforcement learning of dynamic motor sequence: Learning to stand up.
+In Proc. IEEE/RSJ International Conference on Intelligent Robots and
+Systems, Vol. 3. IEEE. [10] Oubbati, M., Kchele, M.,
+Koprinkova-Hristova, P., and Palm, G. (2011), Anticipating Rewards in
+Continuous Time and Space with Echo State Networks and Actor-Critic
+Design. In Proc. 19th European Symposium on Artiﬁcial Neural Networks
+(ESANN). [11] Koprinkova-Hristova, P., Oubbati, M., and Palm, G. (2010).
+Adaptive critic design with echo state network. In Proc. IEEE
+International Conference on Systems, Man, and Cybernetics, 1010-1015.
+[12] Pavlov, I., Conditioned reﬂexes (Oxford University Press, Oxford,
+UK, 1927) [13] Porr, B., and W¨ org¨ otter, F. (2006), Strongly improved
+stability and faster convergence of temporal sequence learning by
+utilising input correlations only. Neural computation 18, 1380-1412.
+[14] Skinner, B., The Behavior of Organisms: An Experimental Analysis
+(Appleton Century Croft, New York,1938) [15] Triesch, J. (2007),
+Synergies between Intrinsic and Synaptic Plasticity Mechanisms. Neural
+Computation 4, 885-909. [16] W¨ org¨ otter, F., and Porr, B. (2004)
+Temporal sequence learning, pre- diction and control - a review of
+different models and their relation to biological mechanism. Neural
+Computation. 17, 245-319.

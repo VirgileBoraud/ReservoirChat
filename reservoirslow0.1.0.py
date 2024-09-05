@@ -304,7 +304,7 @@ def app():
                     print(history)
                     print('---------------------------------------------------')
             message = run_local_search('ragtest',
-                                          'ragtest/output/everything3/artifacts',
+                                          'ragtest/output/everything4/artifacts',
                                           'ragtest',
                                           0,
                                           'This is a response',

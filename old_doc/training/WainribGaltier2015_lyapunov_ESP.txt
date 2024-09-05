@@ -1,0 +1,556 @@
+A local Echo State Property through the largest Lyapunov exponent Gilles
+Wainrib Ecole Normale Superieure, Departement d’Informatique, Paris,
+France. Mathieu N. Galtier NeuroMathComp, Inria Sophia; UNIC, CNRS Gif;
+Minds, Jacobs University Bremen. Abstract Echo State Networks are
+eﬃcient time-series predictors, which highly depend on the value of the
+spectral radius of the reservoir connectivity matrix. Based on recent
+results on the mean ﬁeld theory of driven random recurrent neural
+networks, enabling the computation of the largest Lyapunov exponent of
+an ESN, we develop a cheap algorithm to establish a local and
+operational version of the Echo State Property. Keywords: Reservoir
+computing, mean ﬁeld theory, Lyapunov exponents, Echo State Networks. 1.
+Introduction Echo State Networks (ESN) are neural networks designed for
+perform- ing complex non-linear regression or classiﬁcation tasks, such
+as non-linear time-series forecasting [1, 2]. As an instance of a more
+general framework called reservoir computing [3], the ESN architecture
+is based on a randomly connected recurrent neural network, called
+reservoir, which is driven by a temporal input. The state of the
+reservoir is a rich representation of the history of the inputs [4], so
+that a simple linear combination of the reservoir neurons is often a
+good predictor of the future of the inputs. The compu- tation of the
+output connections can be done explicitly and corresponds to the
+minimization of the relative entropy between the network and the inputs
+dynamics [5], for which the associated gradient descent may be
+implemented with biologically plausible learning rules [6]. Preprint
+submitted to May 26, 2015 arXiv:1402.1619v4 [nlin.CD] 24 May 2015 In
+this paper, we focus on the input-driven reservoir, which may be gov-
+erned by a variety of dynamical systems beyond random neural networks
+[7], provided they produce consistent reservoir dynamics for a given
+input. This condition is of primary importance since its violation
+systematically leads to irrelevant results. In the original paper [1],
+Jaeger has given a condition, which he names Echo State Property (ESP),
+guaranteeing that the network states are consistent. This deﬁnition of
+the ESP and the equivalent formu- lations manipulate left inﬁnite input
+time-series assuming that the initial condition occurs at t = −∞. If n
+is the number of neurons in the reservoir, x(t) ∈Rn is the state of the
+reservoir at time t ∈Z and u(t) ∈R is the input to the reservoir of time
+t ∈Z. The ESP deﬁnition can be summarized as Deﬁnition 1.1 (ESP [1]). A
+network has the ESP if the network state x(t) is uniquely determined by
+any left-inﬁnite input sequence {u(t −s) : s ∈N}. In other words, it
+means that the initial condition of the network (at t = −∞) does not
+inﬂuence the trajectory of the states, which corresponds to the property
+that the input-driven network has a unique global attractor [8]. The ESP
+seems to be important in practice to design eﬃcient reservoirs. Indeed,
+a network without ESP would have a poor accuracy in the inevitable
+presence of perturbations or noise: a small perturbation could bring the
+network to states it has never seen before, destroying the prediction
+capabilities of the network. Put diﬀerently, the network has to have
+some fading memory so that the initial conditions and perturbations do
+not impact the accuracy in the long term. A fundamental result is that a
+bound on the maximum singular value η of the network connectivity matrix
+J ∈Rn×n can provide the global ESP for every input. More speciﬁcally, if
+the dynamics of the network is governed by xi(t + 1) = S n X j=1
+Jijxj(t) + miu(t) ! := Gi(x(t), t) (1) where m ∈Rn is the input matrix,
+and S(.) is a sigmoid function with unit slope at the origin, then the
+following result holds: Theorem 1.1 ([1]). If η < 1, then the global ESP
+holds for every input. It is important to observe that the suﬃcient
+condition in 1.1 holds for the largest singular value η and not for the
+largest eigenvalue modulus ρ 2 (also called spectral radius), which are
+diﬀerent for most matrices. Indeed, as pointed out in [9], the theory of
+random matrices gives a relationship between the maximum singular value
+η and the maximum eigenvalue ρ of the random matrix J when the number of
+neurons tends to inﬁnity. First, using recent results on the empirical
+spectral distribution of random matrices [10], one can show that large
+random matrices, whose entries are i.i.d. random variables with mean 0,
+ﬁnite variance σ2 √n , have eigenvalues which tend to cover uniformly
+the disk of radius σ as the number of neurons tends to inﬁnity. For
+these matrices, the non-scaled standard deviation of the weights σ is in
+fact equal to the spectral radius ρ. Second, one can use results
+concerning the right edge of the Marchenko-Pastur convergence [11, 12,
+13] to show that η →2σ when the number of neurons tends to inﬁnity. From
+this result, as mentioned in [9], it is clear that the condition on the
+singular values translates to Theorem 1.2. When the number of neurons
+tends to inﬁnity (and with the appropriate scaling of the weights
+variance by 1 √n) the ESP holds for all inputs if ρ = σ < 1/2.
+Interestingly, there is here a clear gap between the theoretical
+suﬃcient con- dition η < 1 (i.e σ < 1/2) and the condition ρ < 1 (i.e σ
+< 1) which seems to be valid in practice [14]. Based on the notion of
+structured singular value and on concepts from control theory [15], a
+tighter suﬃcient condition has been derived involving the computation of
+the inﬁmum of the maximal sin- gular values of the connectivity matrix
+for variety of underlying norms [16]. Despite its improvement over the
+classical singular value, this criterion is diﬃcult to compute in
+practice, remains poorly understood from the point of view of random
+matrix theory, and does not respond to the problem of ﬁnding a criterion
+which depends on input, as we will discuss below. It is also interesting
+to mention the recent work [9], where the concentration of measure
+phenomenon [17] is used to prove that: Theorem 1.3 ([9]). If ρ < 1 −ϵ,
+then for any x, ˜ x ∈Rn, the probability that ||G(x, t) −G(˜ x, t)|| >
+||x −˜ x|| is exponentially small when the number of neurons is large.
+This result may seem suﬃcient to prove the contraction property with
+high probability, implying the ESP when σ < 1 with high probability.
+Actually, one must be careful because this result does not imply that
+P[∀x, ˜ x ∈Rn, ∀t > 3 0, ||G(x, t) −G(˜ x, t)|| > ||x −˜ x||] is small
+with high probability, which is a much stronger result. However, the
+authors claim that their result shows why choosing σ close but smaller
+than one is suﬃcient in practice. In a sense, they argue that networks
+which do not verify criterion of Theorem 1.1 can still perform well in
+applications. On the other side, it is also instructive to look for a
+necessary condition for the ESP. When the spectral radius ρ is larger
+than one, then the trivial null equilibrium of the system with zero
+input is linearly unstable, and Jaeger has shown that: Theorem 1.4
+([1]). When ρ > 1, the ESP does not hold for the null input. This result
+is in fact related to the existence of chaotic attractors as shown in
+[18]. Therefore, there is no hope for an ESP for all inputs beyond ρ =
+1. However, in practice [14], it may be important to increase ρ above 1
+to improve the ESN performance (to increase the memory for instance). If
+we want to go beyond ρ = 1, we need to drop the requirement to have the
+ESP for all inputs. It has recently been argued that one can deﬁne an
+ESP with respect to a particular input (or a set of inputs) [19].
+Intuitively, this means that a network driven by an input will not
+display excessive irregularity if it has the ESP with respect to that
+input. In [19], a bound for the ESP is also provided Theorem 1.5 ([19]).
+If lim sup j→∞ P−j i=−1  Ci−(1+ln(2))  I(Ci > 2) > ln(∥J∥) 2 , with Ci
+the smallest absolute component of the vector mu(i) and I is the
+indicator function, then the network has the ESP with respect to u.
+Intuitively, this bound plays with the saturation of the sigmoid and
+will be eﬃcient if the inputs are strong enough to drive the network in
+the saturating regime. Although this is a loose bound, it has the
+interesting property that the network may have temporarily
+non-contracting dynamics and still have the ESP. These ideas are clearly
+related to the fact that stimulating a chaotic system can result in a
+synchronized non-chaotic response, as shown in the context of random
+neural networks in [20]. In this paper, we aim at contributing to the
+debate about the ESP using a mean-ﬁeld approach applied to
+non-autonomous random neural networks in the large n limit. This theory
+derives a self-consistent statistical description of the reservoir
+dynamics unravelling the transition between regularity and irregularity
+in the network, based on a Lyapunov stability analysis. Although 4
+brought very recently into the ﬁeld of echo-state networks by [21], this
+theo- retical approach has a long history, dating back to early works on
+spin-glass models [22, 23], followed by applications to random neural
+networks dynam- ics as in [18, 24, 25, 26]. The rigorous justiﬁcation of
+this heuristic approach is non-trivial and has been resolved by [27, 28,
+29] using large deviations tech- niques. These mathematical results
+actually requires to add an (arbitrary) small white-noise perturbation
+to the reservoir dynamics, in order to be able to use a change of
+probability formula (e.g. Girsanov Theorem) which is at the heart of the
+large deviation proof. The rigorous proof of the mean-ﬁeld equations
+when this additional noise is removed remains open to our knowl- edge,
+but this is not a real problem in the ESN framework since adding such
+noise term is actually used in practice as a form of regularization,
+shown to be equivalent to the classical Tikhonov regularization [30].
+The network we consider in this paper is a leaky integrator ESN [31]
+deﬁned over a regular graph with degree αn, proportional to n. This
+means that every neuron in the network is only connected to αn other
+neurons, which is often used in practice to reduce computational
+complexity. To apply the mean-ﬁeld theory, we will assume that n goes to
+inﬁnity, but consider α ∈ (0, 1] to be a constant. The connections
+between neurons are weighted: we write Jij the weight from neuron j to
+neuron i. The weights are independent random variables satisfying:
+E(Jij) = 0 and E(J2 ij) = σ2 n < +∞ This quenched hypothesis excludes
+any dynamics on the weights: they are kept constant after having been
+randomly drawn. Given a one-dimensional input time series u : {1 · · ·
+T} →R, the classical neural network discrete dynamics is xi(t + 1) = (1
+−lτ)xi(t) + τS X j→i Jijxj(t) + miu(t) ! (2) where x(t) ∈Rn corresponds
+to the activity of all the neurons in the network at time t. The vector
+of feedforward connections m ∈Rn is made of i.i.d. random variables
+satisfying E(mi) = 0, E(m2 i ) = m2. The numbers l and τ are in [0, 1]
+and control the timescale of the ESN dynamics. The function S(.) is a
+typical odd sigmoid with S(0) = 0, S′(0) = 1, S′(x) > 0 and xS′′(x) ≤0.
+Note that it implies it is a 1-Lipschitz function. Actually, the 5
+following computations become explicit when a particular choice is made:
+S(x) = erf( √π 2 x) (which follows the requirements above). We write X
+j→i the summation of incoming information to a neuron which is only done
+over the neurons which are connected (through the graph) to the
+considered neuron. The paper is organized as follows: in section 2, we
+derive a mean ﬁeld theory of driven leaky integrator recurrent neural
+networks (RNNs) on a regular graph, and we show how it can be used to
+ﬁnd the frontier between order and disorder for the network dynamics.
+Then, in section 3 we show how this can be used to deﬁne a computable
+condition guaranteeing an operational version of the ESP. 2. Mean-ﬁeld
+theory for leaky ESN on regular graphs 2.1. Mean-ﬁeld equations From the
+seminal work [18], recently extended to the framework of stim- ulus
+driven RNN [20, 21], one can derive a self-consistent equation
+describing the statistical properties of the reservoir activity in the
+large n limit, which is known as the mean-ﬁeld theory. In this section,
+we present an extension of [21] to leaky RNNs on regular graphs. The key
+idea is to make the assumption that the variables xi(t) are i.i.d. and
+independent of J and m. This makes possible to use the central limit
+theorem on P j→i Jijxj(t) which can thus be considered as a Gaussian
+pro- cess. When k = αn →+∞, all the ai(t) = P j→i Jijxj(t) + miu(t) for
+i ∈{1..n} tend to behave as centered Gaussian variables with variance
+a2(t) = E[ai(t)2] = ασ2γ2(t) + m2u(t)2 where γ2(t) denotes the variance
+of xi(t) (independent of i). The iteration equation xi(t + 1) = (1
+−lτ)xi(t) + τS  ai(t)  is going to help us derive the mean-ﬁeld
+dynamical system describing the variance of the xi. However, the
+independence between xi(t) and S(ai(t)) is not granted and we cannot
+simply add their variance. Nonetheless, we can compute γ2(t + 1) = (1
+−lτ)2γ2(t) + τ 2F  a2(t)  + 2τ(1 −lτ)R(t, t) (3) with F(z2) = (2π)−1/2
+Z R S2(zx)e−x2/2dx = 2 π arcsin  πz2 2 + πz2  (4) 6 according to the
+technical result in the appendix of [32], and R(s, t) = E[xi(s)S  ai(t)
+] = (1 −lτ)R(s −1, t) + τQ(s −1, t) (5) where Q(s, t) = E  S  ai(s) 
+S  ai(t)  (6) Using again the result in [32], we can show that Q(s, t)
+= G  C(s, t), γ2(s), γ2(t)  = 2 π sin−1  π 2 ασ2C(s, t) + m2u(s)u(t)
+q 1 + π 2a2(s)  1 + π 2a2(t)    (7) where C(s, t) = E[xi(s)xi(t)] =
+(1 −lτ)C(s, t −1) + τR(s, t −1) (8) The recursive combination of
+equations (3), (5) and (8) provides a con- sistent description of the
+global variance of the neurons. An algorithm is provided in algorithm 1.
+2.2. Order-disorder transition The consistency equation (3)
+characterizes the transition between order and disorder in the network
+as a function of the variance of the connections σ2 and the sparsity
+coeﬃcient α. We ﬁrst illustrate this phenomenon in the autonomous case
+and then discuss its impact in the input driven case. 2.2.1. Without
+input the terms xi(t) and S(ai(t)) are independent, and the third term
+in (3) disappears. Thus, let us study the autonomous dynamical system
+γ2(t+1) = (1−lτ)2γ2(t)+τ 2F  ασ2γ2(t)  . Due to the properties of the
+sigmoid function S, the function F is increasing, concave and satisﬁes
+F(0) = 0 and F ′(0) = 1. Therefore, the function Ψ : x 7→(1 −lτ)2x + τ
+2F(ασ2x) is also increasing and concave. Therefore, the slope at 0,
+denoted µ = Ψ′(0), is the eﬀective parameter controlling the phase
+transition, and is given by µ = (1 −lτ)2 + τ 2ασ2 (9) This leads to a
+simple characterization of the behavior of the system for diﬀerent
+values of µ: 7 • γ2(t) converges to γ2 ∞= 0 if µ < 1 • γ2(t) converges
+to a limit value γ2 ∞> 0 if µ > 1 In the ﬁrst situation σ < σ∗= q l α( 2
+τ −l), all neuron variables converge to the quiescent state, whereas the
+network behavior becomes irregular as soon as σ > σ∗. Note that this
+generalizes the classical results of [18, 24] dealing with the case τ =
+α = l = 1, a case which is also treated in [33], where stability
+criteria are established for dynamical systems deﬁning recurrent kernels
+for inﬁnite-dimensional ESN. 2.2.2. With inputs, largest Lyapunov
+exponent When the system is driven by external inputs, the network will
+never go to a quiescent state. Indeed, it is clear from equation (3)
+that the situation γ2(t) = 0 will never happen. But one should not
+conclude that the network is always disordered because it could be
+strongly locked to the inputs, which is another way of deﬁning the
+notion of order in such systems. The network will be said to be in order
+(resp. disorder) when a small perturbation inde- pendent of the inputs
+will vanish (rep. grow) with time. This corresponds to the notion of
+Lyapunov stability for the input driven system. The largest Lyapunov is
+below 1 in the case of robustness of the dynamics to small per-
+turbations (order), and above 1 when the dynamics is signiﬁcantly
+impacted by small perturbations, as is the case in chaotic systems
+(disorder). Formally, the largest lyapunov exponent can be deﬁned as:
+λ[u] := lim t→∞,δ(0)→0  δ2(t) δ2(0) 1/t (10) where δ(t) is a distance
+at time t between two trajectories of (2) starting with diﬀerent initial
+conditions separated by δ(0). More precisely, let us deﬁne δ(t) such
+that xi(t) −x′ i(t) ∼N where xi and x′ i are two solutions of (2)
+starting from two diﬀerent initial conditions with xi(0) −x′ i(0) ∼N(0,
+δ(0)2). In the situation where δ(t) is small, we have the following
+recurrence equation: xi(t + 1) −x′ i(t + 1) = (1 −lτ)  xi(t) −x′ i(t) 
++ τ  S  ai(t)  −S  a′ i(t)  = (1 −lτ)  xi(t) −x′ i(t)  + τS′ ai(t) 
+P j→i Jij  xj(t) −x′ j(t)  + o  δ(t)  8 Therefore, one obtains the
+following relationship on the variances: δ2(t + 1) = (1 −lτ)2δ2(t) + τ
+2ασ2Φ (ασ2γ2(t) + m2u(t)2) δ2(t) + o(δ2(t)) (11) with Φ(z2) := (2π)−1/2
+Z S′2(zx)e−x2/2dx = 1 √ 1 + πz2. (12) When γ2(t) is obtained by solving
+iteratively (3), one can ﬁnd the local Lyapunov exponent: λ(t) := (1
+−lτ)2 + τ 2ασ2Φ  ασ2γ2(t) + m2u(t)2 (13) When λ(t)[u] < 1, local
+asymptotic stability is ensured and the reservoir tends to be
+synchronized by the input, whereas when λ(t)[u] > 1, small perturbations
+are exponentially ampliﬁed and the reservoir is likely to enter a
+chaotic regime. It is natural that this measure depends on time because,
+for instance in the case σ > 1, synchronized states will only appear
+during periods when the input is suﬃciently large compared to σ.
+Combining (10) and (11), one can deﬁne a global ﬁnite horizon largest
+Lyapunov exponent as: λT[u] := T Y t=1 λ(t) ! 1 T (14) where λ(t) is
+deﬁned in (13). Furthermore, at this stage, one already obtains an
+important property, showing that adding external input can only
+stabilize the system. Indeed, since Φ ≤1 (due to the fact that |S′| ≤1),
+we always have the following inequality: λT ≤µ (15) Therefore, if the
+system without external input is in the ordered phase, namely when µ <
+1, then it is also in the ordered phase (λT[u] < 1) for all input. This
+results supports the fact that, in practice, ρ < 1 is a suﬃcient
+condition for the ESP. In ﬁgure 1, we have applied algorithm 1 to
+estimate ΛT in the case where u(t) = 0 (left) and where u(t) = sin(ωt)
+(right) for various values of parame- ters σ and τ. In this ﬁgure, one
+observes that ΛT is an increasing function of 9 0 0.2 0.4 0.6 0.8 1 0.6
+0.8 1 1.2 1.4 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1 1.1
+
+Parameter o Parameter m
+
+Lyapunov exponent RT 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1 1.1 0 0.2 0.4 0.6 0.8
+1 1 1.2 1.4 1.6 1.8 2 0.4 0.6 0.8 1 1.2
+
+Parameter o Parameter m
+
+Lyapunov exponent RT 0.4 0.5 0.6 0.7 0.8 0.9 1 1.1 1.2 Figure 1:
+Numerical estimation of the global largest Lyapunov exponent ΛT using
+algo- rithm 1 as a function of τ and σ. Left: Input u(t) = 0. Right:
+Input u(t) = sin(ωt) with ω = 0.25. Other parameters: T = 1000, l = α =
+m = 1. σ, which is a consequence of the fact that both γ(t) and λ(t) are
+increasing functions of σ, and corresponds with the intuition that
+increasing the dis- order level would increase the unstability of the
+dynamics. The case of null input (left) with τ = 1 corresponds to the
+classical case [25], and displays a kink at σ = 1, whose consequences in
+terms of information processing has been discussed in [34]. However, the
+impact of the leak rate τ on the Lya- punov exponent has not been
+studied so far to our knowledge, and reveals an interesting U-shaped
+behavior indicating that there exists an optimal in- termediate value of
+τ which minimizes the instability of the system. Our purpose in the
+present paper is to evaluate the Lyapunov exponent when the system is
+driven by an external time-series, which is displayed on the right panel
+of ﬁgure 1 with u(t) = sin(ωt). This ﬁgure shows that the overall
+behavior is similar to the null-input case, with the expected diﬀerence
+that σ must be set much larger than one (around 1.6 when τ = 1) to
+observe an exponent ΛT > 1. Intuitively, the driven system is more
+stable because the input acts as a time-dependent bias in the sigmoid
+transfer function, hence reducing its average slope |S′| along a
+trajectory, and therefore the norm of the Jacobian matrix which controls
+the local expansion rate. Notice that the quantity Φ deﬁned in (12)
+corresponds to the average squared slope of S, where the average will be
+taken with respect to the Gaussian distribution with appropriate
+time-dependent variance (13). 10 3. Local Echo State Property In this
+section, we discuss in more details the connection between the Lyapunov
+exponent ΛT and the ESP. 3.1. Deﬁnition The intuition behind the ESP is
+that the network should follow a repro- ducible and robust attractor. If
+the attractor is not stable, then the output connectivity matrix would
+be learned on a trajectory which could be diﬀer- ent from the trajectory
+observed during the prediction or test phase, leading to poor accuracy.
+A key element to quantify the stability of the network trajectory is to
+measure the impact of small perturbations. If these pertur- bations are
+ampliﬁed over time then the dynamics is too irregular for good
+performance, the network is chaotic. Therefore, we deﬁne a local version
+of the ESP which guarantees the robustness of the dynamics to
+perturbations: Deﬁnition 3.1 (Local ESP). A driven dynamical system has
+the local Echo State Property if a small perturbation ˜ x(t0) = x(t0) +
+δ applied at time t0 decreases to 0 in the large time asymptotic limit,
+namely ||x(t) −˜ x(t)|| →0 when t →∞for δ suﬃciently small. This
+deﬁnition diﬀers from the traditional ESP Deﬁnition 1.1 in two aspects:
+ﬁrst, it deals with perturbations which do no necessarily occur at time
+t = −∞. This deﬁnition only asks the perturbed solution to converge
+eventually towards the unperturbed solution, whereas the traditional
+deﬁnition asks that the solutions are identical based on the fact that
+the perturbation occurred an inﬁnite number of time steps before. This
+deﬁnition is closer to the practical application of ESN where the
+initial condition corresponds to t = 0. Second, this deﬁnition only
+guarantees a local stability of the trajectories asking them to be
+robust only to small enough perturbations. On the other hand the
+traditional ESP requires that even large perturbations leave the
+trajectory unchanged. Put diﬀerently the traditional ESP guarantees a
+unique globally stable attractor, whereas the local ESP guarantees local
+stability of possibly many attractors (which have the same statistical
+properties). We claim that the local ESP is suﬃcient for the good
+behavior of the network for most applications. More precisely, the only
+danger for systems that satisfy the local ESP, and not the traditional
+global ESP, is when learn- ing is made on one attractor and prediction /
+test is made on another. In applications, if prediction / test is made
+immediately after learning such that 11 we are sure to stay on the same
+attractor, then the local ESP is suﬃcient. On the other hand, if the
+initialization of the prediction / test phase is done randomly, then the
+network may converge to a diﬀerent attractor than that explored during
+learning. In that case, one would expect the performance to be poor.
+3.2. Characterization Measuring the evolution of small perturbations
+precisely corresponds to computing the largest Lyapunov exponent.
+Indeed, if λ < 1 then a small perturbation will eventually vanish and
+the perturbed solution will converge to the unperturbed solution.
+Therefore, by construction we have the following quantitative criterion
+for the local ESP: Theorem 3.1. If λ[u] < 1 then the network has the
+local ESP for the input u. Some remarks: • The local ESP can be valid
+for systems experiencing temporary growth of perturbations as long as
+they are followed by a more important decrease. What matters in the
+deﬁnition of the local ESP is the balance of growth and decrease over a
+long time. • From the key inequality (15), we deduce that the local ESP
+hold for all inputs whenever µ < 1. This is a further argument
+supporting the practical criterion of a spectral radius below 1 should
+work for all inputs. • There is a unique σL such that λ(σ = σL) = 1 and
+that the local ESP holds for all σ < σL. Indeed, we claim ﬁrst that for
+any input u, the mapping σ2 7→λ[u] is increasing. The proof is as
+follows. The function F is increasing, concave with F ′(0) = 1.
+Therefore, equation (3) shows that γ(t) increases sublinearly with σ2.
+Performing a simple change of variable in equation (12), it is easy to
+see that Φ(z2) decreases slower that 1/z when z2 increases. Therefore,
+σ2Φ (ασ2γ2(t) + m2u(t)2) increases with σ2 and so does λT according to
+equation (14). Finally, one observes that λ(σ = 0) ≤1 and λ(σ = +∞) =
++∞. 12 3.3. Numerical experiments We now present an algorithm to compute
+λ[u]. A dichotomy algorithm, or any zero search algorithm for non-linear
+functions, could be implemented to ﬁnd an approximation of σL, but given
+the cheap computational cost of computing λ[u] for any σ, we will rather
+perform a grid search in this paper. The algorithm to compute λT[u] is
+stated below, when σ, m, α, l, τ and u have been ﬁxed. Note that this
+algorithm is computationally cheap, in O(T), Algorithm 1 Computing λT[u]
+1: λ ←1 2: γ2 ←0 3: R, C, γhist ←0 ∈Rk 4: for t = 1 : T do 5: for s = 1
+: k-1 do 6: C[s] ←(1 −lτ)C[s + 1] + τR[s + 1] 7: R[s + 1] ←(1 −lτ)R[s] +
+τG(C[s], γ2, γhist[s]) 8: end for 9: a ←ασ2γ2 + m2u(t)2 10: λ ←λ  (1
+−lτ)2 + τ 2ασ2Φ(a) 1/T 11: γ2 ←(1 −lτ)2γ2 + τ 2F(a) + 2τ(1 −lτ)R[−1]
+12: γhist[: −1] ←γhist[1 :] 13: γhist[−1], C[k] ←γ2 14: end for 15:
+return λ especially compared to the simulation of the full network. To
+show on a numerical example that the local ESP guarantees good ac-
+curacy, we have computed the prediction performance for a prediction
+task. More precisely, we consider here the classical task of
+Mackey-Glass (MG) time-series prediction. The MG dynamical system [35]
+is given by the fol- lowing delayed diﬀerential equation: ˙ u(t) =
+−bu(t) + au(t −δMG) 1 + u(t −δMG)10 (16) For each time-series, the task
+is to predict u(t + 1) (one-step ahead) given the past u(1), …, u(t −1),
+u(t). Training is done on half of the time-series and predictions are
+made for the other half. For diﬀerent variances of the 13 0 0.5 1 1.5 2
+10 −5 10 0 Variance parameter m Mean Square Error (log−scale) 0 0.5 1
+1.5 2 0 0.5 1 Variance parameter m Lyapunov exponent RT Figure 2: Top:
+this ﬁgure displays the prediction accuracy (mean-square error on a
+testing set) of an ESN when σ vary from 0 to 2. Bottom: this ﬁgure
+display the Lyapunov exponent ΛT as a function of σ. The dashed lines
+help seeing the critical value σ∗≃1.57 which both corresponds to ΛT = 1
+and to the transition to a regime of poor accuracy for the ESN. For the
+simulations the parameters were n = 2000, α = l = τ = 1, m = 1. and T =
+2000. The time-series to predict is a solution of the Mackey-Glass
+chaotic dynamical system with δMG = 18. recurrent weights, we have
+plotted the accuracy of an ESN in ﬁgure 2 (top). This accuracy
+corresponds to the quantity H = 1 T PT−1 t=0  u(t+1)−w′.x(t) 2, where w
+∈Rn was computed with the usual Wiener-Hopf solution: w =  PT−1 t=0
+x(t).x(t)′−1 .  PT−1 t=0 x(t)u(t+1)  . We see that even for some σ >
+1 the accuracy is good although the global ESP for all inputs is not
+satisﬁed any more. However, the accuracy becomes signiﬁcantly poorer
+after a certain critical value for σ. In ﬁgure 2 (bottom), we have
+plotted the value of the Lyapunov exponent ΛT computed with the
+algorithm above. We see that it crosses 1 quite precisely at a critical
+value σ∗for which the accuracy moves to a regime of much higher values.
+14 In order to further investigate the link between the local Lyapunov
+expo- nent ΛT and ESN performance, we have generated several discrete
+time-series corresponding to various values of δMG ∈{10, 12, 14, 16, 18,
+20, 22} with pa- rameters a = 0.2 and b = 0.1. In ﬁgure 3 (right), ESN
+performance is measured by the Mean Square Error on a testing set and is
+displayed as a function of the variance parameter σ, for various values
+of the delay δMG. Good performance is typically achieved for an
+intermediate range of values of σ, and one observes that the upper value
+of this range is smaller for higher values of δMG, as indicated by the
+black arrow. We interpret this loss of performance for high values of σ
+as related to the loss of the ESP. If this is indeed the case, then it
+should be possible to predict this behavior by using Algorithm 1 to
+compute σ∗, the value of σ for which local Lyapunov exponent ΛT becomes
+larger than 1. As displayed in ﬁgure 3 (left), σ∗is a decreasing
+function of δMG, which is perfectly consistent with the above
+observation. This numerical example illustrates that the proposed
+theoretical advance presented in this article helps predicting and
+understanding the behavior of the performance curve for Echo-State
+Networks. However, ﬁnding the opti- mal value of all the
+hyper-parameters, beyond a systematic cross-validation procedure,
+remains a challenging theoretical problem. 4. Conclusion In this paper,
+we have shown that the mean ﬁeld theory for ESN devel- oped in [21] can
+be, ﬁrst, extended to leaky integrator networks on regular graphs; and,
+second, used to compute accurately a condition for the local ESP
+corresponding to the edge of chaos. We argue that the local ESP with
+respect to the given input is the useful condition to check in many
+applica- tions, to ensure that the ESN representation is stable to small
+perturbations. We do not claim that the edge of chaos is always the best
+regime, but it has been shown that for some applications, typically
+requiring a lot of memory, it was optimal [36]. We believe that the
+proposed method to assess the lo- cal ESP should be systematically used
+to make sure the ESN has a regular dynamics leading to good accuracy.
+However, ﬁnding the optimal values of the hyper-parameters (e.g. σ, τ, α
+etc.) for a given supervised learning task necessitates to take into
+account both the input and the target, which goes beyond the scope of
+the present approach : we provide a method to compute a bound for these
+parameters, given the input time-series, to ensure the ESP. The theory
+has only been detailed for one dimensional inputs, but the 15 extension
+of this approach to multidimensional inputs is not diﬃcult (see [21]).
+Extending this method to other types of dynamics should be feasible as
+long as the computation of F and Φ can be numerically done or
+conveniently reformulated. Finally, the mean-ﬁeld approach only deals
+with the limit of very large networks n →∞, whereas in practice the aim
+might be to perform a given task with the smallest possible reservoir to
+avoid over-ﬁtting issues. Therefore, a further investigation of the
+ﬁnite-size eﬀects around the mean- ﬁeld limit would be of interest. For
+instance, a related question has been studied in [37], where it is shown
+that networks with a variance parameter σ < 1 have a probability to be
+unstable which is maximal for a speciﬁc size of the reservoir.
+References References [1] H. Jaeger, Short term memory in echo state
+networks, GMD- Forschungszentrum Informationstechnik, 2001. [2] H.
+Jaeger, H. Haas, Harnessing nonlinearity: Predicting chaotic systems and
+saving energy in wireless communication, Science 304 (5667) (2004)
+78–80. [3] M. Lukosevicius, H. Jaeger, Survey: Reservoir computing
+approaches to recurrent neural network training, Computer Science Review
+3 (3) (2009) 127–149. [4] D. V. Buonomano, M. M. Merzenich, Temporal
+information transformed into a spatial code by a neural network with
+realistic properties, Science (1995) 1028–1028. [5] M. Galtier, C.
+Marini, G. Wainrib, H. Jaeger, Relative entropy minimiz- ing noisy
+non-linear neural network to approximate stochastic processes.,
+Submitted. Preprint: arXiv:1402.1613. [6] M. Galtier, G. Wainrib, A
+biological gradient descent for prediction through a combination of stdp
+and homeostatic plasticity, Neural com- putation 25 (11) (2013)
+2815–2832. [7] J. Dambre, D. Verstraeten, B. Schrauwen, S. Massar,
+Information pro- cessing capacity of dynamical systems, Scientiﬁc
+reports 2. 16 [8] D. N. Cheban, Global attractors of non-autonomous diss
+ipative dynam- ical systems,(Interdiscipl inary mathematical sciences,
+Vol. 1), World Scientiﬁc, River Edge, NJ, 2004. [9] B. Zhang, D. J.
+Miller, Y. Wang, Nonlinear system modeling with random matrices: echo
+state networks revisited, Neural Networks and Learning Systems, IEEE
+Transactions on 23 (1) (2012) 175–182. [10] T. Tao, V. Vu, M.
+Krishnapur, Random matrices: Universality of esds and the circular law,
+The Annals of Probability 38 (5) (2010) 2023–2065. [11] V. A. Marcenko,
+L. A. Pastur, Distribution of eigenvalues for some sets of random
+matrices, Sbornik: Mathematics 1 (4) (1967) 457–483. [12] S. Geman, A
+limit theorem for the norm of random matrices, The Annals of Probability
+8 (2) (1980) 252–261. [13] Z. Bai, J. W. Silverstein, Spectral analysis
+of large dimensional random matrices, Springer, 2010. [14] M.
+Lukosevisius, A practical guide to applying echo state networks, in:
+Neural Networks: Tricks of the Trade, Springer, 2012, pp. 659–686. [15]
+W. Lohmiller, J.-J. E. Slotine, On contraction analysis for non-linear
+systems, Automatica 34 (6) (1998) 683–696. [16] M. Buehner, P. Young, A
+tighter bound for the echo state property, Neural Networks, IEEE
+Transactions on 17 (3) (2006) 820–824. [17] M. Ledoux, The concentration
+of measure phenomenon, Vol. 89, AMS Bookstore, 2005. [18] H.
+Sompolinsky, A. Crisanti, H. Sommers, Chaos in random neural net- works,
+Physical Review Letters 61 (3) (1988) 259–262. [19] G. Manjunath, H.
+Jaeger, Echo state property linked to an input: Ex- ploring a
+fundamental characteristic of recurrent neural networks, Neu- ral
+computation 25 (3) (2013) 671–696. [20] K. Rajan, L. Abbott, H.
+Sompolinsky, Stimulus-dependent suppression of chaos in recurrent neural
+networks, Physical Review E 82 (1) (2010) 011903. 17 [21] M. Massar, S.
+Massar, Mean-ﬁeld theory of echo state networks, Physical Review E 87
+(4) (2013) 042809. [22] H. Sompolinsky, A. Zippelius, Dynamic theory of
+the spin-glass phase, Physical Review Letters 47 (5) (1981) 359. [23] H.
+Sompolinsky, A. Zippelius, Relaxational dynamics of the edwards-
+anderson model and the mean-ﬁeld theory of spin-glasses, Physical Re-
+view B 25 (11) (1982) 6860. [24] B. Cessac, B. Doyon, M. Quoy, M.
+Samuelides, Mean-ﬁeld equations, bifurcation map and route to chaos in
+discrete time neural networks, Physica D: Nonlinear Phenomena 74 (1)
+(1994) 24–44. [25] L. Molgedey, J. Schuchhardt, H. G. Schuster,
+Suppressing chaos in neu- ral networks by noise, Phys. Rev. Lett. 69
+(1992) 3717–3719. doi: 10.1103/PhysRevLett.69.3717. URL
+http://link.aps.org/doi/10.1103/PhysRevLett.69.3717 [26] O. Faugeras, J.
+Touboul, B. Cessac, A constructive mean-ﬁeld analysis of
+multi-population neural networks with random synaptic weights and
+stochastic inputs, Frontiers in computational neuroscience 3. [27] G. B.
+Arous, A. Guionnet, Large deviations for langevin spin glass dy- namics,
+Probability Theory and Related Fields 102 (4) (1995) 455–509. [28] O.
+Moynot, M. Samuelides, Large deviations and mean-ﬁeld theory for
+asymmetric random recurrent neural networks, Probability Theory and
+Related Fields 123 (1) (2002) 41–75. [29] T. Cabana, J. Touboul, Large
+deviations, dynamics and phase transi- tions in large stochastic
+heterogeneous neural networks, arXiv preprint arXiv:1302.6951. [30] C.
+M. Bishop, Training with noise is equivalent to tikhonov regulariza-
+tion, Neural computation 7 (1) (1995) 108–116. [31] H. Jaeger, M.
+Lukosevicius, D. Popovici, U. Siewert, Optimization and applications of
+echo state networks with leaky-integrator neurons, Neu- ral Networks 20
+(3) (2007) 335–352. 18 [32] C. K. Williams, Computation with inﬁnite
+neural networks, Neural Computation 10 (5) (1998) 1203–1216. [33] M.
+Hermans, B. Schrauwen, Recurrent kernel machines: Computing with inﬁnite
+echo state networks, Neural Computation 24 (1) (2012) 104–133. [34] T.
+Toyoizumi, L. Abbott, Beyond the edge of chaos: Ampliﬁcation and
+temporal integration by recurrent networks in the chaotic regime, Phys-
+ical Review E 84 (5) (2011) 051908. [35] M. Mackey, L. Glass, Science
+197 (287). [36] N. Bertschinger, T. Natschl¨ ager, Real-time computation
+at the edge of chaos in recurrent neural networks, Neural computation 16
+(7) (2004) 1413–1436. [37] G. Wainrib, L. C. G. del Molino, Optimal
+system size for complex dy- namics in random neural networks near
+criticality, Chaos: An Inter- disciplinary Journal of Nonlinear Science
+23 (4) (2013) –. doi:http: //dx.doi.org/10.1063/1.4841396. 19 10 12 14
+16 18 20 22 1.4 1.42 1.44 1.46 1.48 1.5 1.52 1.54 1.56 delay
+Mackey−Glass bMG m* (when RT = 1) RT>1 RT < 1 0 0.2 0.4 0.6 0.8 1 1.2
+1.4 1.6 1.8 2 10 −6 10 −5 10 −4 10 −3 10 −2 10 −1 Variance m Mean Square
+Error (log−scale) : testing set
+
+bMG = 10 bMG = 12 bMG = 14 bMG = 16 bMG = 18 bMG = 20 bMG = 22 Figure 3:
+Analysis of ESN performance as a function of the delay δMG in the
+Mackey- Glass prediction task. Left: Using Algorithm 1, we were able to
+compute the value σ∗ of the weights variance for which ΛT becomes larger
+than 1, corresponding to the edge of chaos. The value of σ∗depends on
+the delay parameter δMG: it appears that increasing δMG leads to a
+smaller value of σ∗. Right: Mean-square error (testing set) as a
+function of the variance σ for the Mackey-Glass prediction task, for
+diﬀerent values of the delay δMG. This ﬁgure conﬁrms the prediction made
+in the Left panel : as indicated by the black arrow, for higher values
+of δMG, the value of σ where the performance starts to become poorer
+appears earlier. For the simulations the parameters of the MG system
+were a = 0.2, b = 0.1 with a time-step δt = 1 and the ESN parameters
+were n = 100, α = l = τ = 1, m = 1, for time-series of length T = 2000.
+20
