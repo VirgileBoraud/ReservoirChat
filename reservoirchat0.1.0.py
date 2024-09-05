@@ -134,7 +134,7 @@ def app():
                     print(history)
                     print('---------------------------------------------------')
             message = run_local_search('ragtest',
-                                          'ragtest/output/everything3/artifacts',
+                                          'ragtest/output/basic/artifacts',
                                           'ragtest',
                                           0,
                                           'This is a response',
@@ -241,6 +241,7 @@ def app():
                         pn.Column(
                             pn.pane.HTML("""
                             <div style="display: flex; justify-content: center; align-items: center;">
+                                <h2 style='color:#31ABC7; font-size:32px;margin-right:10px;'>Basic</h2>
                                 <h2 style='font-size:32px;'>Reservoir</h2>
                                 <h2 style='color:#31ABC7; font-size:32px;'>Chat</h2>
                             </div>
@@ -576,6 +577,6 @@ os.environ["TIKTOKEN_CACHE_DIR"] = tiktoken_cache_dir
 assert os.path.exists(os.path.join(tiktoken_cache_dir,"9b5ad71b2ce5302211f9c61530b329a4922fc6a4"))
 
 # Serving the app in a bokeh server
-pn.serve(app, title="ReservoirChat", port=8080) # For local
+# pn.serve(app, title="ReservoirChat", port=8080) # For local
 # pn.serve(app, title="ReservoirChat", port=8080, address='localhost', allow_websocket_origin=['localhost:8080']) # For tests
-# pn.serve(app, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"]) # For web
+pn.serve(app, title="ReservoirChat", port=8080, websocket_origin=["chat.reservoirpy.inria.fr"]) # For web
