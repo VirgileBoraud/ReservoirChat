@@ -292,6 +292,12 @@ def app():
                         avatar="png/logo.png",
                         respond=False
                         )'''
+                
+                chat.send("ReservoirChat is currently being fine-tuned with additional data, so the service may be unusually slow. Please come back later if it's too slow.",
+                        user="Work In Progress",
+                        avatar="png/constructionconeclean.png",
+                        respond=False
+                        )
             
             # The Function that is executed when clicking on the New_Conversation Button
             def new_conversation(event):
