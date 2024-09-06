@@ -71,8 +71,8 @@ def ask(questions_file, output_file, model_url, model_name, api_key, temperature
     print(f"Responses have been written to {output_file}")
 
 # Example usage
-input_files = ['./old_doc/md/questions.md', './old_doc/md/questions_specified.md']
-temperatures = [0.0, 0.2, 0.5, 0.7, 1.0]
+input_files = ['./old_doc/md/questions_specified.md']
+temperatures = [0.0,0.2,0.5,0.7]
 model_url = 'http://localhost:1234/v1/chat/completions'  # Ensure this is the correct endpoint
 model_name = 'lmstudio-community_Meta-Llama-3-8B-Instruct-GGUF'
 api_key = 'lm-studio'  # Replace with your actual API key
