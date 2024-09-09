@@ -79,7 +79,7 @@ def ask(questions_file, output_file, temperature):
 
 # Example usage
 input_files = ['./old_doc/md/questions.md', './old_doc/md/questions_specified.md']
-temperatures = [1.0]
+temperatures = [0.5]
 
 for questions_file in input_files:
     for temp in temperatures:
