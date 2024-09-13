@@ -22,7 +22,7 @@ from graphrag.query.structured_search.local_search.system_prompt import (
 
 DEFAULT_LLM_PARAMS = {
     "max_tokens": 1500,
-    "temperature": 0.7,
+    "temperature": 0.1,
 }
 
 log = logging.getLogger(__name__)
