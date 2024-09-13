@@ -84,6 +84,6 @@ class LLaMag:
 # Example usage
 api_key = "lm-studio"
 llamag = LLaMag(api_key='lm-studio')
-file_list = llamag.file_list('doc/md')
-llamag.load_documents_from_files(file_list)
+file_list = llamag.file_list('old_doc/md')
+# llamag.load_documents_from_files(file_list)
 llamag.chat()

@@ -152,7 +152,7 @@ class LLaMag:
 
 llamag = LLaMag(base_url="http://localhost:1234/v1", api_key="lm-studio", top_n=5)
 #print(llamag.html('doc/Q&A_format.md'))
-directory_path = 'doc/md'
+directory_path = 'old_doc/md'
 file_list = llamag.file_list(directory_path)
 llamag.load_data(file_list)
 llamag.interface()
