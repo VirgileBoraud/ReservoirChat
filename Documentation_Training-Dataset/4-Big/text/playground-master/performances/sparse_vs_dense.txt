@@ -1,0 +1,593 @@
+# Sparse vs dense matrices
+
+
+
+On évalue ici les différences de performance entre des matrices sparse et des matrices denses, notamment en fonction du nombre d'units et de la sparsité dans le réservoir.
+
+
+
+On s'intéresse à l'initialisation et au run d'un réservoir.
+
+```python
+import time
+
+from tqdm import tqdm
+
+import matplotlib.pyplot as plt
+
+import pandas as pd
+
+
+
+import numpy as np
+
+import reservoirpy as rpy 
+
+from reservoirpy.nodes import Reservoir
+
+from reservoirpy import mat_gen
+
+
+
+rpy.verbosity(0)
+```
+
+```python
+# Config
+
+print(
+
+    "ReservoirPy: ", rpy.__version__, '\n'
+
+    "NumPy:", np.__version__,
+
+)
+
+
+
+np.show_config()
+```
+
+## Fonctions
+
+```python
+rpy_sparsity_types = ["csr", "csc", "dense"]
+
+all_sparsity_types=  ["csc", "csr", "bsr", "lil", "dok", "coo", "dia"]
+```
+
+```python
+def time_initialization(units, connectivity, sparsity_type, **kwargs):
+
+    t0 = time.time()
+
+    mat = mat_gen.normal(
+
+        units, units, 
+
+        connectivity=connectivity, 
+
+        sparsity_type=sparsity_type,
+
+        **kwargs
+
+    )
+
+    return time.time() - t0
+
+
+
+def time_run(units, connectivity, sparsity_type, timesteps, **kwargs):
+
+    W = mat_gen.normal(
+
+        units, units, 
+
+        connectivity=connectivity, 
+
+        sparsity_type=sparsity_type,
+
+        **kwargs
+
+    )
+
+    Win = mat_gen.normal(
+
+        units, 1,
+
+        connectivity=connectivity,
+
+        sparsity_type=sparsity_type,
+
+        **kwargs
+
+    )
+
+    X = np.random.uniform(size=(timesteps, 1))
+
+    reservoir = Reservoir(W=W, Win=Win)
+
+    reservoir.initialize(X)
+
+
+
+    t0 = time.time()
+
+    reservoir.run(X)
+
+    return time.time() - t0
+
+```
+
+## En fonction du `sparsity_type`
+
+
+
+On fixe:
+
+- units = 1000
+
+- connectivity = 0.1
+
+- timesteps = 1000
+
+```python
+UNITS = 1000
+
+CONNECTIVITY = 0.1
+
+TIMESTEPS = 1000
+```
+
+```python
+time_run_type = pd.DataFrame(index=[0])
+
+
+
+for i, sparse_type in enumerate(rpy_sparsity_types):
+
+    time_run_type[sparse_type] = time_run(
+
+        units=UNITS,
+
+        connectivity=CONNECTIVITY,
+
+        timesteps=TIMESTEPS,
+
+        sparsity_type=sparse_type,
+
+    )
+
+    print(sparse_type, time_run_type[sparse_type])
+
+```
+
+```python
+time_run_type
+```
+
+## En fonction du nombre de neurones
+
+```python
+TRIALS = 20
+
+Ns = np.logspace(1, 4, TRIALS).astype(int)
+
+
+
+time_run_units = np.zeros((TRIALS, len(rpy_sparsity_types)))
+
+
+
+for i, N in enumerate(Ns):
+
+    for j, sparse_type in enumerate(rpy_sparsity_types):
+
+        time_run_units[i, j] = time_run(
+
+            units=N,
+
+            connectivity=CONNECTIVITY,
+
+            timesteps=TIMESTEPS,
+
+            sparsity_type=sparse_type,
+
+        )
+
+        print(sparse_type, N, time_run_units[i,j])
+```
+
+```python
+Ns = np.logspace(1, 4, 20).astype(int)
+
+
+
+plt.figure()
+
+
+
+for i, s_type in enumerate(rpy_sparsity_types):
+
+    plt.plot(Ns, time_run_units[:, i], label=s_type)
+
+
+
+plt.legend()
+
+plt.grid()
+
+plt.xscale("log")
+
+plt.yscale("log")
+
+plt.xlabel("N (log)")
+
+plt.ylabel("temps (s) (log)")
+
+plt.show()
+```
+
+## En fonction de la connectivité
+
+```python
+TRIALS = 20
+
+UNITS = 5_000
+
+TIMESTEPS = 100
+
+Cs = np.linspace(0, 1, TRIALS)
+
+
+
+time_run_connectivity = np.zeros((TRIALS, 2))
+
+
+
+for i, C in enumerate(Cs):
+
+    for j, sparse_type in enumerate(["csc", "csr"]):
+
+        time_run_connectivity[i, j] = time_run(
+
+            units=UNITS,
+
+            connectivity=C,
+
+            timesteps=TIMESTEPS,
+
+            sparsity_type=sparse_type,
+
+        )
+
+        print(sparse_type, C, time_run_connectivity[i,j])
+```
+
+```python
+time_dense = time_run(
+
+    units=UNITS,
+
+    connectivity=1.,
+
+    timesteps=TIMESTEPS,
+
+    sparsity_type="dense",
+
+)
+```
+
+```python
+plt.figure()
+
+
+
+# for i, s_type in enumerate(["csc", "csr"]):
+
+#     plt.plot(Cs, time_run_connectivity[:, i], label=s_type)
+
+
+
+plt.plot(Cs, time_run_connectivity[:, 1], label="csr")
+
+plt.plot(Cs, time_run_connectivity[:, 0], label="csc")
+
+
+
+plt.axhline(time_dense, color="gold", label="dense")
+
+plt.legend()
+
+plt.xlabel("connectivité")
+
+plt.ylabel("temps (s)")
+
+plt.grid()
+
+plt.title(f"{100} timesteps; {5_000} units")
+
+plt.show()
+```
+
+```python
+Cs
+```
+
+```python
+TRIALS = 20
+
+UNITS = 10_000
+
+TIMESTEPS = 100
+
+Cs = np.linspace(0, 1, TRIALS)
+
+
+
+time_run_connectivity2 = np.zeros((TRIALS, 2))
+
+
+
+for i, C in enumerate(Cs):
+
+    for j, sparse_type in enumerate(["csc", "csr"]):
+
+        time_run_connectivity2[i, j] = time_run(
+
+            units=UNITS,
+
+            connectivity=C,
+
+            timesteps=TIMESTEPS,
+
+            sparsity_type=sparse_type,
+
+        )
+
+        print(sparse_type, C, time_run_connectivity2[i,j])
+```
+
+```python
+time_dense_ = time_run(
+
+    units=UNITS,
+
+    connectivity=1.,
+
+    timesteps=TIMESTEPS,
+
+    sparsity_type="dense",
+
+)
+```
+
+```python
+plt.figure()
+
+
+
+# for i, s_type in enumerate(["csc", "csr"]):
+
+#     plt.plot(Cs, time_run_connectivity2[:, i], label=s_type)
+
+
+
+
+
+plt.plot(Cs, time_run_connectivity2[:, 1], label="csr")
+
+plt.plot(Cs, time_run_connectivity2[:, 0], label="csc")
+
+
+
+plt.axhline(time_dense_, color="gold", label="dense")
+
+plt.grid()
+
+plt.legend()
+
+plt.xlabel("connectivité")
+
+plt.ylabel("temps (s)")
+
+plt.title(f"{100} timesteps; {10_000} units")
+
+plt.show()
+```
+
+```python
+TRIALS = 20
+
+UNITS = 500
+
+TIMESTEPS = 1000
+
+Cs = np.linspace(0, 1, TRIALS)
+
+
+
+time_run_connectivity3 = np.zeros((TRIALS, 2))
+
+
+
+for i, C in enumerate(Cs):
+
+    for j, sparse_type in enumerate(["csc", "csr"]):
+
+        time_run_connectivity3[i, j] = time_run(
+
+            units=UNITS,
+
+            connectivity=C,
+
+            timesteps=TIMESTEPS,
+
+            sparsity_type=sparse_type,
+
+        )
+
+        print(sparse_type, C, time_run_connectivity3[i,j])
+
+
+
+time_dense3 = time_run(
+
+    units=UNITS,
+
+    connectivity=1.,
+
+    timesteps=TIMESTEPS,
+
+    sparsity_type="dense",
+
+)
+```
+
+```python
+plt.figure()
+
+
+
+# for i, s_type in enumerate(["csc", "csr"]):
+
+#     plt.plot(Cs, time_run_connectivity3[:, i], label=s_type)
+
+
+
+plt.plot(Cs, time_run_connectivity3[:, 1], label="csr")
+
+plt.plot(Cs, time_run_connectivity3[:, 0], label="csc")
+
+
+
+plt.axhline(time_dense3, color="gold", label="dense")
+
+plt.legend()
+
+plt.grid()
+
+plt.xlabel("connectivité")
+
+plt.ylabel("temps (s)")
+
+plt.title(f"{1000} timesteps; {500} units")
+
+plt.show()
+```
+
+### Connectivité à temps équivalent
+
+
+
+On s'intéresse à la sparsité `csc` qui semble systématiquement plus performante que la `csr`.
+
+
+
+L'idée est de trouver la connectivité d'une matrice sparse à partir de laquelle il est plus intéressant de choisir une matrice dense.
+
+
+
+Pour ça, on fait une recherche par dichotomie.
+
+```python
+np.median([time_run(100, connectivity=1., sparsity_type="dense", timesteps=500,) for _ in range(10)])
+```
+
+```python
+def dichotomy(units, timesteps=500):
+
+    dense_instances = [time_run(units, connectivity=1., sparsity_type="dense", timesteps=timesteps) for _ in range(20)]
+
+    print(units, timesteps, np.median(dense_instances), np.var(dense_instances))
+
+    dense_time = np.median(dense_instances)
+
+
+
+    # csc_dense_time = time_run(units, connectivity=.99, sparsity_type="csc", timesteps=timesteps)
+
+    # if csc_dense_time > dense_time:
+
+    #     print(units, 1., csc_dense_time, dense_time)
+
+    #     return 1.
+
+    
+
+    min_ = 0.
+
+    max_ = 1.
+
+    current_time = np.Infinity
+
+    iters = 0
+
+
+
+    while np.abs(dense_time - current_time) > dense_time/50: # 10% de précision
+
+        connectivity = 0.5 * max_ + 0.5 * min_ # 
+
+        current_time = time_run(units, connectivity=connectivity, sparsity_type="csc", timesteps=timesteps)
+
+
+
+        if current_time > dense_time:
+
+            max_ = connectivity
+
+        else:
+
+            min_ = connectivity
+
+        iters += 1
+
+    
+
+    print(units, connectivity, current_time)
+
+    return connectivity
+
+
+
+```
+
+```python
+# variabilité du temps avec matrice dense
+
+[time_run(1000, connectivity=.01, sparsity_type="dense", timesteps=500) for _ in range(10)]
+```
+
+```python
+Ns = np.logspace(2.5, 4.5, 10).astype(int)
+
+
+
+connectivity = [dichotomy(N, timesteps=int(1e6/N)) for N in Ns]
+```
+
+```python
+plt.figure()
+
+
+
+plt.plot(Ns, connectivity, '.-')
+
+plt.xscale("log")
+
+plt.xlabel("N")
+
+plt.ylabel("Connectivité où t(dense)=t(sparse)")
+
+plt.xticks(Ns, Ns)
+
+plt.grid()
+
+plt.ylim(0, 1)
+
+
+
+plt.show()
+```
+
