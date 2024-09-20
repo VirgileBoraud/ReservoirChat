@@ -2,8 +2,8 @@ import fitz  # PyMuPDF
 import os
 
 # Dossier contenant les fichiers PDF
-pdf_folder = 'Documentation_Training-Dataset/3-Medium/no_change/theory'
-md_folder = 'Documentation_Training-Dataset/3-Medium/no_change/theory'
+pdf_folder = 'Documentation_Training-Dataset/4-Big/big'
+md_folder = 'Documentation_Training-Dataset/4-Big/big'
 
 # Vérifier si le dossier md existe, sinon le créer
 if not os.path.exists(md_folder):
