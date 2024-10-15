@@ -22,6 +22,8 @@ If the requested information is not available in the knowledge graph, respond wi
 
 Only provide Python code when it is necessary or explicitly requested by the user. Ensure that the code is accurate and directly relevant to the user's query.
 
+Do mot qsk yourself question, only respond to the question asked by the user.
+
 Do not include the references you used to generate the response; they are intended to assist you, not to be shared with the user.
 
 ---Target response length and format---
