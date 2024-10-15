@@ -134,7 +134,7 @@ def app():
                     print(history)
                     print('---------------------------------------------------')
             message = run_local_search('ragtest',
-                                          'ragtest/output/big/artifacts',
+                                          'ragtest/output/basic/artifacts',
                                           'ragtest',
                                           0,
                                           'This is a response',
@@ -241,7 +241,7 @@ def app():
                         pn.Column(
                             pn.pane.HTML("""
                             <div style="display: flex; justify-content: center; align-items: center;">
-                                <h2 style='color:#31ABC7; font-size:32px;margin-right:10px;'>Big</h2>
+                                <h2 style='color:#31ABC7; font-size:32px;margin-right:10px;'>Basic</h2>
                                 <h2 style='font-size:32px;'>Reservoir</h2>
                                 <h2 style='color:#31ABC7; font-size:32px;'>Chat</h2>
                             </div>
