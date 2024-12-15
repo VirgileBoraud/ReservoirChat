@@ -5,3 +5,5 @@ ReservoirChat is a specialized AI model **powered by a Large Language Model (LLM
 Unlike traditional LLMs, ReservoirChat integrates retrieval mechanisms and code, related to reservoir computing and the python library [reservoirPy](https://reservoirpy.readthedocs.io/en/latest/). This means it can deliver precise and reliable responses based on external data sources while leveraging large language model's capabilities.
 
 It is important to note that the AI model is **powered by a LLM**, not a reservoir computing neuron network.
+
+The original GraphRAG implementation has been modified to include a streaming functionality based on the method introduced by 6ixGODD : https://github.com/microsoft/graphrag/pull/882
